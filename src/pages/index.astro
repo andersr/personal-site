@@ -1,9 +1,17 @@
 ---
+import { Image } from "astro:assets";
+import arPhoto from "../assets/images/ar-photo-web.jpg";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout>
   <div class="p-4">
     <h1 class="font-semibold text-2xl">anders.co personal site</h1>
+    <Image
+      src={arPhoto}
+      alt="Anders Ramsay"
+      width={225}
+      class={"rounded-full"}
+    />
   </div>
 </Layout>
