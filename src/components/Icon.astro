@@ -1,0 +1,20 @@
+---
+import { Icon as AstroIcon } from "astro-icon/components";
+
+/**
+ * Uses Material Symbols Light icon set. See https://fonts.google.com/icons
+ */
+interface Props {
+  name: string;
+}
+
+const { name } = Astro.props;
+---
+
+<AstroIcon name={`material-symbols-light:${name}`} size={50} />
+
+<style lang="css">
+  [data-icon] {
+    color: #ccc;
+  }
+</style>
