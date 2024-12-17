@@ -3,6 +3,8 @@ import mdx from "@astrojs/mdx";
 import tailwind from "@astrojs/tailwind";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypeSlug from "rehype-slug";
 import emoji from "remark-emoji";
 import { loadEnv } from "vite";
 
@@ -25,4 +27,7 @@ export default defineConfig({
       remarkPlugins: [[emoji, { emoticon: true, accessible: true }]],
     }),
   ],
+  markdown: {
+    rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
+  },
 });
