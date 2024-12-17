@@ -17,7 +17,9 @@ const { title = SITE_TITLE, description } = Astro.props;
   </head>
   <body>
     <div class="p-4">NAV: <a href="/">HOME</a></div>
-    <slot />
+    <main class="prose">
+      <slot />
+    </main>
   </body>
 </html>
 
