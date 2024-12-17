@@ -1,0 +1,284 @@
+---
+title: "How to save anonymous content to a database"
+description: "For my new notes app, I wanted to allow anonymous users to create notes locally, and then be able to save it to a database on login.  In this blog post, I walk through how I implemented this."
+pubDate: 'Jul 08 2022'
+heroImage: '/images/blog/how-to-save-anon-content-to-a-db/featured.jpg
+, A blank note pad'
+# repo: https://github.com/andersr/save-local-to-db-example
+# heroImageCredit: [https://unsplash.com/@dtravisphd, David Travis]
+# status: published
+---
+
+I recently released a new version of one of my side projects, where part of the vision is to enable just starting to type notes without the ceremony of creating a new document, etc.
+
+In that spirit, I made it possible for anonymous users to create notes that are saved locally, making it a kind of ad-hoc scratch pad. However, I also wanted to provide the option to save those local notes to the cloud on login.
+
+I did quite a bit of googling around for a solution that would support this but did not find any patterns I liked. One reason might be that this is a somewhat non-standard user flow. In a conventional model, you sign in first, and then create a note.
+
+Since others might be interested in supporting saving anonymous content to a database, I decided to write a blog post about how I implemented this feature. 
+
+## Solution overview
+For this solution, I decided to use a combination of localStorage and query params to manage the process of saving anonymous content to a database. (At the end, I'll talk a bit about some other option I considered.)
+
+You can find a fully working solution in [this repo](https://github.com/andersr/save-local-to-db-example).
+
+Here is an overview of the solution, which I'll walk through in detail below:
+
+1. **Persist changes locally:** While a user is anonymous, their note content is persisted via local storage. Nothing unusual there.
+2. **Use a param to trigger saving to the database:** When a user clicks login or signup, we check to see if any local content has been entered, and if so append a query param with the "save anon content" route where we'll handle saving to the database.  We reuse the same query param we'd use if a user tried to access a restricted page.
+3. **After login, redirect to the "save anon content" page:** After login completes, our redirect param will send the user to the "save anon content" page.
+4. **Save local content to the database:** On the "save anon content" page, we retrieve the local content, save it to the database, which generates an id, which we then use to redirect the user to the newly created note page.
+4. **Redirect to our new note and delete the local content:** Finally, after redirecting to the new note page, we also include a param that will enable deleting the localStorage content, since it is now safely in the database.
+
+## Prerequisites and Setup 
+I implemented this version of the app using the [Remix](https://remix.run/) framework with Node, and I'll therefore also use the same stack for this walk-through.  I'm also assuming you already have basic knowledge of React with TypeScript.
+
+I'll be using the [Remix Indie Stack](https://github.com/remix-run/indie-stack) as a starting point since it already includes both authentication as well as notes CRUD functionality. If you're following along writing code, you'll want to first create a new app using the Remix Indie Stack, as follows: `npx create-remix@latest --template remix-run/indie-stack`. 
+
+Let's get started!
+
+##  1. Persist changes locally
+This part is mostly basic functionality for persisting changes locally, with an added simple check for if content has been entered, and a function for appending a query param to the login link.  Open up `app/routes/_index.tsx` and make the following updates:
+
+```tsx
+// app/routes/_index.tsx
+...
+export default function Index() {
+...
+  // hook for persisting changes locally
+  const [value, setValue] = useLocalStorage(
+    ANON_USER_LOCAL_STORAGE_CONTENT,
+    "",
+  );
+
+  // simple check for if content has been entered
+  const noteHasContent = (value as string).trim() !== "";
+
+  // display current save status
+  function displaySaveStatus() {
+    if (noteHasContent) {
+      return (
+        <span>
+          Saved locally.{" "}
+          <Link to={`/login${setParam()}`} className="text-gray-400 underline">
+            Save to my notes
+          </Link>
+          .
+        </span>
+      );
+    }
+    return "";
+  }
+
+  // set the param if content has been entered
+  function setParam() {
+    return noteHasContent
+      ? `?${REDIRECT_TO_PARAM}=${encodeURIComponent(SAVE_ANON_ROUTE)}`
+      : "";
+  }
+
+  // replace the current view with the following
+  return (
+    <div className="flex h-full min-h-screen flex-col">
+      <header className="flex items-center justify-between bg-slate-800 p-4 text-white">
+        <h1 className="text-3xl font-bold">Anon Note To Db Example</h1>
+        {user ? (
+          <div>
+            <Link to="/notes" className="">
+              View Notes for {user.email}
+            </Link>
+          </div>
+        ) : (
+          <div className="">
+            <Link
+              to={`/join${setParam()}`}
+              className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600 mr-4"
+            >
+              Sign up
+            </Link>
+            <Link
+              to={`/login${setParam()}`}
+              className="rounded bg-slate-600 px-4 py-2 text-blue-100 hover:bg-blue-500 active:bg-blue-600"
+            >
+              Log In
+            </Link>
+          </div>
+        )}
+      </header>
+      <main className="p-8">
+        <div className="w-[400px] mx-auto">
+          <textarea
+            className="w-full rounded-md border-2 border-blue-500 px-3 py-2 text-lg leading-6"
+            value={value}
+            rows={8}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder="Write something..."
+          />
+          <div className="py-2 text-sm text-slate-500">
+            {displaySaveStatus()}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+```
+
+With the above update, a redirect param will be passed when clicking signup or login, which we'll make use of in the next step.
+
+##  2. Use a param to trigger saving to the database
+Now, when the user clicks on login or signup, if they've typed in any content, a param will be appended to the URL. Note the use of `REDIRECT_TO_PARAM` and `SAVE_ANON_ROUTE`.  I prefer to store anything passes as a param as a constant since it will be used in at least two places (the originating link and the handler on the target page), so we want to ensure they match.
+
+Also, note the use of [encodeURIComponent](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent), which ensures passed values are properly formatted for appearing in a URL.
+
+## 3. After login, redirect to the "save anon content" page
+On the login page, we shouldn't need to make any updates, since we're re-using the existing [`redirectTo` functionality](https://github.com/andersr/save-local-to-db-example/blob/d60553d276ed52ffc24b35b0432602de49863804/app/routes/login.tsx#L20). After login, the app should redirect to the route we passed in (`SAVE_ANON_ROUTE`). Note that the actual route can be whatever you want. In my case it's `/save-anon-note`.
+
+### Why a separate page?
+Let's talk a bit about why we have a separate view just for saving local content to a database.  One fair question is why we can't just complete this task right on the login page after the user signs in? However, that would not be a good idea, since, once the user is authenticated, they need to be redirected _away_ from the login page, as that page should only be accessible to anonymous users.
+
+Ok, so why not just handle everything on the server after the user is signed in?  Unfortunately, that will not work, because localStorage is, by definition, [only accessible on the client](https://developer.school/snippets/react/localstorage-is-not-defined-nextjs).  We therefore need an intermediate page that we fully load so that we can retrieve the local content on the client and then save it to the database on the server.
+
+### 4. Save local content to the database
+Thanks to the param we passed on the homepage, we are redirected to the "save anon" page. This view contains the core part of the solution.
+
+Go ahead and create a new page at `app/routes/save-anon-note.tsx` and add the code below.
+
+```tsx
+// app/routes/save-anon-note.tsx
+import type { ActionArgs, LoaderFunction } from "@remix-run/node";
+import { json, redirect } from "@remix-run/node";
+import { useNavigate, useSubmit } from "@remix-run/react";
+import { useEffect } from "react";
+import { LiaSpinnerSolid } from "react-icons/lia";
+import { createNote } from "~/models/note.server";
+import { getUserId, requireUserId } from "~/session.server";
+import {
+  ANON_USER_LOCAL_STORAGE_CONTENT,
+  LOCAL_NOTE_SAVED_PARAM,
+} from "~/shared";
+
+// redirect users who are not signed away from this page
+export const loader: LoaderFunction = async ({ request }) => {
+  const userId = await getUserId(request);
+  if (!userId) return redirect("/");
+  return json({});
+};
+
+// handle the programmatic form submit
+export const action = async ({ request }: ActionArgs) => {
+  const userId = await requireUserId(request);
+
+  const formData = await request.formData();
+  const title = formData.get("title");
+  const body = formData.get("body")?.toString() || "";
+
+  if (typeof title !== "string" || title.length === 0) {
+    throw redirect("/", 400);
+  }
+
+  const note = await createNote({ body, title, userId });
+
+  return redirect(`/notes/${note.id}?${LOCAL_NOTE_SAVED_PARAM}=true`);
+};
+
+export default function SaveAnonNote() {
+  const navigate = useNavigate();
+  const submit = useSubmit();
+
+  useEffect(() => {
+    // after the page has mounted, look for content in local storage
+    const localContent = window.localStorage.getItem(
+      ANON_USER_LOCAL_STORAGE_CONTENT,
+    );
+
+    if (localContent) {
+      handleAnonNote(localContent);
+    } else {
+      console.warn("no local content found");
+      navigate("/");
+    }
+
+    function handleAnonNote(localContent: string) {
+      try {
+        const noteContent = JSON.parse(localContent);
+        if (noteContent.trim() === "") {
+          throw new Error("No note content");
+        }
+
+        const lines = noteContent.split("\n");
+        const title = lines[0];
+        const body = lines.length > 0 ? lines.slice(1).join(" ") : "";
+
+        let formData = new FormData();
+        formData.append("title", title);
+        formData.append("body", body);
+
+        submit(formData, { method: "post" });
+      } catch (error) {
+        console.warn("anon note error: ", error);
+        navigate("/");
+      }
+    }
+
+  }, [navigate, submit]);
+
+  // on the page itself, we're just displaying a spinner while this brief process completes
+  return (
+    <div className="flex h-full flex-col items-center justify-center">
+      <LiaSpinnerSolid
+        size={"30px"}
+        title="Loading"
+        className="text-primary animate-spin text-6xl"
+      />
+    </div>
+  );
+}
+```
+
+There's quite a bit going on here, so let's break it down step-by-step:
+- On the server side (in the `loader` method), we confirm the user is authenticated and redirect away if they are not.
+- We use the `useEffect` method to determine that the page has mounted and that we are able to read from localStorage.
+- If no local content is found, we redirect to the homepage, canceling the process.
+- If local content is found, we do some basic validation and then parse out the content title vs body. (This part is not really specific to saving anonymous content to a database.) Then, we use Remix's [useSubmit](https://remix.run/docs/en/1.19.3/hooks/use-submit) hook to programmatically submit our note values to the server, after which point we handle the process very similarly to as if a user had created a new note.
+- See the `action` method for how we handle the form submit, create the note and redirect to the newly created note. Note also that we are passing in a `LOCAL_NOTE_SAVED_PARAM` which we'll use to remove the local content after the redirect.
+- Finally, on the page itelf, we just display a spinner while we complete the above process.
+
+### 5.Redirect to our new note and delete the local content
+If all goes well, we redirect to the new note and pass our `LOCAL_NOTE_SAVED_PARAM` param.
+On the note detail view, we check for this param and use it to safely clear local storage, knowing that it has been saved to the database. And with that we are done :tada:.
+
+```tsx
+// Only relevant snippets included
+// See app/routes/notes.$noteId.tsx for the complete code
+...
+import {
+  ANON_USER_LOCAL_STORAGE_CONTENT,
+  LOCAL_NOTE_SAVED_PARAM,
+} from "~/shared";
+...
+export default function NoteDetailsPage() {
+  ...
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const localNoteSaved = searchParams.get(LOCAL_NOTE_SAVED_PARAM);
+
+  useEffect(() => {
+    // if the param is found, remove the local content and redirect to the current page, and remove the url that had the param from this history stack with replace set to true.
+    if (localNoteSaved) {
+      window.localStorage.removeItem(ANON_USER_LOCAL_STORAGE_CONTENT);
+      navigate(location.pathname, { replace: true });
+    }
+  }, [localNoteSaved, location.pathname, navigate]);
+...
+```
+
+## Final Thoughts
+I considered a few other solutions before going wih the one described above.
+
+For example, I considered creating a guest session for every anonymous user.  This would have the advantage of allowing for just storing everything in the database.  However, it also comes with some security implications and also felt a bit more complex.  I also considered using a JWT stored as cookie as a temporary note id.
+
+But in the end, I felt the above solution, while containing many small steps, was the simplest and fastest to implement.  Additionally, there are fewer security concerns, since I do not write to the database until the user has been authenticated.  And last but not least, I am using query params to manage the flow, which is a tried and true pattern.
+
+This is not a very complex solution, but it does involve a series of small steps, which means there is quite a bit of surface area for failure. For this reason, it's a great candidate for one or more E2E tests, something I might write about in another post.
+
