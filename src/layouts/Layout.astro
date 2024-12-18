@@ -16,10 +16,12 @@ const { title = SITE_TITLE, description } = Astro.props;
     <BaseHead title={title} description={description} />
   </head>
   <body>
-    <div class="p-4">NAV: <a href="/">HOME</a></div>
-    <a href="/about">About</a></body
-  >
-  <main class="prose">
+    <div class="p-4">
+      <a href="/">anders.co</a>
+      <a href="/blog">Blog</a>
+      <a href="/about">About</a>
+    </div>
+  </body><main class="prose">
     <slot />
   </main>
 </html>
