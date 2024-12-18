@@ -1,13 +1,15 @@
-import globals from "globals";
+// @ts-check
+
 /** @type {import('eslint').Linter.Config[]} */
-import js from "@eslint/js";
+import eslint from "@eslint/js";
 import eslintPluginAstro from "eslint-plugin-astro";
+import globals from "globals";
 import tseslint from "typescript-eslint";
 
-export default [
+export default tseslint.config(
+  eslint.configs.recommended,
+  tseslint.configs.recommended,
+  eslintPluginAstro.configs.recommended,
   { ignores: [".astro/*", "tmp/*"] },
   { languageOptions: { globals: globals.node } },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  ...eslintPluginAstro.configs.recommended,
-];
+);
