@@ -1,0 +1,65 @@
+name: ✅ App checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+env:
+  NODE_VERSION: 22
+  BASE_URL: http://localhost:3000
+
+jobs:
+  lint:
+    name: 🧹 Linting
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: 📥 Install deps
+        run: pnpm install
+
+      - name: 🧹 Lint
+        run: pnpm run lint
+  typecheck:
+    name: ʦ Type Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: 📥 Install deps
+        run: pnpm install
+
+      # See https://github.com/withastro/astro/issues/5711#issuecomment-1401835629
+      - name: 🌟 Astro sync
+        run: pnpm astro sync
+
+      - name: 🔎 Type check
+        run: pnpm run typecheck
