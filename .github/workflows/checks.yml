@@ -6,6 +6,7 @@ on:
     branches: [main]
 env:
   NODE_VERSION: 22
+
 jobs:
   lint:
     name: 🧹 Linting
@@ -32,3 +33,28 @@ jobs:
 
       - name: 🧹 Lint
         run: pnpm run lint
+  typecheck:
+    name: ʦ Type Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+
+      - name: 📥 Install deps
+        run: pnpm install
+
+      - name: 🔎 Type check
+        run: pnpm run typecheck
