@@ -6,7 +6,8 @@
     "dev": "astro dev --port 3000",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "prepare": "husky"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.0.2",
@@ -22,6 +23,7 @@
     "@iconify-json/material-symbols-light": "^1.2.11",
     "@iconify-json/mdi": "^1.2.2",
     "@tailwindcss/typography": "^0.5.15",
+    "husky": "^9.1.7",
     "prettier": "^3.4.2",
     "prettier-plugin-astro": "^0.14.1",
     "remark-emoji": "^5.0.1",
