@@ -8,18 +8,18 @@ import rehypeSlug from "rehype-slug";
 import emoji from "remark-emoji";
 import { loadEnv } from "vite";
 
-const { APP_DOMAIN } = loadEnv(
+const { BASE_URL } = loadEnv(
   process.env.NODE_ENV ?? "development",
   process.cwd(),
   "",
 );
 
-if (!APP_DOMAIN) {
-  throw new Error("APP_DOMAIN is required");
+if (!BASE_URL) {
+  throw new Error("BASE_URL is required");
 }
 // https://astro.build/config
 export default defineConfig({
-  site: APP_DOMAIN,
+  site: BASE_URL,
   integrations: [
     tailwind(),
     icon(),

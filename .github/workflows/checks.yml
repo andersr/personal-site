@@ -6,6 +6,7 @@ on:
     branches: [main]
 env:
   NODE_VERSION: 22
+  BASE_URL: http://localhost:3000
 
 jobs:
   lint:
