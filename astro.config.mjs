@@ -30,4 +30,16 @@ export default defineConfig({
   markdown: {
     rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
   },
+  image: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
+      {
+        protocol: "https",
+        hostname: "anders.co",
+      },
+    ],
+  },
 });

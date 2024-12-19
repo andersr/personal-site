@@ -1,0 +1,15 @@
+---
+interface Props {
+  href: string;
+  src: string;
+}
+
+const { href, src } = Astro.props;
+---
+
+<div class="md:size-[400px]">
+  <iframe src={src} class="size-full"></iframe>
+  <p class="m-0">
+    <a class="text-slate-400 text-sm" href={href}> via GIPHY </a>
+  </p>
+</div>
