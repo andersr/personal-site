@@ -1,9 +1,9 @@
 // import { useWindowSize, WindowProps } from "~/hooks";
 
-import {
-  useWindowSize,
-  type WindowProps,
-} from "~/lib/useWindowSize/useWindowSize";
+// import {
+//   useWindowSize,
+//   type WindowProps,
+// } from "~/lib/useWindowSize/useWindowSize";
 
 interface Props {
   src: string;
@@ -11,27 +11,26 @@ interface Props {
 }
 
 export function GiphyEmbed({ src, href }: Props) {
-  const DEFAULT_SIZE: WindowProps = { width: 480, height: 480 };
+  // const DEFAULT_SIZE: WindowProps = { width: 480, height: 480 };
 
-  const currentWindowSize = useWindowSize();
+  // const currentWindowSize = useWindowSize();
 
-  const imgSize: WindowProps =
-    typeof window !== "undefined"
-      ? {
-          width:
-            currentWindowSize.width < DEFAULT_SIZE.width
-              ? currentWindowSize.width
-              : DEFAULT_SIZE.width,
-          height: DEFAULT_SIZE.height,
-        }
-      : DEFAULT_SIZE;
+  // const imgSize: WindowProps =
+  //   typeof window !== "undefined"
+  //     ? {
+  //         width:
+  //           currentWindowSize.width < DEFAULT_SIZE.width
+  //             ? currentWindowSize.width
+  //             : DEFAULT_SIZE.width,
+  //         height: DEFAULT_SIZE.height,
+  //       }
+  //     : DEFAULT_SIZE;
   return (
     <div className="max-w-full md:max-w-md mx-auto">
       <iframe
         src={src}
-        width={imgSize.width.toString()}
-        height={imgSize.height.toString()}
-        frameBorder="0"
+        width={480}
+        height={480}
         className="giphy-embed"
       ></iframe>
       <p className="m-0">

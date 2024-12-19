@@ -22,9 +22,14 @@ if (!BASE_URL) {
 // https://astro.build/config
 export default defineConfig({
   site: BASE_URL,
-  integrations: [tailwind(), icon(), mdx({
-    remarkPlugins: [[emoji, { accessible: true }]],
-  }), react()],
+  integrations: [
+    tailwind(),
+    icon(),
+    react(),
+    mdx({
+      remarkPlugins: [[emoji, { accessible: true }]],
+    }),
+  ],
   markdown: {
     rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
   },
