@@ -1,0 +1,178 @@
+---
+title: How to set up a local E2E test development environment
+description: Ensure E2E tests get written by running both your dev environment and your E2E test runner with a single command. Also, learn about writing resilient tests using test ids.
+pubDate: 06-30-2022
+seriesName: E2E Testing
+seriesSlug: e2e-testing-series
+repo: https://github.com/andersr/e2e-testing-tutorial
+status: published
+toc: true
+heroImage: [/e2e-testing/code.jpg, code snipppet]
+---
+
+_This post is part of the [E2E Testing Series](/blog/e2e-testing-series). If you haven't already, I suggest going back and reading previous posts before continuing._
+
+<CalloutBox>
+
+## Just give me the code...
+
+Here is the "tl;dr" version of the article below, with just the commands to run and the code you'll need to add. If anything isn't clear, I suggest reading the full post.
+
+1. Install the sample app:
+   ```sh
+   npx create-next-app e2e-testing --ts --use-npm
+   ```
+1. Create a `src` directory and move the `pages` and `styles` directories into it.
+1. Install these packages:
+   ```sh
+   npm i -D cypress cypress-watch-and-reload start-server-and-test
+   ```
+1. Rename the `dev` script in your `package.json` to `dev:next`.
+1. Add these scripts to your `package.json`:
+   ```sh
+   "cy:e2e": "cypress open --e2e --browser chrome --config baseUrl=http://localhost:3000",
+   "dev": "start-test dev:next 3000 cy:e2e"
+   ```
+1. Run `npm run dev` to initialize Cypress.
+
+1. Update/add these files (click on the file link to view the code):
+   - [`cypress.config.ts`](https://github.com/andersr/e2e-testing-tutorial/blob/main/cypress.config.ts)
+   - [`cypress/support/e2e.js`](https://github.com/andersr/e2e-testing-tutorial/blob/main/cypress/support/e2e.ts)
+   - [`cypress/tsconfig.json`](https://github.com/andersr/e2e-testing-tutorial/blob/main/cypress/tsconfig.json)
+   - [`tsconfig.json`](https://github.com/andersr/e2e-testing-tutorial/blob/main/tsconfig.json)
+1. Run the `dev` script to enable E2E test development with hot reloading of test and source files.
+
+</CalloutBox>
+
+## Introduction: Keeping E2E tests front and center
+
+One of most common anti-patterns I see relating to E2E testing is that, while a test suite has been set up and some tests have been written, it is almost never run locally and new tests are only rarely added for new features. This obviously is not a good thing, since we effectively are wasting all the effort that went into setting up the test suite.
+
+But why would we let such a valuable resource go to waste?
+
+One simple answer is that it is out of sight, out of mind. In other words, while the command to run the E2E test locally does exist, it's something you have to remember to do, and it's kind of a hassle, since you usually have to first fire up the dev environment, and then start the E2E runner in a second terminal.
+
+One way to address this problem is to automate running of the E2E test suite whenever you start up your development environment. As we'll see, this can have a significant positive impact on your E2E practice.
+
+## Add a single command for starting both dev environment and test runner
+
+To help ensure E2E tests get written, we want to make it is easy to have both our app running and the test runner in a hot-reloading state. In other words, as we write tests, we want to be able to get quick feedback on if tests are passing or not.
+
+When we are done with the steps below, you'll be able to just run `npm run dev` to both start you dev environment and also start up your E2E test runner in dev mode, meaning that it will rerun tests automatically if changes are made either to the tests or your code. As an added bonus, it will reduce the amount of terminal windows you have open in your IDE.
+
+## Setting up our sample app
+
+We'll be using [NextJS](https://nextjs.org/) as the basis for our sample app. One reason for this is that our newsletter feature will require an API endpoint, and NextJS makes it super easy to add that.
+
+To get started, go ahead and run the following to install the sample app:
+
+```bash
+npx create-next-app e2e-testing --ts --use-npm
+```
+
+You can replace `e2e-testing` with any app name you prefer. Both the `--ts` and `--use-npm` are optional. NPM is just my personal preference, and I am a strong proponent of using TypeScript.
+
+## Install the E2E test runner and utility packages
+
+For this tutorial, we're going to use [Cypress](https://www.cypress.io/), which in my opinion currently is the best end-to-end testing solution. (My one gripe with Cypress is the [lack of support](https://github.com/cypress-io/cypress/issues/6423) for testing of older browsers, which are the ones often causing regressions.)
+
+Let's install all the packages we'll need, as development dependencies:
+
+```bash
+npm i -D cypress cypress-watch-and-reload start-server-and-test
+```
+
+### Add the dev scripts
+
+Next, let's update the `scripts` section of our `package.json` as follows:
+
+First, rename the `dev` script to `dev:next`. Then, add the following scripts:
+
+```bash
+"scripts": {
+    ...
+    "cy:e2e": "cypress open --e2e --browser chrome --config baseUrl=http://localhost:3000",
+    "dev": "start-test dev:next 3000 cy:e2e"
+    ...
+}
+```
+
+## Configuring Cypress
+
+We need to configure Cypress to use TypeScript and also to hot reload when our source files change.
+
+### Add Typescript support
+
+Cypress has built-in [Typescript support](https://docs.cypress.io/guides/tooling/typescript-support). To enable it, and allow for writing TS-based tests, we need to add a `tsconfig.json` to the root of the `cypress` folder.
+
+Add the following code to `cypress/tsconfig.json` and you should now be able to create test files using Typescript.
+
+```json
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "types": ["cypress"]
+  },
+  "include": ["**/*.ts"]
+}
+```
+
+Also, update the main `tsconfig.json` in the root directory to exclude the cypress directory, so we do not compile test files as part of compiling the main source code.
+
+```json
+{
+  ...
+  "exclude": ["node_modules", "cypress"]
+}
+
+```
+
+### Get Cypress to hot reload if your source files change
+
+By default, the Cypress runner will only re-run if you modify test files. However, we really also want it to restart when we make changes to our code. To achieve this, we need to make the following updates:
+
+First, update `cypress.config.ts` as follows:
+
+```tsx
+import Cypress, { defineConfig } from "cypress";
+
+interface Config extends Cypress.UserConfigOptions<any> {
+  "cypress-watch-and-reload": {
+    watch: string | string[];
+  };
+}
+
+const config: Partial<Config> = {
+  "cypress-watch-and-reload": {
+    watch: ["src/**/*"],
+  },
+  e2e: {
+    setupNodeEvents(on, config) {
+      return require("cypress-watch-and-reload/plugins")(on, config);
+    },
+  },
+};
+
+export default defineConfig(config);
+```
+
+Next, add the following to the end of the file `cypress/support/e2e.ts`.
+
+```bash
+require("cypress-watch-and-reload/support");
+```
+
+Your local environment and `dev` command should now be set up.
+
+Go ahead and run `npm run dev` and you should see the dev server first start up, then the test runner will start. The first time you run Cypress, you may be asked to click through their startup wizard.
+
+Btw, a huge shout-out to [Gleb Bahmutov](https://glebbahmutov.com/) who is the author of both the utility packages we are using here! :clap: :clap: :clap:
+
+## Next Up: A Suggested Process for writing E2E tests
+
+Since we haven't written any tests, Cypress will prompt you to add some.
+
+![Newsletter signup form](/images/blog/e2e-testing/cypress-runner-no-specs.jpg)
+
+In the [next part in the series](/blog/e2e-series-a-process-for-writing-tests), we'll be focusing on exactly that.

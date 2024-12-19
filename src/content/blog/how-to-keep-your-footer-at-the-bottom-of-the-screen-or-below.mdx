@@ -1,0 +1,68 @@
+---
+title: How to Keep Your Footer at the Bottom of the Screen (or Below)
+description: Prevent the annoying "floating" footers in the middle of your screen.
+pubDate: 09-01-2022
+status: published
+---
+
+One of my pet peeves when it comes to front-end development is seeing a footer floating in the middle of the page. This usually happens because whoever built the page just placed the footer structurally below the main content and then I guess assumed there would be enough content to push the footer to the bottom of the page. Or maybe some other reason. Either way, the end result is that pages with very little content, or when viewed in a tall viewport, look kind of wonky.
+
+Here are a couple (anonymized) examples:
+
+![Example of page with a footer in the middle of the screen.](/images/blog/floating-footer-example-2.jpg)
+
+![Example of page with a footer in the middle of the screen.](/images/blog/floating-footer-example.jpg)
+
+These are just from the last few days. I see these all the time, and sometimes on fairly major sites. :cry:
+
+If either of the above (or countless others I see regularly) were a website I was working on, especially if I were the front-end dev who built this page, I'd be pretty embarassed.
+
+{/* <GiphyEmbed
+  src="https://giphy.com/embed/apowQdwqKcKPK"
+  href="https://giphy.com/gifs/embarrassed-dog-apowQdwqKcKPK"
+/> */}
+
+Yes, it's a small thing. But it's a small thing sort of like forgetting to zip your fly is a small thing. :flushed: It's not a good look and kind of hard to ignore once you notice it.
+
+But the good news is it's easy to fix.
+
+This is probably one of the simplest ways to keep your footer at the bottom of your viewport or below it:
+
+```html
+<html>
+  <head>
+    <style>
+      html {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      main {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <main>PAGE CONTENT</main>
+    <footer>
+      This will be at the bottom of the page, even if there is little or no page
+      content. If there is a lot of content, it will be pushed below the page
+      fold.
+    </footer>
+  </body>
+</html>
+```
+
+This will work nicely on most browsers, and if viewed on a very old browser (eg IE 10), it will just "gracefully degrade" to the old floating footer.
+
+[Here is the above markup in a sample page](/examples/full-height-footer-at-bottom-no-content.html).
+
+[Here is a version with lots of content](/examples/full-height-footer-below-viewport-with-content.html). As you see, the page becomes scrollable with the footer now disappearing below the fold, as expected.
+
+If this blog post results in just one less ugly floating footer, I will consider it a success :-)

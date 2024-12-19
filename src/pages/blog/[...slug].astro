@@ -1,7 +1,7 @@
 ---
 import { type CollectionEntry, getCollection, render } from "astro:content";
+import CalloutBox from "~/components/CalloutBox.astro";
 import Layout from "~/layouts/Layout.astro";
-
 export async function getStaticPaths() {
   const posts: CollectionEntry<"blog">[] = await getCollection("blog");
 
@@ -41,6 +41,6 @@ const { title, heroImage, description, toc } = post.data;
       )
     }
     <h1 class="title">{title}</h1>
-    <Content />
+    <Content components={{ CalloutBox }} />
   </article>
 </Layout>

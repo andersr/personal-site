@@ -24,7 +24,7 @@ export default defineConfig({
     tailwind(),
     icon(),
     mdx({
-      remarkPlugins: [[emoji, { emoticon: true, accessible: true }]],
+      remarkPlugins: [[emoji, { accessible: true }]],
     }),
   ],
   markdown: {
