@@ -8,8 +8,6 @@ import rehypeSlug from "rehype-slug";
 import emoji from "remark-emoji";
 import { loadEnv } from "vite";
 
-import react from "@astrojs/react";
-
 const { BASE_URL } = loadEnv(
   process.env.NODE_ENV ?? "development",
   process.cwd(),
@@ -25,7 +23,6 @@ export default defineConfig({
   integrations: [
     tailwind(),
     icon(),
-    react(),
     mdx({
       remarkPlugins: [[emoji, { accessible: true }]],
     }),

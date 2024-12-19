@@ -2,7 +2,6 @@
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
 import Giphy from "~/components/Giphy.astro";
-// import { GiphyEmbed } from "~/components/GiphyEmbed";
 import Layout from "~/layouts/Layout.astro";
 export async function getStaticPaths() {
   const posts: CollectionEntry<"blog">[] = await getCollection("blog");
