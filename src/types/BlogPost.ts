@@ -7,7 +7,7 @@ export const blogSchema = z.object({
   toc: z.boolean().optional(),
   pubDate: z.coerce.date(),
   updatedDate: z.coerce.date().optional(),
-  heroImage: z.string().optional(),
+  heroImage: z.tuple([z.string().startsWith("/"), z.string()]).optional(),
 });
 
 export type BlogPost = CollectionEntry<"blog">;

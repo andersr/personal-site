@@ -1,0 +1,102 @@
+---
+title: Some of My Favorite Shell Commands
+description: A few custom commands I use almost daily
+pubDate: 09-04-2022
+status: published
+---
+
+If you create a new directory in your terminal, what is your likely next step? Probably cd'ing into the directory.
+
+In other words, you're first doing `mkdir somedir` followed by `cd somedir`.
+
+If I find myself typing something like this on a regular basis, I'll create a custom command for it.
+
+## Create a Directory and `cd` Into It In One Command
+
+Here is the very simple function `mkcd` I created.
+
+```bash
+function mkcd
+  mkdir -p $argv ; cd $argv
+end
+```
+
+Now all you need to do is type `mkcd` and you've combined the two steps into one.
+
+The above is written for the [fish shell](https://fishshell.com/). Adding custom commands in Fish is ridiculously trivial. Here is [a great article](https://medium.com/@yowats0n/creating-a-global-function-in-fish-shell-238b571dc6df) describing the process.
+
+If you use a bash shell, your script will look something like this:
+
+```bash
+function mkcd() {
+  mkdir -p $1 ; cd $1
+}
+```
+
+And here you can learn about [adding custom commands in bash](https://shanelonergan.github.io/streamline-your-workflow-with-custom-bash-commands/).
+
+Here are a few more custom commands I use quite a bit. They're written for Fish, but should be easy to rewrite for bash.
+
+## New Git Branch
+
+Checking out a new branch with the `-b` modifier in order to create a new branch is not intuitive and a lot to type. I decided I prefer `gnew` instead.
+
+```bash
+function gnew
+  git checkout -b $argv
+end
+```
+
+## Delete git branches
+
+Now that we've added branches, we want an easy way to delete them.
+
+```bash
+function gbd
+  git branch -d $argv
+end
+```
+
+Now you can just type `gbd first-branch other_branch  FOObranch` and git will attempt to delete them all. I use the lowercase `-d` so Git will tell me if the branch is not fully merged.
+
+## NPM Uninstall
+
+Much faster than typing `npm uninstall`.
+
+```bash
+function nu
+  npm uninstall $argv
+end
+```
+
+## Just `g` for git
+
+Since Git is something I use all day, I created what basically is an alias for `git`.
+
+```bash
+function g
+  git $argv
+end
+```
+
+Now I can just type `g push` or whatever. I've done the same for other very common commands I type, eg `y` for `yarn` and so forth.
+
+## Git First Push
+
+I like to be able to just type `g push` when I am in a branch, to push new code. However, for that to work I need to tell Git that I want to push to the remote branch matching the name of the branch I am in. Here is a script for doing that.
+
+```bash
+function gfpush
+  git push --set-upstream origin (git status | head -1 | string split ' ')[-1]  $argv
+end
+```
+
+Basically, I use this command the first time I push code in a new branch, and after that I can just type `g push`.
+
+Those are a few of my favorites.
+
+## My one tip for creating custom commands
+
+As a closing thought, if you are considering writing your own custom commands, don't do what I did initially, which was to combine way too many things into one command. :cry:
+
+Not surprisingly, the custom commands I use the most are the ones that are simple and do one, or maybe two, things.

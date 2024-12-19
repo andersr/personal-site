@@ -1,0 +1,86 @@
+---
+title: E2E Testing Series
+description: A series of posts on how to configure and write valuable E2E tests.
+pubDate: 06-30-2022
+status: published
+featuredImage:
+  ["/e2e-testing/testing-series-intro-image.jpg", "Example of E2E tests"]
+---
+
+## Introduction
+
+This is a series of posts I've written about the process and benefits of writing and using End to End Tests (E2E). We'll walk through how to set up your system to write them, how to use the tests you've created to stay focused, and last but not least, how to use E2E tests to prevent [code regression](https://www.google.com/search?q=code+regression).
+
+I've broken the series into the following parts:
+
+1. **Series intro and prerequisites (current post).**
+2. [Setting up your local environment for writing E2E tests](/blog/e2e-series-setting-up-your-local-environment).
+3. [A suggested process for writing tests](/blog/e2e-series-a-process-for-writing-tests).
+4. [Ensuring your test suite runs every time you push code](/blog/e2e-series-ensure-tests-run-on-every-push).
+
+In this post, I'll offer a general intro to E2E testing and assumed prerequisites. I hope you find it useful. Please feel free to post feedback in the comments.
+
+## What are E2E tests and why should you care?
+
+One good way to understand E2E testing is to look at what can happen without it.
+
+### A project without E2E testing
+
+You're working on a project that doesn't have any formal E2E testing in place.
+
+Let's say you're adding a newsletter signup form to your web app.
+
+![Newsletter signup form](/images/blog/e2e-testing/newsletter-form-styled.jpg)
+
+To keep your code [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself), you re-use existing input and form submit components to implement your form. You test the form locally and everything is working great. You also click around your web app and everything else seems to be working great as well.
+
+However, after deploying your code, you start getting notices that users no longer can reset their passwords. :scream: :scream: :scream:
+
+But wait, you were working on newsletter signup, how could that possibly break password reset?
+
+Actually, as it turns out, the password reset form uses some of the same components that you used when implementing newsletter signup.
+
+![Password reset form](/images/blog/e2e-testing/password-reset-form.jpg)
+
+When you made some tweaks to those components (maybe you decided to rename a prop) while adding the newsletter feature, you unintentionally broke the reset feature. Worse, since that feature is out of sight, out of mind, you didn't think to test it before shipping newsletter signup.
+
+This is an example of what we call a [code regression](https://en.wikipedia.org/wiki/Software_regression), where something that previously worked unexpectedly stops working, and it is one of the main reasons we write E2E tests.
+
+### E2E testing to the rescue
+
+If you'd had an E2E testing system in place, such as the one we'll be creating, and you had good feature coverage in your tests, after modifying the components being used in password reset, you'd have received a test failure notification, and then be able to quickly address the problem, preventing a reset password failure in production.
+
+As apps get more complex and more feature-rich, and as we get better at re-using code across our apps, the risk of regression increases, so writing these types of tests and ensuring we run them regularly becomes increasingly important.
+
+In this series, we're going to walk through the process of setting yourself up for success by enabling quickly and effectively writing these types of tests, running them locally against your development environment to get quick feedback on possible issues, and then automatically running the full suite of tests every time you push code, to prevent merging in code that will lead to regressions.
+
+We'll also discuss how integrating E2E tests into your development process can you help you write better code overall and help ensure that you remain focused on your goals.
+
+In my opinion, E2E tests are the most valuable test type, because they simulate actual end users and are focused on outcomes rather than implementation details. However, while valuable, these types of tests can also be costly, in that setting up your system to run them and writing the tests themselves can be complex and time-consuming. And as your test suite grows in size, they can take a long time to run.
+
+But here's the thing: if done right, you can overcome these challenges, and get the best of both worlds. Achieving that is one of the top goals of this series.
+
+<CalloutBox>
+## A quick note about terminology
+I am using the term "E2E" or End to End Testing a bit loosely here. Some might call the types of tests we are writing a functional test, or you may have a different name.  There are countless names and nuances for different types of tests, such as smoke test, integration test, regression test, and more, many of them overlapping.
+
+It's easy to get caught up in the terminology and lose sight of the actual goals, such as writing higher quality code and preventing stuff from breaking. I prefer just using E2E as an umbrella term for any type of test that simulates a user using the app and which treats the app itself as a black box, just as a real user would. (I.e. they don't know and don't care about the inner workings of the app.)
+
+</CalloutBox>
+
+## Prerequisites
+
+- I am assuming you already have some experience with JavaScript generally and specifically with React and Node.
+- I'm also assuming you already have the latest stable version of Node and npm installed on your machine.
+- I'll be writing the sample code mostly in Typescript so I am assuming you are familiar with that as well.
+- Finally, I am assuming you have some experience using git, as we'll be using that in the last part of the series, to create branches, pull requests, and more.
+
+However, to be clear, many of the principles we discuss will be agnostic to whatever language or tool you're using.
+
+## Code Repo
+
+You can find all the source code we'll be walking through below [in this repo](https://github.com/andersr/e2e-testing-tutorial). I recommend writing your own code rather than just copying from the repo, but you might find it to be a good reference in case you get stuck.
+
+## Next up: Setting up your local testing environment
+
+To get started, we'll install a sample app and set up our development environment for testing. [Continue to the next post in the series](/blog/e2e-series-setting-up-your-local-environment).

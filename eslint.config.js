@@ -9,6 +9,6 @@ export default tseslint.config(
   eslint.configs.recommended,
   tseslint.configs.recommended,
   eslintPluginAstro.configs.recommended,
-  { ignores: [".astro/*", "tmp/*"] },
+  { ignores: [".astro/*", "tmp/*", "dist/*"] },
   { languageOptions: { globals: globals.node } },
 );
