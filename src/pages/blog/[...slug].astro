@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import { Image, Picture } from "astro:assets";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
 import Giphy from "~/components/Giphy.astro";
@@ -43,6 +43,6 @@ const { title, heroImage, description, toc } = post.data;
       )
     }
     <h1 class="title">{title}</h1>
-    <Content components={{ CalloutBox, Giphy, Image }} />
+    <Content components={{ CalloutBox, Giphy, Image, Picture }} />
   </article>
 </Layout>
