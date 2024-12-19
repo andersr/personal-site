@@ -2,19 +2,18 @@
 import { Icon as AstroIcon } from "astro-icon/components";
 
 /**
- * Uses Material Symbols Light icon set. See https://fonts.google.com/icons
+ *  Icon sets and names: https://icon-sets.iconify.design/
  */
 interface Props {
   name: string;
+  twColor?: string;
 }
 
-const { name } = Astro.props;
+const { name, twColor } = Astro.props;
 ---
 
-<AstroIcon name={`material-symbols-light:${name}`} size={50} />
-
-<style lang="css">
-  [data-icon] {
-    color: #ccc;
-  }
-</style>
+<AstroIcon
+  name={`material-symbols-light:${name}`}
+  size={50}
+  class={twColor ?? "text-slate-400"}
+/>
