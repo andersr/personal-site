@@ -2,31 +2,32 @@
 title: E2e Series - A Process for Writing Tests
 description: For my new notes app, I wanted to allow anonymous users to create notes locally, and then be able to save it to a database on login.  In this blog post, I walk through how I implemented this.
 pubDate: 09-02-2023
-heroImage: '/images/blog/how-to-save-anon-content-to-a-db/featured.jpg'
+heroImage: [/e2e-testing/runner-all-tests-passing.jpg
+, Cypress test runner with all tests passing]
 toc: true
 ---
 
-_This post is part of the [E2E Testing Series](/blog/e2e-testing-series).  If you haven't already, I suggest reading previous posts before continuing._ 
+_This post is part of the [E2E Testing Series](/blog/e2e-testing-series). If you haven't already, I suggest reading previous posts before continuing._
 
 ## Process Overview
 
-We're going to walk through a sample process for how to write E2E tests and touch on some best practices along the way.  Here's an overview of the general process I tend to follow:
+We're going to walk through a sample process for how to write E2E tests and touch on some best practices along the way. Here's an overview of the general process I tend to follow:
 
 1. Create a test file and add pending tests for all the feature requirements.
 2. Write the minimum code needed to get each test to pass.
 3. With the test runner in watch mode, go back and refactor and clean up code as needed.
 
-If you're familiar with [Test-Driven Development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD), the above might look familiar.  I've found that writing E2E tests is a great opportunity to put TDD into practice.
+If you're familiar with [Test-Driven Development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD), the above might look familiar. I've found that writing E2E tests is a great opportunity to put TDD into practice.
 
 As our sample feature, we'll be walking through writing the tests for the Newsletter signup form I discussed in the series intro.
- ![newsletter form](/images/blog/e2e-testing/newsletter-signup-form.jpg)
+![newsletter form](/images/blog/e2e-testing/newsletter-signup-form.jpg)
 I picked it because it's a small but still complete feature, so a great basis for conveying the E2E test-writing process.
 
 To get started, we'll create our main test file.
 
-
 ## Create the test file and add pending tests
-If possible, I suggest collecting all tests for each feature in the same test file, and then match the name of file to the test title.  Let's do that now.
+
+If possible, I suggest collecting all tests for each feature in the same test file, and then match the name of file to the test title. Let's do that now.
 
 (I'm assuming you've already [set up your local environment](/blog/e2e-series-setting-up-your-local-environment).)
 
@@ -39,12 +40,14 @@ Add the following code to this file:
 ```tsx
 // cypress/e2e/newsletterSignup.cy.ts
 
-describe("Newsletter signup", () => {  // ** 1 **
-  beforeEach(() => {  // ** 2 **
+describe("Newsletter signup", () => {
+  // ** 1 **
+  beforeEach(() => {
+    // ** 2 **
     cy.visit("/newsletter");
   });
-   
-  it("displays a message explaining the form's purpose");  // ** 3 **
+
+  it("displays a message explaining the form's purpose"); // ** 3 **
 
   it("allows for completing a newsletter signup");
 
@@ -59,12 +62,15 @@ describe("Newsletter signup", () => {  // ** 1 **
   it("persists the email input value if there is an error");
 });
 ```
+
 ### Code notes
-1. This is the `describe` block, which is the method used to group test specs.  I recommend matching the name of this block (_e.g._ here the name is "Newsletter signup") to the name of the test file and, if possible, also to what this feature is named elsewhere, eg in a User Story. This is a convention I like to follow to encourage only having one set of feature tests per file and also to create less confusion when trying to locate a test.  The value of this will become more apparent when you start to have large numbers of tests.
-2. The `beforeEach` block will run before every test in the describe block.  This is a great place to tell the test runner where it should navigate to.  Also, when applicable it can be a good place to place the app in desired state, eg using a login command. 
-3. This is our list of [pending tests](https://glebbahmutov.com/blog/cypress-test-statuses/#pending-tests). The test descriptions for these tests should together make up the requirements for this feature.  If you are working off a User Story, the list of tests should match your [acceptance criteria](https://en.wikipedia.org/wiki/User_story#Acceptance_criteria). 
+
+1. This is the `describe` block, which is the method used to group test specs. I recommend matching the name of this block (_e.g._ here the name is "Newsletter signup") to the name of the test file and, if possible, also to what this feature is named elsewhere, eg in a User Story. This is a convention I like to follow to encourage only having one set of feature tests per file and also to create less confusion when trying to locate a test. The value of this will become more apparent when you start to have large numbers of tests.
+2. The `beforeEach` block will run before every test in the describe block. This is a great place to tell the test runner where it should navigate to. Also, when applicable it can be a good place to place the app in desired state, eg using a login command.
+3. This is our list of [pending tests](https://glebbahmutov.com/blog/cypress-test-statuses/#pending-tests). The test descriptions for these tests should together make up the requirements for this feature. If you are working off a User Story, the list of tests should match your [acceptance criteria](https://en.wikipedia.org/wiki/User_story#Acceptance_criteria).
 
 ## Using your E2E tests as your "live" todo list
+
 At this point, your Cypress console should look something like this:
 
 ![E2E Testing console with test added](/images/blog/e2e-testing/e2e-testing-console-with-test-added.jpg)
@@ -77,8 +83,9 @@ With the test runner now in watch mode, as you update your tests and source code
 
 I personally find it to be a great approach to have this type of "live" todo list, helping me remain assured that I am fully aligned and building what actually is being requested, and having a clear sense of my progress.
 
-## Adding our first test 
-We're going to start by getting the first pending test to pass, which also happens to be fairly basic. 
+## Adding our first test
+
+We're going to start by getting the first pending test to pass, which also happens to be fairly basic.
 
 In `cypress/e2e/newsletterSignup.cy.ts`, go ahead and replace the first pending test with the following code:
 
@@ -91,21 +98,23 @@ it("displays a message explaining the form's purpose", () => {
 Cypress tests allow for [chaining of methods](https://www.w3schools.com/jquery/jquery_chaining.asp), which means they often are one-liners like the one above.
 
 The test divides into two parts:
+
 - The [`cy.get`](https://docs.cypress.io/api/commands/get) part, which is where we select the element we want to test.
-- The [`.contains`](https://docs.cypress.io/api/commands/contains) part which is one of many types of assertions.  In this case, we are asserting that we will find a specific text block in the previously selected element.
+- The [`.contains`](https://docs.cypress.io/api/commands/contains) part which is one of many types of assertions. In this case, we are asserting that we will find a specific text block in the previously selected element.
 
 (At the risk of causing some confusion, `.get` is also an assertion that an element exists, and `.contains` can also be used to select an element, for use in other assertions.)
 
-You might have noticed the use of `'[data-test="newsletter"]'` to identify our newsletter DOM element, which might look a bit odd.  We'll talk about that in more detail in a bit, but first let's get the above test to pass.
+You might have noticed the use of `'[data-test="newsletter"]'` to identify our newsletter DOM element, which might look a bit odd. We'll talk about that in more detail in a bit, but first let's get the above test to pass.
 
 ## Getting our first test to pass
+
 If we look at our test runner, we see that the test we added above is failing.
 
 ![E2E Testing console with first failing test](/images/blog/e2e-testing/first-failing-test.jpg)
 
-This is expected, since we haven't yet added the code to make it pass.  Let's do that now.
+This is expected, since we haven't yet added the code to make it pass. Let's do that now.
 
-Add a new file at `src/pages/newsletter.tsx`.  Since we are placing a file in the special `pages` directory, NextJS will create the new corresponding route `/newsletter`.
+Add a new file at `src/pages/newsletter.tsx`. Since we are placing a file in the special `pages` directory, NextJS will create the new corresponding route `/newsletter`.
 
 Add the following code to the new file:
 
@@ -124,24 +133,25 @@ const Newsletter: NextPage = () => {
 export default Newsletter;
 ```
 
-If you now go back to the test runner, you should see that there is a green checkmark next to your first test, which means it's passing! :tada: 
+If you now go back to the test runner, you should see that there is a green checkmark next to your first test, which means it's passing! :tada:
 
 ![First passing test!](/images/blog/e2e-testing/first-passing-test.jpg)
 
-## Making tests more resilient with Test IDs 
-Note the `data-test="newsletter"` attribute added to the `form` tag above. 
+## Making tests more resilient with Test IDs
 
-```tsx 
-<form data-test="newsletter"> 
+Note the `data-test="newsletter"` attribute added to the `form` tag above.
+
+```tsx
+<form data-test="newsletter">
 ```
 
 `"newsletter"` is our "test id" and what we use to select this element in our test with the selector `[data-test="newsletter"]`.
 
-```tsx 
+```tsx
 cy.get('[data-test="newsletter"]')...
 ```
 
-This is a fairly common pattern in E2E testing, where we make use of a [custom data attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*) to identify the element(s) we want to test.  Note that you can put whatever you want after the `data-` part, but I prefer using `test`.
+This is a fairly common pattern in E2E testing, where we make use of a [custom data attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*) to identify the element(s) we want to test. Note that you can put whatever you want after the `data-` part, but I prefer using `test`.
 
 Why would we want to do this?
 
@@ -157,21 +167,24 @@ Every time a developer touches this code, it is possible they might modify any o
 
 Use of test ID allows us to separate test-specific code and implementation code, making tests more resilient to unrelated code changes.
 
-## Adding the main user flow test 
+## Adding the main user flow test
+
 Next, let's add a test for the main user flow: completing and submitting the signup form.
 
-This test will be a bit more advanced.  Go ahead and update the next pending test to be as follows:
+This test will be a bit more advanced. Go ahead and update the next pending test to be as follows:
 
 ```tsx
 // cypress/e2e/newsletterSignup.cy.ts
 it("allows for completing a newsletter signup", () => {
   const testEmail = "test@email.com";
 
-  cy.intercept("POST", "/api/newsletter", (req) => { // ** 1 **
+  cy.intercept("POST", "/api/newsletter", (req) => {
+    // ** 1 **
 
     expect(req.body.email).to.contain(testEmail); // ** 2 **
 
-    req.reply({  // ** 3 **
+    req.reply({
+      // ** 3 **
       statusCode: 200,
       body: {
         success: true,
@@ -189,14 +202,15 @@ it("allows for completing a newsletter signup", () => {
 The goal of this test is to ensure that a "happy path" newsletter signup flow works as expected.
 
 ### Code Notes
+
 There's quite a bit going on in this test. Let's walk through it step by step:
 
-1. `cy.intercept("POST"...` - here, we are telling Cypress to [intercept](https://docs.cypress.io/api/commands/intercept) a network request that will happen later in the test. With the intercept feature, Cypress basically masquerades as the given endpoint we defined and returns the response we expect.  The intercept feature is truly powerful and I highly recommend reading more about it in their docs. In our case, it allows us to fully test our client side form by actually submitting an email address without having to worry about clogging up some database with fake test email addresses.
+1. `cy.intercept("POST"...` - here, we are telling Cypress to [intercept](https://docs.cypress.io/api/commands/intercept) a network request that will happen later in the test. With the intercept feature, Cypress basically masquerades as the given endpoint we defined and returns the response we expect. The intercept feature is truly powerful and I highly recommend reading more about it in their docs. In our case, it allows us to fully test our client side form by actually submitting an email address without having to worry about clogging up some database with fake test email addresses.
 2. This is where we assert that the client side sent the payload we expected to the back-end.
 3. If the previous assertion passes, we send the expected success response.
-2. `cy.get('[data-test="emailInput...` - this is where we type in the test email address.
-3. `cy.get('[data-test="formSubmit"]').click();` - here, we click the form submit button and, which results in an API call, that then is intercepted as per step 1 above.
-4. `cy.get('[data-test="successMessage"]')...` - assuming our form submit was successful, we expect a success response from the server.
+4. `cy.get('[data-test="emailInput...` - this is where we type in the test email address.
+5. `cy.get('[data-test="formSubmit"]').click();` - here, we click the form submit button and, which results in an API call, that then is intercepted as per step 1 above.
+6. `cy.get('[data-test="successMessage"]')...` - assuming our form submit was successful, we expect a success response from the server.
 
 ## Getting the main user flow test to pass
 
@@ -235,20 +249,18 @@ const Newsletter: NextPage = () => {
   };
 
   return (
-     <form data-test="newsletter" onSubmit={handleSubmit}>
-        {confirmMessage && (
-          <div data-test="successMessage">{confirmMessage}</div>
-        )}
-        <h3>Sign up for our newsletter!</h3>
-        <input
-          type={"email"}
-          value={emailInput}
-          onChange={(e) => setEmailInput(e.target.value)}
-          data-test="emailInput"
-          id="emailInput"
-          formNoValidate
-        />
-        <input type={"submit"} data-test="formSubmit" />
+    <form data-test="newsletter" onSubmit={handleSubmit}>
+      {confirmMessage && <div data-test="successMessage">{confirmMessage}</div>}
+      <h3>Sign up for our newsletter!</h3>
+      <input
+        type={"email"}
+        value={emailInput}
+        onChange={(e) => setEmailInput(e.target.value)}
+        data-test="emailInput"
+        id="emailInput"
+        formNoValidate
+      />
+      <input type={"submit"} data-test="formSubmit" />
     </form>
   );
 };
@@ -256,9 +268,9 @@ const Newsletter: NextPage = () => {
 export default Newsletter;
 ```
 
-We also need to add an API endpoint for submitting our form data.  Create a new file at `src/pages/api/newsletter.ts` and add the following:
+We also need to add an API endpoint for submitting our form data. Create a new file at `src/pages/api/newsletter.ts` and add the following:
 
-```tsx 
+```tsx
 import type { NextApiRequest, NextApiResponse } from "next";
 
 export type ServerResponse = {
@@ -286,14 +298,17 @@ Note that this API endpoint doesn't actually store the submitted email in a data
 If we now check our test runner, we should see that the main user flow test ("allows for completing a newsletter signup") test is passing.
 
 ![Main user flow test passing.](/images/blog/e2e-testing/main-user-flow-passing.jpg)
- 
+
 ## Getting remaining tests to pass
+
 We've written the minimum code needed to get the current tests to pass. However, there are still several requirements that need to be fulfilled, such as ensuring that emails are validly formed. You'll find the completed tests and the corresponding code to get them to pass in the [github repo](https://github.com/andersr/e2e-testing-tutorial).
 
 ## Refactor and clean up your code with confidence
+
 Now that we have passing tests for all the feature requirements, we can reap the benefits of our efforts when refactoring.
 
-For example, we may want to DRY up our code, which, at least in my experience, can often lead to unintentionally breaking things.  Additionally, I haven't added much in the way to styling, and that is also something we now can do with far less concern about breaking something.
+For example, we may want to DRY up our code, which, at least in my experience, can often lead to unintentionally breaking things. Additionally, I haven't added much in the way to styling, and that is also something we now can do with far less concern about breaking something.
 
 ## Next Up: Ensuring tests run automatically on every code push
-Now that we've written some tests, let's be sure and put them to work.   In the next post, we'll show how to make sure your full test suite runs every time you push new code, and why that matters. [Continue to the next post in the series](/blog/e2e-series-ensure-tests-run-on-every-push).
+
+Now that we've written some tests, let's be sure and put them to work. In the next post, we'll show how to make sure your full test suite runs every time you push new code, and why that matters. [Continue to the next post in the series](/blog/e2e-series-ensure-tests-run-on-every-push).

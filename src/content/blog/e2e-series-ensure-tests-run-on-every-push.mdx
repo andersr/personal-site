@@ -1,0 +1,153 @@
+---
+title: Ensuring Your E2E Tests Run On Every Code Push
+description: To help prevent regression, we want to make sure we run our full test every time we push our code.
+pubDate: 06-30-2022
+seriesName: E2E Testing
+seriesSlug: e2e-testing-series
+repo: https://github.com/andersr/e2e-testing-tutorial
+status: published
+toc: true
+heroImage: [/e2e-testing/gh-all-specs-passing.jpg
+, Github actions showing all specs passing]
+---
+
+_This post is part of the [E2E Testing Series](/blog/e2e-testing-series). If you haven't already, I suggest going back and reading previous posts before continuing._
+
+## Writing tests is only the beginning
+
+We've walked through the process of how to write E2E tests. We showed the benefits of writing tests even before you write any code. And we showed the value of having your E2E tests running in watch mode to get quick feedback.
+
+While this is all great, it's unfortunately not enough. While we're doing a great job of writing our tests we're still not going to get quick feedback on a general app regression. (Remember, when you are running tests in watch mode, that is only covering the current feature you are working on, and not on the full test suite.)
+
+To achieve that, we need to ensure that our full test suite runs when we add new code and that we are notified about any failures before we merge the code.
+
+These are the three main steps we'll complete in this post to achieve that goal:
+
+1. Enable running the full test suite against a production build.
+2. Automatically run the full suite when we push new code.
+3. Prevent merge of code into the main branch unless all tests pass.
+
+There are a number of tools and techniques we can use to achieve the above. In our case, we're going to use a combination of npm scripts, [Github Actions](https://docs.github.com/en/actions), and [Github branch protection](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches).
+
+Let's get started!
+
+## Enable running the full test suite against a production build
+
+Up until now, we've only been running the specific tests associated with the feature we are working on, and we've been running them against the development server. However, to prevent regression, we need to run all the tests, and run them against a production build. This is the version of your code that is served to users on the live site, and that is what we want to run our full test suite against.
+
+### Add full test suite scripts
+
+Most of what we need to do is to add the necessary scripts to run the full suite. Go ahead and make the following updates to `scripts` in your `package.json` file:
+
+1. **Rename the `"build"` script to `"prestart"`.** This leverages a [scripts feature](https://docs.npmjs.com/cli/v8/using-npm/scripts) in npm, in which adding `pre` to another script will run that script first. In this case, we want to run a build before we run the `start` script, which is what is run to start the production server.
+2. **Update the `start` script to use a different port:** Add ` -p 8080` to the end of the `"start"` script. This will allow for running the production server locally while also running the dev server, eg for debugging purposes. (Port 8080 is just my personal preference, you can pick a different port if you wish.)
+3. **Add a script for running the full Cypress test suite:** `"cy:run": "cypress run --e2e --browser chrome --config baseUrl=http://localhost:8080"`. In contrast to the `"cy:open"` script, this will run the full test suite in [headless](https://www.softwaretestinghelp.com/headless-browser-testing/) mode, and we can use it both for local debugging and to run in a deployed environment. Note that the port used in `baseUrl` has to match what we use in the `start` script.
+4. **Add a single command E2E script**: ` "e2e": "start-test start 8080 cy:run"`. This script pulls together all the other scripts above. We are first running the `start` script (which in turn will be preceded by the `prestart` build script), then waiting for a server to be listening on port 8080, and finally running the full test suite against that port. As before, this port has to match the two other ports you set previously.
+
+Your `scripts` section should now include the following scripts:
+
+```bash
+"scripts": {
+     ...
+    "prestart": "next build",
+    "start": "next start -p 8080",
+     ...
+    "cy:run": "cypress run --e2e --browser chrome --config baseUrl=http://localhost:8080",
+    "e2e": "start-test start 8080 cy:run"
+  },
+```
+
+To make sure everything is working as expected, go ahead and run the `e2e` script, and you should see the entire above sequence being run, concluding with an 'All specs passed!' message in your terminal:
+
+![Run all E2E tests locally with all tests passing](/images/blog/e2e-testing/e2e-run-all-tests-passing.jpg)
+
+We'll be using this last script in the next section when pushing our code, but you can also use it locally for debugging purposes, such as when you are getting a test failure only when pushing code, but not seeing an error when running in watch mode.
+
+## Automatically run the full suite when we push new code
+
+As a reminder, this and the next step in this tutorial assumes you are using [github](https://github.com/) to store your code. There are many other options out there for achieving the same goal.
+
+To ensure our `e2e` script runs on all new code that we push, we're going to add a [github action](https://docs.github.com/en/actions). Add the following to `.github/workflows/e2e.yml` (You must place the file in this directory, though the name `e2e` is my personal preference.)
+
+```bash
+name: E2E Tests
+
+on: [push] # ** 1 **
+
+jobs:
+  cypress-run:
+    runs-on: ubuntu-20.04 # ** 2 **
+    steps:
+      - name: Checkout
+      uses: actions/checkout@v2 - name: Cypress run
+      uses: cypress-io/github-action@v2 # ** 3 **
+    with:
+      command: npm run e2e # ** 4 **
+```
+
+This code will be triggered when we push to a github repo.
+
+### Code Notes
+
+1. This is telling github to run this action every time we push new code.
+2. This is the OS and version used for the virtual environment in which run our tests. I recommend always using a specific version, such as the latest stable version, rather than `latest`, which is risky because you may then suddenly start to see test failures caused by a version update that has nothing to do with your tests. See [virtual-enviroments](https://github.com/actions/virtual-environments) for the latest stable version.
+3. We are using a ready-made [action](https://github.com/marketplace/actions/cypress-io) created by Cypress to run our tests.
+4. This script name needs to match the `e2e` script we created earlier.
+
+Go ahead and commit this code and [push it to a github repo](https://docs.github.com/en/get-started/importing-your-projects-to-github/importing-source-code-to-github/adding-locally-hosted-code-to-github).
+
+Open up your repo in your browser and click on the ["Actions"](https://github.com/andersr/e2e-testing-tutorial/actions) tab, and you should see your action running.
+
+![Github action running](/images/blog/e2e-testing/gh-e2e-action.jpg)
+
+You can click into the action and see a detailed log of all the action steps.
+
+## Prevent merge of code into the main branch unless all tests pass.
+
+Just one more step to go!
+
+Now that we've got our test running automatically on push, we want ensure that we don't merge code with failing tests. Similar to above, these instructions are specific to Github, but the general principles should be applicable regardless of the service you are using.
+
+Achieving this requires setting up a branch protection rule.
+
+### Protecting the main branch
+
+The main branch (ie the branch containing code that will be pushed to production) is the one we need to protect from any code that contains regressions.
+
+In github, we can add this protection by creating a branch rule, which should:
+
+1. Not allow pushing code directly to the main branch, but instead require a pull request.
+2. Require that all checks, in our case just the E2E tests, pass before merge is allowed.
+
+You can find instructions for how to do add branch rules in the [github docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/about-protected-branches), but very briefly, in your repo, click on Settings > Branches > Add Rule.
+
+In "Branch name pattern", enter the name of your main branch, eg "main" and check the box "Require a pull request before merging". (I'll also uncheck "Require reviews" for the purposes of this tutorial, but it's probably a good idea to leave it checked.)
+
+Next,check off "Require status check to pass before merging", which will prompt you to "search for status checks". Somewhat confusingly, a "status check" corresponds to the name of _job_ within an action rather than the name of the action itself. In our case, the name is `cypress-run` (which you'll see under `jobs:` in `.github/workflows/e2e.yml`.) Go ahead and type that in and you should see the job name to select.
+
+Your form should look something like this:
+![Adding main branch protection rule](/images/blog/e2e-testing/main-branch-protection-rule.jpg)
+
+Scroll down and click on "Create".
+
+## Testing that everything works
+
+Let's make sure that our new branch rule works as expected. Go ahead and make a change to a test that you know will cause a failure, eg by adding an extra character to a test id.
+
+To confirm that your test will fail, run your test suite locally using the `e2e` script.
+
+Next, go ahead and commit the change and push your branch and [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request).
+
+You should now see a message showing your checks have failed with the merge button disabled.
+
+![Github message showing merges blocked](/images/blog/e2e-testing/gh-merges-blocked.jpg)
+
+Now, undo the change you made and push again and this time you should (eventually) see all green checkmarks.
+
+![Github PR all green checkmarks](/images/blog/e2e-testing/gh-pr-all-green-checks.jpg)
+
+You've now set up a basic E2E testing system for writing tests and preventing code regressions! :tada: :tada: :tada:
+
+## Final Thoughts
+
+This wraps up the E2E Testing Series. I hope you found it useful. If you want to keep learning, I recommend watching [this video](https://www.youtube.com/watch?v=5XQOK0v_YRE), in which the founder of Cypress talks about E2E testing best practices.

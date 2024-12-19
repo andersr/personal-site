@@ -14,11 +14,12 @@ type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
 const { Content, headings } = await render(post);
+const { title, heroImage, description, toc } = post.data;
 ---
 
-<Layout title={post.data.title} description={post.data.description}>
+<Layout title={title} description={description}>
   {
-    post.data.toc && (
+    toc && (
       <ul>
         {headings.map((h) => (
           <li>
@@ -28,6 +29,18 @@ const { Content, headings } = await render(post);
       </ul>
     )
   }
-
-  <Content />
+  <article>
+    {
+      Array.isArray(heroImage) && heroImage.length > 0 && (
+        <img
+          width={720}
+          height={360}
+          src={`/images/blog/${heroImage[0]}`}
+          alt={heroImage[1]}
+        />
+      )
+    }
+    <h1 class="title">{title}</h1>
+    <Content />
+  </article>
 </Layout>
