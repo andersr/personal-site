@@ -1,0 +1,23 @@
+---
+import HeroHeading from "./HeroHeading.astro";
+import HeroImage from "./HeroImage.astro";
+---
+
+<div class="mt-20">
+  <div class="text-center md:hidden">
+    <div class="mb-4">
+      <HeroHeading />
+    </div>
+  </div>
+  <div class="hidden md:flex md:flex-row">
+    <div class="mr-10">
+      <HeroHeading />
+      <div class="pb-2 pl-5">
+        <a href={"/about"}>More about me</a>
+      </div>
+    </div>
+    <div class="">
+      <HeroImage />
+    </div>
+  </div>
+</div>

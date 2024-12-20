@@ -2,8 +2,7 @@
 title: E2e Series - A Process for Writing Tests
 description: For my new notes app, I wanted to allow anonymous users to create notes locally, and then be able to save it to a database on login.  In this blog post, I walk through how I implemented this.
 pubDate: 09-02-2023
-heroImage: [/e2e-testing/runner-all-tests-passing.jpg
-, Cypress test runner with all tests passing]
+heroImage: [../../assets/images/blog/e2e-series-a-process-for-writing-tests/hero.jpg, Cypress test runner with all tests passing]
 toc: true
 ---
 
@@ -20,7 +19,9 @@ We're going to walk through a sample process for how to write E2E tests and touc
 If you're familiar with [Test-Driven Development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD), the above might look familiar. I've found that writing E2E tests is a great opportunity to put TDD into practice.
 
 As our sample feature, we'll be walking through writing the tests for the Newsletter signup form I discussed in the series intro.
-![newsletter form](/images/blog/e2e-testing/newsletter-signup-form.jpg)
+
+![Newsletter signup form](/images/blog/e2e-series-a-process-for-writing-tests/intro-newsletter-signup-form-min.jpg)
+
 I picked it because it's a small but still complete feature, so a great basis for conveying the E2E test-writing process.
 
 To get started, we'll create our main test file.
@@ -73,11 +74,11 @@ describe("Newsletter signup", () => {
 
 At this point, your Cypress console should look something like this:
 
-![E2E Testing console with test added](/images/blog/e2e-testing/e2e-testing-console-with-test-added.jpg)
+![E2E Testing console with test added](/images/blog/e2e-series-a-process-for-writing-tests/e2e-testing-console-with-test-added-min.jpg)
 
 Go ahead and click on "newsletterSignup" and you should now see the test runner with a list of pending tests.
 
-![Cypress runner with the pending tests](/images/blog/e2e-testing/cypress-runner-with-pending-tests.jpg)
+![Cypress runner with the pending tests](/images/blog/e2e-series-a-process-for-writing-tests/cypress-runner-with-pending-tests-min.jpg)
 
 With the test runner now in watch mode, as you update your tests and source code, our tests will re-run automatically and update tests to passing or failing.
 
@@ -110,7 +111,7 @@ You might have noticed the use of `'[data-test="newsletter"]'` to identify our n
 
 If we look at our test runner, we see that the test we added above is failing.
 
-![E2E Testing console with first failing test](/images/blog/e2e-testing/first-failing-test.jpg)
+![E2E Testing console with first failing test](/images/blog/e2e-series-a-process-for-writing-tests/first-failing-test-min.jpg)
 
 This is expected, since we haven't yet added the code to make it pass. Let's do that now.
 
@@ -135,7 +136,7 @@ export default Newsletter;
 
 If you now go back to the test runner, you should see that there is a green checkmark next to your first test, which means it's passing! :tada:
 
-![First passing test!](/images/blog/e2e-testing/first-passing-test.jpg)
+![First passing test!](/images/blog/e2e-series-a-process-for-writing-tests/first-passing-test-min.jpg)
 
 ## Making tests more resilient with Test IDs
 
@@ -297,7 +298,7 @@ Note that this API endpoint doesn't actually store the submitted email in a data
 
 If we now check our test runner, we should see that the main user flow test ("allows for completing a newsletter signup") test is passing.
 
-![Main user flow test passing.](/images/blog/e2e-testing/main-user-flow-passing.jpg)
+![Main user flow test passing.](/images/blog/e2e-series-a-process-for-writing-tests/main-user-flow-passing-min.jpg)
 
 ## Getting remaining tests to pass
 

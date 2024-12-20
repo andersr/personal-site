@@ -7,8 +7,7 @@ seriesSlug: e2e-testing-series
 repo: https://github.com/andersr/e2e-testing-tutorial
 status: published
 toc: true
-heroImage: [/e2e-testing/gh-all-specs-passing.jpg
-, Github actions showing all specs passing]
+heroImage: [../../assets/images/blog/e2e-series-ensure-tests-run-on-every-push/hero.jpg, Github actions showing all specs passing]
 ---
 
 _This post is part of the [E2E Testing Series](/blog/e2e-testing-series). If you haven't already, I suggest going back and reading previous posts before continuing._
@@ -59,7 +58,7 @@ Your `scripts` section should now include the following scripts:
 
 To make sure everything is working as expected, go ahead and run the `e2e` script, and you should see the entire above sequence being run, concluding with an 'All specs passed!' message in your terminal:
 
-![Run all E2E tests locally with all tests passing](/images/blog/e2e-testing/e2e-run-all-tests-passing.jpg)
+![Run all E2E tests locally with all tests passing](/images/blog/e2e-series-ensure-tests-run-on-every-push/e2e-run-all-tests-passing-min.jpg)
 
 We'll be using this last script in the next section when pushing our code, but you can also use it locally for debugging purposes, such as when you are getting a test failure only when pushing code, but not seeing an error when running in watch mode.
 
@@ -98,7 +97,7 @@ Go ahead and commit this code and [push it to a github repo](https://docs.github
 
 Open up your repo in your browser and click on the ["Actions"](https://github.com/andersr/e2e-testing-tutorial/actions) tab, and you should see your action running.
 
-![Github action running](/images/blog/e2e-testing/gh-e2e-action.jpg)
+![Github action running](/images/blog/e2e-series-ensure-tests-run-on-every-push/gh-e2e-action-min.jpg)
 
 You can click into the action and see a detailed log of all the action steps.
 
@@ -126,7 +125,7 @@ In "Branch name pattern", enter the name of your main branch, eg "main" and chec
 Next,check off "Require status check to pass before merging", which will prompt you to "search for status checks". Somewhat confusingly, a "status check" corresponds to the name of _job_ within an action rather than the name of the action itself. In our case, the name is `cypress-run` (which you'll see under `jobs:` in `.github/workflows/e2e.yml`.) Go ahead and type that in and you should see the job name to select.
 
 Your form should look something like this:
-![Adding main branch protection rule](/images/blog/e2e-testing/main-branch-protection-rule.jpg)
+![Adding main branch protection rule](/images/blog/e2e-series-ensure-tests-run-on-every-push/main-branch-protection-rule-min.jpg)
 
 Scroll down and click on "Create".
 
@@ -140,11 +139,11 @@ Next, go ahead and commit the change and push your branch and [create a pull req
 
 You should now see a message showing your checks have failed with the merge button disabled.
 
-![Github message showing merges blocked](/images/blog/e2e-testing/gh-merges-blocked.jpg)
+![Github message showing merges blocked](/images/blog/e2e-series-ensure-tests-run-on-every-push/gh-merges-blocked-min.jpg)
 
 Now, undo the change you made and push again and this time you should (eventually) see all green checkmarks.
 
-![Github PR all green checkmarks](/images/blog/e2e-testing/gh-pr-all-green-checks.jpg)
+![Github PR all green checkmarks](/images/blog/e2e-series-ensure-tests-run-on-every-push/gh-pr-all-green-checks-min.jpg)
 
 You've now set up a basic E2E testing system for writing tests and preventing code regressions! :tada: :tada: :tada:
 
