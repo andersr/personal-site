@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
 import Giphy from "~/components/Giphy.astro";
@@ -32,16 +33,11 @@ const { title, heroImage, description, toc } = post.data;
   }
   <article>
     {
-      Array.isArray(heroImage) && heroImage.length > 0 && (
-        <img
-          width={720}
-          height={360}
-          src={`/images/blog/${heroImage[0]}`}
-          alt={heroImage[1]}
-        />
+      Array.isArray(heroImage) && heroImage.length === 2 && (
+        <Image width={720} height={360} src={heroImage[0]} alt={heroImage[1]} />
       )
     }
     <h1 class="title">{title}</h1>
-    <Content components={{ CalloutBox, Giphy }} />
+    <Content components={{ CalloutBox, Giphy, Image }} />
   </article>
 </Layout>
