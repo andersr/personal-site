@@ -22,7 +22,7 @@ const { title, heroImage, description, toc } = post.data;
 <Layout title={title} description={description}>
   {
     toc && (
-      <ul class="prose mx-auto">
+      <ul class="prose prose-lg mx-auto">
         {headings.map((h) => (
           <li>
             <a href={`#${h.slug}`}>{h.text}</a>
@@ -31,7 +31,7 @@ const { title, heroImage, description, toc } = post.data;
       </ul>
     )
   }
-  <article class="mx-auto prose">
+  <article class="mx-auto prose prose-lg">
     {
       Array.isArray(heroImage) && heroImage.length === 2 && (
         <Image
