@@ -8,7 +8,7 @@ import HeroImage from "./HeroImage.astro";
   <div class="mb-4">
     <HeroHeading />
   </div>
-  <HeroImage />
+  <HeroImage size={100} />
   <Link href={"/about"} twStyles="block mt-4 text-lg">More about me</Link>
 </div>
 <div class="hidden md:block w-full">
@@ -17,6 +17,6 @@ import HeroImage from "./HeroImage.astro";
       <HeroHeading />
       <Link href={"/about"} twStyles="mt-1 text-lg block">More about me</Link>
     </div>
-    <HeroImage />
+    <HeroImage size={100} />
   </div>
 </div>

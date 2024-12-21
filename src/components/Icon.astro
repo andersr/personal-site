@@ -8,13 +8,15 @@ import { twMerge } from "tailwind-merge";
 interface Props {
   name: string;
   twColor?: string;
+  ariaLabel?: string;
 }
 
-const { name, twColor } = Astro.props;
+const { name, twColor, ariaLabel } = Astro.props;
 ---
 
 <AstroIcon
-  name={`material-symbols-light:${name}`}
+  name={name}
   size={32}
   class={twMerge("inline", twColor ?? "text-slate-400")}
+  aria-label={ariaLabel}
 />

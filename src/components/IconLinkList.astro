@@ -1,0 +1,22 @@
+---
+import Icon from "~/components/Icon.astro";
+import type { IconListItem } from "~/types/IconList";
+
+interface Props {
+  items: IconListItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="ml-0 pl-0 list-none flex items-center gap-3">
+  {
+    items.map((i) => (
+      <li>
+        <a href={i.href} title={i.ariaLabel}>
+          <Icon name={i.name} ariaLabel={i.ariaLabel} />
+        </a>
+      </li>
+    ))
+  }
+</ul>
