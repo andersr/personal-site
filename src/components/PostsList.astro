@@ -1,7 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import type { BlogPost } from "~/types/BlogPost";
-import FormattedDate from "../components/FormattedDate.astro";
+import FormattedDate from "./FormattedDate.astro";
 
 const posts: BlogPost[] = (await getCollection("blog")).sort(
   (a: BlogPost, b: BlogPost) =>
@@ -9,7 +9,7 @@ const posts: BlogPost[] = (await getCollection("blog")).sort(
 );
 ---
 
-<ul>
+<ul class="ml-0 pl-0 list-none">
   {
     posts.map((post) => (
       <li>
@@ -20,11 +20,12 @@ const posts: BlogPost[] = (await getCollection("blog")).sort(
             src={post.data.heroImage}
             alt=""
           /> */}
-          <h4 class="title">{post.data.title}</h4>
-          <p class="date">
-            <FormattedDate date={post.data.pubDate} />
-          </p>
+          <h3 class="title">{post.data.title}</h3>
         </a>
+        <p>{post.data.description}</p>
+        <p class="italic">
+          <FormattedDate date={post.data.pubDate} />
+        </p>
       </li>
     ))
   }

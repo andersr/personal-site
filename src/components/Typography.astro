@@ -1,0 +1,22 @@
+---
+import { twMerge } from "tailwind-merge";
+
+interface Props {
+  twStyles?: string;
+}
+
+const { twStyles } = Astro.props;
+---
+
+<div
+  class={twMerge(
+    "prose max-w-none md:prose-lg",
+    "prose-h1:text-center prose-h1:font-normal prose-h1:text-5xl prose-h1:mt-12",
+    "prose-h2:font-light",
+    "prose-h3:font-normal prose-h3:mb-1",
+    "prose-p:my-1",
+    twStyles,
+  )}
+>
+  <slot />
+</div>
