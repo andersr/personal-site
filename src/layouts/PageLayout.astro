@@ -1,0 +1,18 @@
+---
+import Typography from "~/components/Typography.astro";
+import Layout from "~/layouts/Layout.astro";
+import type { PageProps } from "~/types/Page";
+
+type Props = PageProps;
+
+const { title, twStyles } = Astro.props;
+---
+
+<Layout title={title}>
+  <Typography twStyles={twStyles}>
+    <h1>{title}</h1>
+    <section class="mt-20">
+      <slot />
+    </section>
+  </Typography>
+</Layout>

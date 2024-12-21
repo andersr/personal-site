@@ -2,12 +2,10 @@
 import Footer from "~/components/Footer.astro";
 import Link from "~/components/Link.astro";
 import { SITE_TITLE } from "~/consts";
+import type { PageProps } from "~/types/Page";
 import BaseHead from "../components/BaseHead.astro";
 
-type Props = {
-  title?: string;
-  description?: string;
-};
+type Props = PageProps;
 
 const { title, description } = Astro.props;
 const currentRoute = Astro.url.pathname;

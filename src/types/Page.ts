@@ -1,0 +1,5 @@
+export type PageProps = {
+  title?: string;
+  description?: string;
+  twStyles?: string;
+};

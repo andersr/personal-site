@@ -1,17 +1,11 @@
 ---
 import PostsList from "~/components/PostsList.astro";
-import Typography from "~/components/Typography.astro";
-import Layout from "~/layouts/Layout.astro";
+import PageLayout from "~/layouts/PageLayout.astro";
 
 const title = "Blog";
 ---
 
-<Layout title={title}>
-  <Typography twStyles="prose-ul:p-0 prose-li:pl-0">
-    <h1>{title}</h1>
-    <section class="mt-20">
-      <h2 class="text-center md:text-left">Recent Posts</h2>
-      <PostsList />
-    </section>
-  </Typography>
-</Layout>
+<PageLayout title={title} twStyles="prose-ul:p-0 prose-li:pl-0">
+  <h2 class="text-center md:text-left">Recent Posts</h2>
+  <PostsList />
+</PageLayout>
