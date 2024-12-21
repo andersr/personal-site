@@ -10,6 +10,9 @@ type Props = {
 };
 
 const { title, description } = Astro.props;
+const currentRoute = Astro.url.pathname;
+const brandStyles = "text-slate-400 text-xl";
+console.log("currentRoute: ", currentRoute);
 ---
 
 <!doctype html>
@@ -23,7 +26,15 @@ const { title, description } = Astro.props;
   <body class="p-4 h-full flex flex-col items-center">
     <nav class="w-full flex items-center">
       <div class="flex-1">
-        <a href="/" class="text-slate-400">anders.co</a>
+        {
+          currentRoute === "/" ? (
+            <div class={brandStyles}>anders.co</div>
+          ) : (
+            <a href="/" class={brandStyles}>
+              anders.co
+            </a>
+          )
+        }
       </div>
       <ul class="flex flex-nowrap space-x-2">
         <li>
