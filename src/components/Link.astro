@@ -1,10 +1,12 @@
 ---
+import { twMerge } from "tailwind-merge";
+
 interface Props {
   href: string;
-  twColor?: string;
+  twStyles?: string;
 }
 
-const { href } = Astro.props;
+const { href, twStyles } = Astro.props;
 ---
 
-<a href={href} class="underline"><slot /></a>
+<a href={href} class={twMerge("underline", twStyles)}><slot /></a>
