@@ -1,4 +1,5 @@
 ---
+import Link from "~/components/Link.astro";
 import { SITE_TITLE } from "~/consts";
 import BaseHead from "../components/BaseHead.astro";
 
@@ -15,22 +16,22 @@ const { title = SITE_TITLE, description } = Astro.props;
   <head>
     <BaseHead title={title} description={description} />
   </head>
-  <body>
-    <div class="p-4">
-      <a href="/">anders.co</a>
-      <a href="/blog">Blog</a>
-      <a href="/about">About</a>
-    </div>
-  </body><main>
-    <slot />
-
-    <style>
-      html,
-      body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-      }
-    </style>
-  </main>
+  <body class="p-4">
+    <nav class="w-full flex items-center">
+      <div class="flex-1">
+        <a href="/" class="text-slate-400">anders.co</a>
+      </div>
+      <ul class="flex flex-nowrap space-x-2">
+        <li>
+          <Link href="/blog">Blog</Link>
+        </li>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+      </ul>
+    </nav>
+    <main>
+      <slot />
+    </main>
+  </body>
 </html>

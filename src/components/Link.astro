@@ -1,0 +1,10 @@
+---
+interface Props {
+  href: string;
+  twColor?: string;
+}
+
+const { href } = Astro.props;
+---
+
+<a href={href} class="underline"><slot /></a>
