@@ -34,9 +34,7 @@ const { title, description } = Astro.props;
         </li>
       </ul>
     </nav>
-    <main
-      class="flex-1 prose prose-h2:font-medium prose-h3:font-medium prose-h3:mb-1 prose-p:my-1"
-    >
+    <main class="flex-1 max-w-3xl mx-auto">
       <slot />
     </main>
     <Footer>&copy; {new Date().getFullYear()} Anders Ramsay</Footer>

@@ -4,21 +4,19 @@ import HeroHeading from "./HeroHeading.astro";
 import HeroImage from "./HeroImage.astro";
 ---
 
-<div class="mt-20">
-  <div class="text-center md:hidden">
-    <div class="mb-4">
+<div class="text-center md:hidden">
+  <div class="mb-4">
+    <HeroHeading />
+  </div>
+  <HeroImage />
+  <Link href={"/about"} twStyles="block mt-4 text-lg">More about me</Link>
+</div>
+<div class="hidden md:block w-full">
+  <div class="flex flex-row items-start">
+    <div>
       <HeroHeading />
+      <Link href={"/about"} twStyles="mt-1 text-lg block">More about me</Link>
     </div>
     <HeroImage />
-    <Link href={"/about"} twStyles="block mt-4 text-lg">More about me</Link>
-  </div>
-  <div class="hidden md:flex md:flex-row">
-    <div class="mr-10">
-      <HeroHeading />
-      <Link href={"/about"} twStyles="text-lg">More about me</Link>
-    </div>
-    <div class="">
-      <HeroImage />
-    </div>
   </div>
 </div>
