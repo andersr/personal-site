@@ -1,12 +1,18 @@
 ---
 import Hero from "~/components/Hero/Hero.astro";
-import Posts from "~/components/Posts.astro";
+import PostsList from "~/components/PostsList.astro";
+import Typography from "~/components/Typography.astro";
 import Layout from "~/layouts/Layout.astro";
 ---
 
-<Layout title="Welcome">
-  <Hero />
-  <section>
-    <Posts />
+<Layout>
+  <div class="mt-10">
+    <Hero />
+  </div>
+  <section class="mt-[32px]">
+    <Typography twStyles="prose-ul:p-0 prose-li:pl-0">
+      <h2 class="text-center md:text-left">Recent Posts</h2>
+      <PostsList />
+    </Typography>
   </section>
 </Layout>

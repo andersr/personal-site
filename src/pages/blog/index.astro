@@ -1,11 +1,11 @@
 ---
-import Posts from "~/components/Posts.astro";
-import Layout from "~/layouts/Layout.astro";
+import PostsList from "~/components/PostsList.astro";
+import PageLayout from "~/layouts/PageLayout.astro";
+
+const title = "Blog";
 ---
 
-<Layout title="Blog">
-  <h1>Blog</h1>
-  <section>
-    <Posts />
-  </section>
-</Layout>
+<PageLayout title={title} twStyles="prose-ul:p-0 prose-li:pl-0">
+  <h2 class="text-center md:text-left">Recent Posts</h2>
+  <PostsList />
+</PageLayout>

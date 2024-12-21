@@ -3,6 +3,7 @@ import { Image } from "astro:assets";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
 import Giphy from "~/components/Giphy.astro";
+import Typography from "~/components/Typography.astro";
 import Layout from "~/layouts/Layout.astro";
 export async function getStaticPaths() {
   const posts: CollectionEntry<"blog">[] = await getCollection("blog");
@@ -20,18 +21,8 @@ const { title, heroImage, description, toc } = post.data;
 ---
 
 <Layout title={title} description={description}>
-  {
-    toc && (
-      <ul class="prose prose-lg mx-auto">
-        {headings.map((h) => (
-          <li>
-            <a href={`#${h.slug}`}>{h.text}</a>
-          </li>
-        ))}
-      </ul>
-    )
-  }
-  <article class="mx-auto prose prose-lg">
+  <Typography>
+    <h1 class="title">{title}</h1>
     {
       Array.isArray(heroImage) && heroImage.length === 2 && (
         <Image
@@ -43,7 +34,17 @@ const { title, heroImage, description, toc } = post.data;
         />
       )
     }
-    <h1 class="title">{title}</h1>
+    {
+      toc && (
+        <ul class="prose mx-auto">
+          {headings.map((h) => (
+            <li>
+              <a href={`#${h.slug}`}>{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
     <Content components={{ CalloutBox, Giphy, Image }} />
-  </article>
+  </Typography>
 </Layout>

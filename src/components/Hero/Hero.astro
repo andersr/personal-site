@@ -1,23 +1,22 @@
 ---
+import Link from "../Link.astro";
 import HeroHeading from "./HeroHeading.astro";
 import HeroImage from "./HeroImage.astro";
 ---
 
-<div class="mt-20">
-  <div class="text-center md:hidden">
-    <div class="mb-4">
-      <HeroHeading />
-    </div>
+<div class="text-center md:hidden">
+  <div class="mb-4">
+    <HeroHeading />
   </div>
-  <div class="hidden md:flex md:flex-row">
-    <div class="mr-10">
+  <HeroImage />
+  <Link href={"/about"} twStyles="block mt-4 text-lg">More about me</Link>
+</div>
+<div class="hidden md:block w-full">
+  <div class="flex flex-row items-start">
+    <div>
       <HeroHeading />
-      <div class="pb-2 pl-5">
-        <a href={"/about"}>More about me</a>
-      </div>
+      <Link href={"/about"} twStyles="mt-1 text-lg block">More about me</Link>
     </div>
-    <div class="">
-      <HeroImage />
-    </div>
+    <HeroImage />
   </div>
 </div>

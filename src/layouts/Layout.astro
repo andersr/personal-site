@@ -1,36 +1,51 @@
 ---
+import Footer from "~/components/Footer.astro";
+import Link from "~/components/Link.astro";
 import { SITE_TITLE } from "~/consts";
+import type { PageProps } from "~/types/Page";
 import BaseHead from "../components/BaseHead.astro";
 
-type Props = {
-  title: string;
-  description?: string;
-};
+type Props = PageProps;
 
-const { title = SITE_TITLE, description } = Astro.props;
+const { title, description } = Astro.props;
+const currentRoute = Astro.url.pathname;
+const brandStyles = "text-slate-400 text-xl";
+console.log("currentRoute: ", currentRoute);
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-full">
   <head>
-    <BaseHead title={title} description={description} />
+    <BaseHead
+      title={`${title ? `${title} | ` : ""}${SITE_TITLE}`}
+      description={description}
+    />
   </head>
-  <body>
-    <div class="p-4">
-      <a href="/">anders.co</a>
-      <a href="/blog">Blog</a>
-      <a href="/about">About</a>
-    </div>
-  </body><main>
-    <slot />
-
-    <style>
-      html,
-      body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-      }
-    </style>
-  </main>
+  <body class="p-4 h-full flex flex-col items-center">
+    <nav class="w-full flex items-center">
+      <div class="flex-1">
+        {
+          currentRoute === "/" ? (
+            <div class={brandStyles}>anders.co</div>
+          ) : (
+            <a href="/" class={brandStyles}>
+              anders.co
+            </a>
+          )
+        }
+      </div>
+      <ul class="flex flex-nowrap space-x-2">
+        <li>
+          <Link href="/blog">Blog</Link>
+        </li>
+        <li>
+          <Link href="/about">About</Link>
+        </li>
+      </ul>
+    </nav>
+    <main class="flex-1 max-w-3xl mx-auto">
+      <slot />
+    </main>
+    <Footer>&copy; {new Date().getFullYear()} Anders Ramsay</Footer>
+  </body>
 </html>
