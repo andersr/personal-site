@@ -2,8 +2,8 @@ export type IconListItem = {
   /**
    *  Icon names: https://icon-sets.iconify.design/
    */
-  name: string;
+  icon: string;
   href: string;
-  ariaLabel?: string;
+  title?: string;
   size?: number;
 };

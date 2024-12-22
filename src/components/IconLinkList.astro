@@ -13,8 +13,8 @@ const { items } = Astro.props;
   {
     items.map((i) => (
       <li>
-        <a href={i.href} title={i.ariaLabel}>
-          <Icon name={i.name} ariaLabel={i.ariaLabel} size={i.size} />
+        <a href={i.href}>
+          <Icon icon={i.icon} title={i.title} size={i.size} />
         </a>
       </li>
     ))
