@@ -12,7 +12,7 @@ const posts: BlogPost[] = (await getCollection("blog")).sort(
 <ul class="ml-0 pl-0 list-none">
   {
     posts.map((post) => (
-      <li>
+      <li class="pb-1">
         <a href={`/blog/${post.id}/`}>
           {/* <img
             width={720}
@@ -23,7 +23,7 @@ const posts: BlogPost[] = (await getCollection("blog")).sort(
           <h3 class="title">{post.data.title}</h3>
         </a>
         <p>{post.data.description}</p>
-        <p class="italic">
+        <p class="italic text-sm">
           <FormattedDate date={post.data.pubDate} />
         </p>
       </li>

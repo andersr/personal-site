@@ -8,15 +8,15 @@ import HeroImage from "./HeroImage.astro";
   <div class="mb-4">
     <HeroHeading />
   </div>
-  <HeroImage size={100} />
-  <Link href={"/about"} twStyles="block mt-4 text-lg">More about me</Link>
+  <HeroImage size={100} twStyles="rounded-lg mx-auto" />
+  <Link href={"/about"} twStyles="block mt-4 text-lg">More about me.</Link>
 </div>
 <div class="hidden md:block w-full">
   <div class="flex flex-row items-start">
-    <div>
+    <div class="flex-1">
       <HeroHeading />
-      <Link href={"/about"} twStyles="mt-1 text-lg block">More about me</Link>
+      <Link href={"/about"} twStyles="mt-1 text-lg block">More about me.</Link>
     </div>
-    <HeroImage size={100} />
+    <HeroImage size={100} twStyles="rounded-lg" />
   </div>
 </div>

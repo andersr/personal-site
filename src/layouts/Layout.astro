@@ -10,7 +10,6 @@ type Props = PageProps;
 const { title, description } = Astro.props;
 const currentRoute = Astro.url.pathname;
 const brandStyles = "text-slate-400 text-xl";
-console.log("currentRoute: ", currentRoute);
 ---
 
 <!doctype html>
@@ -34,7 +33,7 @@ console.log("currentRoute: ", currentRoute);
           )
         }
       </div>
-      <ul class="flex flex-nowrap space-x-2">
+      <ul class="flex flex-nowrap space-x-2 mr-3">
         <li>
           <Link href="/blog">Blog</Link>
         </li>
