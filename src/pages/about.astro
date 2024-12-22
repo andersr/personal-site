@@ -30,6 +30,7 @@ const icons: IconListItem[] = [
     name: "simple-icons:medium",
     href: "https://medium.com/@andersco",
     ariaLabel: "Medium",
+    size: 30,
   },
   {
     name: "mdi:stack-overflow",
@@ -44,28 +45,10 @@ const icons: IconListItem[] = [
 ];
 ---
 
-<PageLayout title="About">
+<PageLayout title="About" topSectionOffset="mt-10">
   <div class="flex flex-col items-center prose-ul:p-0 prose-li:pl-0">
     <HeroImage size={200} twStyles="rounded-full" />
     <IconLinkList items={icons} />
-    <!-- <ul class="list-none flex items-center gap-3">
-      <li><Icon name="proicons:bluesky" /></li>
-      <li>
-        <Icon name="mdi:stack-overflow" />
-      </li>
-      <li>
-        <Icon name="mdi:instagram" />
-      </li>
-      <li>
-        <Icon name="mdi:github" />
-      </li>
-      <li>
-        <Icon name="mdi:linkedin" />
-      </li>
-      <li>
-        <Icon name="simple-icons:threads" />
-      </li>
-    </ul> -->
   </div>
   <AboutContent />
 </PageLayout>

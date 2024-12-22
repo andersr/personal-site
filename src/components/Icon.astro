@@ -9,14 +9,16 @@ interface Props {
   name: string;
   twColor?: string;
   ariaLabel?: string;
+  size?: number;
 }
 
-const { name, twColor, ariaLabel } = Astro.props;
+const { name, twColor, ariaLabel, size } = Astro.props;
 ---
 
 <AstroIcon
   name={name}
-  size={32}
-  class={twMerge("inline", twColor ?? "text-slate-400")}
+  size={size ?? 32}
+  class={twMerge("inline", twColor ?? "text-slate-500")}
   aria-label={ariaLabel}
+  title={ariaLabel}
 />

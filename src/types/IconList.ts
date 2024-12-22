@@ -5,4 +5,5 @@ export type IconListItem = {
   name: string;
   href: string;
   ariaLabel?: string;
+  size?: number;
 };
