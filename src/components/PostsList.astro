@@ -24,7 +24,10 @@ const posts: BlogPost[] = (await getCollection("blog"))
             src={post.data.heroImage}
             alt=""
           /> */}
-          <h3 class="title">{post.data.title}</h3>
+          <h3 class="title">
+            {post.data.isDraft && "[DRAFT] "}
+            {post.data.title}
+          </h3>
         </a>
         <p>{post.data.description}</p>
         <p class="italic text-sm">

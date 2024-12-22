@@ -4,7 +4,7 @@ import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
 import Giphy from "~/components/Giphy.astro";
 import Typography from "~/components/Typography.astro";
-import Layout from "~/layouts/Layout.astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
 export async function getStaticPaths() {
   const posts: CollectionEntry<"blog">[] = await getCollection("blog");
 
@@ -17,21 +17,39 @@ type Props = CollectionEntry<"blog">;
 
 const post = Astro.props;
 const { Content, headings } = await render(post);
-const { title, heroImage, description, toc } = post.data;
+const { title, heroImage, heroImageCredit, description, toc } = post.data;
+
+const imageCreditUrl =
+  Array.isArray(heroImageCredit) && heroImageCredit.length > 1
+    ? heroImageCredit[1]
+    : "";
+
+const imageCreditText = Array.isArray(heroImageCredit)
+  ? `Image by ${heroImageCredit[0]}`
+  : "";
+
+const imageCreditStyles = "block text-sm text-right mb-4 text-slate-500";
 ---
 
-<Layout title={title} description={description}>
-  <Typography>
+<BaseLayout title={title} description={description}>
+  <Typography twStyles="prose-img:my-1">
     <h1 class="title">{title}</h1>
     {
       Array.isArray(heroImage) && heroImage.length === 2 && (
-        <Image
-          width={720}
-          height={360}
-          src={heroImage[0]}
-          alt={heroImage[1]}
-          priority
-        />
+        <figure>
+          <Image src={heroImage[0]} alt={heroImage[1]} priority />
+          {heroImageCredit ? (
+            imageCreditUrl ? (
+              <figcaption>
+                <a href={imageCreditUrl} class={imageCreditStyles}>
+                  {imageCreditText}
+                </a>
+              </figcaption>
+            ) : (
+              <p class={imageCreditStyles}>{imageCreditText}</p>
+            )
+          ) : null}
+        </figure>
       )
     }
     {
@@ -47,4 +65,4 @@ const { title, heroImage, description, toc } = post.data;
     }
     <Content components={{ CalloutBox, Giphy, Image }} />
   </Typography>
-</Layout>
+</BaseLayout>
