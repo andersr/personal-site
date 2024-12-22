@@ -5,13 +5,13 @@ import type { PageProps } from "~/types/Page";
 
 type Props = PageProps;
 
-const { title, twStyles } = Astro.props;
+const { title, twStyles, topSectionOffset } = Astro.props;
 ---
 
 <Layout title={title}>
   <Typography twStyles={twStyles}>
     <h1>{title}</h1>
-    <section class="mt-20">
+    <section class={topSectionOffset ?? "mt-20"}>
       <slot />
     </section>
   </Typography>

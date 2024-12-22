@@ -45,12 +45,15 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.17.0
-      '@iconify-json/material-symbols-light':
-        specifier: ^1.2.11
-        version: 1.2.11
       '@iconify-json/mdi':
         specifier: ^1.2.2
         version: 1.2.2
+      '@iconify-json/proicons':
+        specifier: ^1.2.11
+        version: 1.2.11
+      '@iconify-json/simple-icons':
+        specifier: ^1.2.16
+        version: 1.2.16
       '@tailwindcss/typography':
         specifier: ^0.5.15
         version: 0.5.15(tailwindcss@3.4.16)
@@ -527,11 +530,14 @@ packages:
     resolution: {integrity: sha512-c7hNEllBlenFTHBky65mhq8WD2kbN9Q6gk0bTk8lSBvc554jpXSkST1iePudpt7+A/AQvuHs9EMqjHDXMY1lrA==}
     engines: {node: '>=18.18'}
 
-  '@iconify-json/material-symbols-light@1.2.11':
-    resolution: {integrity: sha512-2HxKfYnPdTfMrGuW0o6TTk+BUSp4Yks+25zwZQyuhcGchjTGi6I8o34Ldbts3UbZsC0Ei3pywzF0cFSHZl3PLQ==}
-
   '@iconify-json/mdi@1.2.2':
     resolution: {integrity: sha512-84aznJXzfGdbOXGe8xB7E5uNAb7Yo5IABwTgq2X3kczb819qZeS9eL31bTVn7wJdCLK5ieaoUc2GTS3QYIkJ6g==}
+
+  '@iconify-json/proicons@1.2.11':
+    resolution: {integrity: sha512-e9yGjoTDMr1NVPe4Szerhzq/uhi23GbxmEk4P9OB9cSN6mdvB9dIVXXLRu9YAa1Y7WAUCKn3dp/3FkxvNAtzvg==}
+
+  '@iconify-json/simple-icons@1.2.16':
+    resolution: {integrity: sha512-mnQ0Ih8CDIgOqbi0qz01AJNOeFVuGFRimelg3JmJtD0y5EpZVw+enPPcpcxJKipsRZ/oqhcP3AhYkF1kM7yomg==}
 
   '@iconify/tools@4.1.1':
     resolution: {integrity: sha512-Hybu/HGhv6T8nLQhiG9rKx+ekF7NNpPOEQAy7JRSKht3s3dcFSsPccYzk24Znc9MTxrR6Gak3cg6CPP5dyvS2Q==}
@@ -3521,11 +3527,15 @@ snapshots:
 
   '@humanwhocodes/retry@0.4.1': {}
 
-  '@iconify-json/material-symbols-light@1.2.11':
+  '@iconify-json/mdi@1.2.2':
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify-json/mdi@1.2.2':
+  '@iconify-json/proicons@1.2.11':
+    dependencies:
+      '@iconify/types': 2.0.0
+
+  '@iconify-json/simple-icons@1.2.16':
     dependencies:
       '@iconify/types': 2.0.0
 

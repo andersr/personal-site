@@ -6,15 +6,18 @@ import { twMerge } from "tailwind-merge";
  *  Icon sets and names: https://icon-sets.iconify.design/
  */
 interface Props {
-  name: string;
+  icon: string;
   twColor?: string;
+  title?: string;
+  size?: number;
 }
 
-const { name, twColor } = Astro.props;
+const { icon, twColor, title, size } = Astro.props;
 ---
 
 <AstroIcon
-  name={`material-symbols-light:${name}`}
-  size={32}
-  class={twMerge("inline", twColor ?? "text-slate-400")}
+  name={icon}
+  size={size ?? 32}
+  class={twMerge("inline", twColor ?? "text-slate-500")}
+  title={title}
 />
