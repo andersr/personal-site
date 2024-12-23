@@ -1,0 +1,34 @@
+---
+import { type CollectionEntry } from "astro:content";
+
+interface Props {
+  heroImageCredit: CollectionEntry<"blog">["data"]["heroImageCredit"];
+}
+
+const { heroImageCredit } = Astro.props;
+
+const imageCreditUrl =
+  Array.isArray(heroImageCredit) && heroImageCredit.length > 1
+    ? heroImageCredit[1]
+    : "";
+
+const imageCreditText = Array.isArray(heroImageCredit)
+  ? `Image by ${heroImageCredit[0]}`
+  : "";
+
+const imageCreditStyles = "block text-sm text-right mb-4 text-slate-500";
+---
+
+{
+  heroImageCredit ? (
+    <figcaption>
+      {imageCreditUrl ? (
+        <a href={imageCreditUrl} class={imageCreditStyles}>
+          {imageCreditText}
+        </a>
+      ) : (
+        <p class={imageCreditStyles}>{imageCreditText}</p>
+      )}
+    </figcaption>
+  ) : null
+}

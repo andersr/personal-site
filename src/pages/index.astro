@@ -2,10 +2,10 @@
 import Hero from "~/components/Hero/Hero.astro";
 import PostsList from "~/components/PostsList.astro";
 import Typography from "~/components/Typography.astro";
-import Layout from "~/layouts/Layout.astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
 ---
 
-<Layout>
+<BaseLayout>
   <div class="mt-10">
     <Hero />
   </div>
@@ -15,4 +15,4 @@ import Layout from "~/layouts/Layout.astro";
       <PostsList />
     </Typography>
   </section>
-</Layout>
+</BaseLayout>

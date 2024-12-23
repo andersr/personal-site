@@ -1,6 +1,6 @@
 ---
 import Typography from "~/components/Typography.astro";
-import Layout from "~/layouts/Layout.astro";
+import BaseLayout from "~/layouts/BaseLayout.astro";
 import type { PageProps } from "~/types/Page";
 
 type Props = PageProps;
@@ -8,11 +8,11 @@ type Props = PageProps;
 const { title, twStyles, topSectionOffset } = Astro.props;
 ---
 
-<Layout title={title}>
+<BaseLayout title={title}>
   <Typography twStyles={twStyles}>
     <h1>{title}</h1>
     <section class={topSectionOffset ?? "mt-20"}>
       <slot />
     </section>
   </Typography>
-</Layout>
+</BaseLayout>

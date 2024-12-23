@@ -9,11 +9,14 @@ const blog = defineCollection({
     z.object({
       title: z.string(),
       description: z.string(),
-      draft: z.boolean().optional(),
+      isDraft: z.boolean().optional(),
       toc: z.boolean().optional(),
       pubDate: z.coerce.date(),
       updatedDate: z.coerce.date().optional(),
-      heroImage: z.tuple([image(), z.string()]).optional(),
+      heroImage: z.tuple([image(), z.string()]).optional(), // [image, alt]
+      heroImageCredit: z
+        .tuple([z.string(), z.union([z.literal(""), z.string().trim().url()])])
+        .optional(), // [credit name, credit link OR ""]
     }),
 });
 

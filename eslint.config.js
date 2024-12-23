@@ -11,4 +11,15 @@ export default tseslint.config(
   eslintPluginAstro.configs.recommended,
   { ignores: [".astro/*", "tmp/*", "dist/*"] },
   { languageOptions: { globals: globals.node } },
+  {
+    rules: {
+      complexity: "warn",
+      "no-console": [
+        "error",
+        {
+          allow: ["warn", "error", "info"],
+        },
+      ],
+    },
+  },
 );

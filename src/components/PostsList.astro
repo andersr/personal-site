@@ -3,10 +3,14 @@ import { getCollection } from "astro:content";
 import type { BlogPost } from "~/types/BlogPost";
 import FormattedDate from "./FormattedDate.astro";
 
-const posts: BlogPost[] = (await getCollection("blog")).sort(
-  (a: BlogPost, b: BlogPost) =>
-    b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const isProd = import.meta.env.PROD;
+
+const posts: BlogPost[] = (await getCollection("blog"))
+  .filter((p: BlogPost) => (isProd ? !p.data.isDraft : true))
+  .sort(
+    (a: BlogPost, b: BlogPost) =>
+      b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+  );
 ---
 
 <ul class="ml-0 pl-0 list-none">
@@ -20,7 +24,10 @@ const posts: BlogPost[] = (await getCollection("blog")).sort(
             src={post.data.heroImage}
             alt=""
           /> */}
-          <h3 class="title">{post.data.title}</h3>
+          <h3 class="title">
+            {post.data.isDraft && "[DRAFT] "}
+            {post.data.title}
+          </h3>
         </a>
         <p>{post.data.description}</p>
         <p class="italic text-sm">
