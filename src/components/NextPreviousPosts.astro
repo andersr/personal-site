@@ -1,0 +1,46 @@
+---
+import type { BlogPost } from "~/types/BlogPost";
+
+/**
+ * next/previous naming is based on a reverse chronological order, with the "last" or most recent item being at the top of the list, or at index 0
+ */
+function getNextPreviousPosts(
+  currentPostId: string,
+  allPosts: BlogPost[],
+): { previous: BlogPost | null; next: BlogPost | null } {
+  const postIndex = allPosts.findIndex((p) => p.id === currentPostId);
+
+  const next = postIndex > 0 ? allPosts[postIndex - 1] : null;
+
+  const previous =
+    postIndex + 1 < allPosts.length ? allPosts[postIndex + 1] : null;
+
+  return {
+    next,
+    previous,
+  };
+}
+
+type Props = {
+  allPosts: BlogPost[];
+  currentPost: BlogPost;
+};
+
+const { allPosts, currentPost } = Astro.props;
+const { next, previous } = getNextPreviousPosts(currentPost.id, allPosts);
+---
+
+{
+  next && (
+    <div>
+      <a href={`/blog/${next.id}/`}>Next: {next.data.title}</a>
+    </div>
+  )
+}
+{
+  previous && (
+    <div>
+      <a href={`/blog/${previous.id}/`}>Previous: {previous.data.title}</a>
+    </div>
+  )
+}
