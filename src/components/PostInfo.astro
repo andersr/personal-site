@@ -1,0 +1,22 @@
+---
+import type { BlogPostFrontmatter } from "~/types/BlogPost";
+import ByLine from "./ByLine.astro";
+import ImageCredit from "./ImageCredit.astro";
+
+type Props = Pick<BlogPostFrontmatter, "pubDate" | "heroImageCredit">;
+
+const { pubDate, heroImageCredit } = Astro.props;
+---
+
+<div
+  class="text-gray-500 text-center text-sm flex items-center justify-between mt-4"
+>
+  {
+    pubDate && (
+      <div>
+        <ByLine pubDate={pubDate} />
+      </div>
+    )
+  }
+  {heroImageCredit && <ImageCredit heroImageCredit={heroImageCredit} />}
+</div>
