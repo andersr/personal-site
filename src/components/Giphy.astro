@@ -7,9 +7,9 @@ interface Props {
 const { href, src } = Astro.props;
 ---
 
-<div class="size-[300px] md:size-[400px] mx-auto mt-6 mb-16 prose-p:mt-1">
+<div class="size-[300px] md:size-[400px] mx-auto mt-6 mb-16 prose-p:mt-0">
   <iframe src={src} class="size-full"></iframe>
   <p class="">
-    <a class="text-slate-400 text-sm" href={href}>via GIPHY</a>
+    <a class="text-slate-500 text-sm" href={href}>via GIPHY</a>
   </p>
 </div>
