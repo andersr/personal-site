@@ -17,12 +17,12 @@ const imageCreditText = Array.isArray(heroImageCredit)
 
 {
   heroImageCredit ? (
-    <div>
-      {imageCreditUrl ? (
-        <a href={imageCreditUrl}>{imageCreditText}</a>
-      ) : (
-        <span>{imageCreditText}</span>
-      )}
-    </div>
+    imageCreditUrl ? (
+      <a href={imageCreditUrl} class="">
+        {imageCreditText}
+      </a>
+    ) : (
+      imageCreditText
+    )
   ) : null
 }

@@ -9,14 +9,8 @@ const { pubDate, heroImageCredit } = Astro.props;
 ---
 
 <div
-  class="text-gray-500 text-center text-sm flex items-center justify-between mt-4"
+  class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center justify-between mt-4"
 >
-  {
-    pubDate && (
-      <div>
-        <ByLine pubDate={pubDate} />
-      </div>
-    )
-  }
+  {pubDate && <ByLine pubDate={pubDate} />}
   {heroImageCredit && <ImageCredit heroImageCredit={heroImageCredit} />}
 </div>
