@@ -1,6 +1,7 @@
 ---
 import Footer from "~/components/Footer.astro";
 import Link from "~/components/Link.astro";
+import SkipToContent from "~/components/SkipToContent.astro";
 import { SITE_TITLE } from "~/consts";
 import type { PageProps } from "~/types/Page";
 import BaseHead from "../components/BaseHead.astro";
@@ -21,6 +22,7 @@ const brandStyles = "text-slate-400 text-xl";
     />
   </head>
   <body class="h-full md:flex flex-col">
+    <SkipToContent />
     <nav class="w-full flex items-center p-4">
       <div class="flex-1">
         {
@@ -42,7 +44,7 @@ const brandStyles = "text-slate-400 text-xl";
         </li>
       </ul>
     </nav>
-    <main class="md:flex-1 max-w-3xl mx-auto">
+    <main id="main" class="md:flex-1 max-w-3xl mx-auto">
       <slot />
     </main>
     <Footer>&copy; {new Date().getFullYear()} Anders Ramsay</Footer>

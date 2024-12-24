@@ -1,4 +1,5 @@
 ---
+import AdditionalPostsMedium from "~/components/AdditionalPostsMedium.astro";
 import PostsList from "~/components/PostsList.astro";
 import PageLayout from "~/layouts/PageLayout.astro";
 
@@ -8,4 +9,8 @@ const title = "Blog";
 <PageLayout title={title} twStyles="prose-ul:p-0 prose-li:pl-0">
   <h2 class="text-center md:text-left">Recent Posts</h2>
   <PostsList />
+  <div>
+    <hr />
+    <AdditionalPostsMedium />
+  </div>
 </PageLayout>

@@ -1,321 +1,161 @@
 ---
-title: Rewriting my personal site in Astro
-description: Why I decided to rewrite my personal site in Astro and how it went.
+title: Rewriting My Personal Site in Astro
+description: Why I decided to rewrite my personal site in Astro and some key insights and challenges I encountered along the way.
 pubDate: 12-22-2024
 heroImage:
   [
     ../../assets/images/blog/rewriting-my-personal-site-in-astro/hero.jpg,
-    "A person working on a laptop with a website or blog featuring a modern, clean design visible on the screen."
+    "A person working on a laptop with a website or blog featuring a modern, clean design visible on the screen.",
   ]
 heroImageCredit: [ChatGPT, ""]
-toc: true
 isDraft: true
 ---
 
-_This post is part of the [E2E Testing Series](/blog/e2e-testing-series). If you haven't already, I suggest reading previous posts before continuing._
+I've been wanting to do a rewrite of my personal site for a while now. This is a summary of how I ended up replacing NextJS with Astro and my journey in making the shift. I'll talk about some of my favorite features in Astro, as well as a few aspects of the framework I found to be less than great.
 
-## Process Overview
+(yes, you are looking at the new version which likely looks identical to the old version and that's by design. I wanted to re-create the existing site in Astro. To ensure it was an apples to apples update.)
 
-We're going to walk through a sample process for how to write E2E tests and touch on some best practices along the way. Here's an overview of the general process I tend to follow:
+## Deciding on sticking with NextJS or making a Switch
 
-1. Create a test file and add pending tests for all the feature requirements.
-2. Write the minimum code needed to get each test to pass.
-3. With the test runner in watch mode, go back and refactor and clean up code as needed.
+While the previous version of this site, written in NextJS, was perfectly functional, it was just starting to feel dated at the code level.
 
-If you're familiar with [Test-Driven Development](https://en.wikipedia.org/wiki/Test-driven_development) (TDD), the above might look familiar. I've found that writing E2E tests is a great opportunity to put TDD into practice.
+For example. I was using an older version of NextJS (v12), with the [old page router model](https://nextjs.org/docs/pages). I considered sticking with NextJS and updating it to use the new [app router](https://nextjs.org/docs/app) model. But soon after digging into what that would require, it just felt like overkill for a mostly static site with a blog.
 
-As our sample feature, we'll be walking through writing the tests for the Newsletter signup form I discussed in the series intro.
+**TODO: add callout box: "NextJS just felt like overkill for a mostly static site with a blog."**
 
-![Newsletter signup form](/images/blog/e2e-series-a-process-for-writing-tests/intro-newsletter-signup-form-min.jpg)
+Instead, I decided to use the opportunity to try out one of the newer frameworks. These were some of the key features I was looking for:
 
-I picked it because it's a small but still complete feature, so a great basis for conveying the E2E test-writing process.
+- Optimized for mostly static, content-rich sites.
+- Supports [mdx](https://mdxjs.com/) content out of the box. (All my current blog posts are writting in mdx.)
+- Allows for optionally adding advanced UI functionality, eg via React components or something similar.
 
-To get started, we'll create our main test file.
+I considered a number of options, including [Svelte](https://svelte.dev/), [Qwik](https://qwik.dev/), [Htmx](https://htmx.org/), but in the end, I decided to go with [Astro](https://astro.build/), which checks all of the above boxes and more.
 
-## Create the test file and add pending tests
+Here are a few of the main reasons why, as well as some challenges I encountered.
 
-If possible, I suggest collecting all tests for each feature in the same test file, and then match the name of file to the test title. Let's do that now.
+## MDX and other "batteries" included
 
-(I'm assuming you've already [set up your local environment](/blog/e2e-series-setting-up-your-local-environment).)
+With my old version of the app, quite a bit was required to get MDX working, including installing and configuring [next-mdx-remote](https://www.npmjs.com/package/next-mdx-remote), and multiple other packages such as [gray-matter](https://www.npmjs.com/package/gray-matter), to allow for reading in mdx files and frontmatter, handling code syntax highlighting and more. If I had stuck with the new version of Next, there would still be [quite a bit of config](https://nextjs.org/docs/pages/building-your-application/configuring/mdx) required.
 
-Create a new file at `cypress/e2e/newsletterSignup.cy.ts`.
+With Astro, just run `npx astro add mdx`, follow the prompts, and you're good to go. This is thanks to their numerous [automatic integration setups](https://docs.astro.build/en/guides/integrations-guide/) for their official integrations, which includes mdx.
 
-Note that in [version 10 of Cypress](https://www.cypress.io/blog/2022/06/01/cypress-10-release/) E2E test files are placed in the directory `cypress/e2e` and use the `.cy` extension in the file name, which replaces the previous `.spec` extension for E2E tests.
+So much of what I had previously needed to set up manually just worked out of the box, including handling of [frontmatter](https://wiki.dendron.so/notes/ffec2853-c0e0-4165-a368-339db12c8e4b/), code syntax highlighting, and more.
 
-Add the following code to this file:
+(As an aside, I can't understand why NextJS doesn't add these types of wizard-like features, but that's a topic for another day.)
 
-```tsx
-// cypress/e2e/newsletterSignup.cy.ts
+## Astro components are the markdown version of React components + server-side code
 
-describe("Newsletter signup", () => {
-  // ** 1 **
-  beforeEach(() => {
-    // ** 2 **
-    cy.visit("/newsletter");
-  });
+If you compare an HTML snippet to the equivalent markdown you get an good idea of the difference between how much less code you need to write with Astro.
 
-  it("displays a message explaining the form's purpose"); // ** 3 **
+Similar to how it is to learn markdown if you already know HTML, you can basically just start writing it immediately. No rampup time needed. Sure, if you want to do something a little more advanced, you may have to do some quick research, but in many cases I found I could just sort of grok how, say, a concept from React translated to Astro.
 
-  it("allows for completing a newsletter signup");
+This is the basic structure of an [Astro component](https://docs.astro.build/en/basics/astro-components/).
 
-  it("allows for submitting the form by using the enter key");
+```javascript
+----
+ // optional component scripts
+---
 
-  it("displays an error message if input value is not a valid email address");
+<div>JSX with a few astro-specific tweaks go here</div>
 
-  it("displays an error message if the input field is empty");
+<scripts>
+// optional client-side scripts
+</scripts>
 
-  it("clears the email input if signup is successful");
-
-  it("persists the email input value if there is an error");
-});
+<style>
+  /* optional local styles */
+</style>
 ```
 
-### Code notes
+(Btw, this is not unique to Astro. For example, Svelte and Qwik... )
 
-1. This is the `describe` block, which is the method used to group test specs. I recommend matching the name of this block (_e.g._ here the name is "Newsletter signup") to the name of the test file and, if possible, also to what this feature is named elsewhere, eg in a User Story. This is a convention I like to follow to encourage only having one set of feature tests per file and also to create less confusion when trying to locate a test. The value of this will become more apparent when you start to have large numbers of tests.
-2. The `beforeEach` block will run before every test in the describe block. This is a great place to tell the test runner where it should navigate to. Also, when applicable it can be a good place to place the app in desired state, eg using a login command.
-3. This is our list of [pending tests](https://glebbahmutov.com/blog/cypress-test-statuses/#pending-tests). The test descriptions for these tests should together make up the requirements for this feature. If you are working off a User Story, the list of tests should match your [acceptance criteria](https://en.wikipedia.org/wiki/User_story#Acceptance_criteria).
+Note that everything except for the jsx is optional. Here is a comparison of one such minimal React component vs the Astro equivalent.
 
-## Using your E2E tests as your "live" todo list
+```jsx
+interface Props {
+  children: React.ReactElement;
+}
 
-At this point, your Cypress console should look something like this:
-
-![E2E Testing console with test added](/images/blog/e2e-series-a-process-for-writing-tests/e2e-testing-console-with-test-added-min.jpg)
-
-Go ahead and click on "newsletterSignup" and you should now see the test runner with a list of pending tests.
-
-![Cypress runner with the pending tests](/images/blog/e2e-series-a-process-for-writing-tests/cypress-runner-with-pending-tests-min.jpg)
-
-With the test runner now in watch mode, as you update your tests and source code, our tests will re-run automatically and update tests to passing or failing.
-
-I personally find it to be a great approach to have this type of "live" todo list, helping me remain assured that I am fully aligned and building what actually is being requested, and having a clear sense of my progress.
-
-## Adding our first test
-
-We're going to start by getting the first pending test to pass, which also happens to be fairly basic.
-
-In `cypress/e2e/newsletterSignup.cy.ts`, go ahead and replace the first pending test with the following code:
-
-```tsx
-it("displays a message explaining the form's purpose", () => {
-  cy.get('[data-test="newsletter"]').contains("Sign up for our newsletter");
-});
-```
-
-Cypress tests allow for [chaining of methods](https://www.w3schools.com/jquery/jquery_chaining.asp), which means they often are one-liners like the one above.
-
-The test divides into two parts:
-
-- The [`cy.get`](https://docs.cypress.io/api/commands/get) part, which is where we select the element we want to test.
-- The [`.contains`](https://docs.cypress.io/api/commands/contains) part which is one of many types of assertions. In this case, we are asserting that we will find a specific text block in the previously selected element.
-
-(At the risk of causing some confusion, `.get` is also an assertion that an element exists, and `.contains` can also be used to select an element, for use in other assertions.)
-
-You might have noticed the use of `'[data-test="newsletter"]'` to identify our newsletter DOM element, which might look a bit odd. We'll talk about that in more detail in a bit, but first let's get the above test to pass.
-
-## Getting our first test to pass
-
-If we look at our test runner, we see that the test we added above is failing.
-
-![E2E Testing console with first failing test](/images/blog/e2e-series-a-process-for-writing-tests/first-failing-test-min.jpg)
-
-This is expected, since we haven't yet added the code to make it pass. Let's do that now.
-
-Add a new file at `src/pages/newsletter.tsx`. Since we are placing a file in the special `pages` directory, NextJS will create the new corresponding route `/newsletter`.
-
-Add the following code to the new file:
-
-```tsx
-// src/pages/newsletter.tsx
-import type { NextPage } from "next";
-
-const Newsletter: NextPage = () => {
+export function CalloutBox({ children }: Props) {
   return (
-    <form data-test="newsletter">
-      <h3>Sign up for our newsletter!</h3>
-    </form>
+    <div
+      className={
+        "bg-slate-100 md:rounded-md pt-3 md:pt-2 p-2 prose-headings:mt-2"
+      }
+    >
+      {children}
+    </div>
   );
-};
-
-export default Newsletter;
-```
-
-If you now go back to the test runner, you should see that there is a green checkmark next to your first test, which means it's passing! :tada:
-
-![First passing test!](/images/blog/e2e-series-a-process-for-writing-tests/first-passing-test-min.jpg)
-
-## Making tests more resilient with Test IDs
-
-Note the `data-test="newsletter"` attribute added to the `form` tag above.
-
-```tsx
-<form data-test="newsletter">
-```
-
-`"newsletter"` is our "test id" and what we use to select this element in our test with the selector `[data-test="newsletter"]`.
-
-```tsx
-cy.get('[data-test="newsletter"]')...
-```
-
-This is a fairly common pattern in E2E testing, where we make use of a [custom data attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/data-*) to identify the element(s) we want to test. Note that you can put whatever you want after the `data-` part, but I prefer using `test`.
-
-Why would we want to do this?
-
-I think the easiest way to understand the benefits of using test ids, is to look at the alternatives to identifying elements on a page:
-
-- Use a DOM selector, such as maybe adding an ID to the element, eg `<form id="signupForm">`.
-- Using a class name, eg `<form class="signup-form">`.
-- Create a selector based on the current DOM structure, such as `main form h3`.
-
-The main issue with these approaches is that they're all fragile.
-
-Every time a developer touches this code, it is possible they might modify any of these due to some implementation need, and unknowingly cause a false negative test failure.
-
-Use of test ID allows us to separate test-specific code and implementation code, making tests more resilient to unrelated code changes.
-
-## Adding the main user flow test
-
-Next, let's add a test for the main user flow: completing and submitting the signup form.
-
-This test will be a bit more advanced. Go ahead and update the next pending test to be as follows:
-
-```tsx
-// cypress/e2e/newsletterSignup.cy.ts
-it("allows for completing a newsletter signup", () => {
-  const testEmail = "test@email.com";
-
-  cy.intercept("POST", "/api/newsletter", (req) => {
-    // ** 1 **
-
-    expect(req.body.email).to.contain(testEmail); // ** 2 **
-
-    req.reply({
-      // ** 3 **
-      statusCode: 200,
-      body: {
-        success: true,
-        message: "Success message",
-      },
-    });
-  });
-
-  cy.get('[data-test="emailInput"]').type(testEmail); // ** 4 **
-  cy.get('[data-test="formSubmit"]').click(); // ** 5 **
-  cy.get('[data-test="successMessage"]').should("exist"); // ** 6 **
-});
-```
-
-The goal of this test is to ensure that a "happy path" newsletter signup flow works as expected.
-
-### Code Notes
-
-There's quite a bit going on in this test. Let's walk through it step by step:
-
-1. `cy.intercept("POST"...` - here, we are telling Cypress to [intercept](https://docs.cypress.io/api/commands/intercept) a network request that will happen later in the test. With the intercept feature, Cypress basically masquerades as the given endpoint we defined and returns the response we expect. The intercept feature is truly powerful and I highly recommend reading more about it in their docs. In our case, it allows us to fully test our client side form by actually submitting an email address without having to worry about clogging up some database with fake test email addresses.
-2. This is where we assert that the client side sent the payload we expected to the back-end.
-3. If the previous assertion passes, we send the expected success response.
-4. `cy.get('[data-test="emailInput...` - this is where we type in the test email address.
-5. `cy.get('[data-test="formSubmit"]').click();` - here, we click the form submit button and, which results in an API call, that then is intercepted as per step 1 above.
-6. `cy.get('[data-test="successMessage"]')...` - assuming our form submit was successful, we expect a success response from the server.
-
-## Getting the main user flow test to pass
-
-Let's add the code needed to get the above test to pass. Update `src/pages/newsletter.tsx` with the following:
-
-```tsx
-import type { NextPage } from "next";
-import { useState } from "react";
-import { ServerResponse } from "../pages/api/newsletter";
-
-const Newsletter: NextPage = () => {
-  const [emailInput, setEmailInput] = useState("");
-  const [confirmMessage, setConfirmMessage] = useState("");
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    setConfirmMessage("");
-    e.preventDefault();
-
-    const raw = await fetch("/api/newsletter", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: emailInput,
-      }),
-    });
-
-    const response: ServerResponse = await raw.json();
-
-    if (response.success) {
-      setConfirmMessage(response.message);
-      setEmailInput("");
-      return;
-    }
-  };
-
-  return (
-    <form data-test="newsletter" onSubmit={handleSubmit}>
-      {confirmMessage && <div data-test="successMessage">{confirmMessage}</div>}
-      <h3>Sign up for our newsletter!</h3>
-      <input
-        type={"email"}
-        value={emailInput}
-        onChange={(e) => setEmailInput(e.target.value)}
-        data-test="emailInput"
-        id="emailInput"
-        formNoValidate
-      />
-      <input type={"submit"} data-test="formSubmit" />
-    </form>
-  );
-};
-
-export default Newsletter;
-```
-
-We also need to add an API endpoint for submitting our form data. Create a new file at `src/pages/api/newsletter.ts` and add the following:
-
-```tsx
-import type { NextApiRequest, NextApiResponse } from "next";
-
-export type ServerResponse = {
-  message: string;
-  success: boolean;
-};
-
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ServerResponse>
-) {
-  const { email } = req.body;
-
-  res.status(200).json({
-    message: \`\"\$\{email\}\" was added to the mailing list. Thanks for signing up!\`,
-    success: true,
-  });
 }
 ```
 
-(I won't be going through this code in detail, as this is not a post about TS or React.)
+And the equivalent Astro code:
 
-Note that this API endpoint doesn't actually store the submitted email in a data store. However, if this were a real newsletter signup, the place to do it would likely be in the above file.
+```jsx
+<div class={"bg-slate-100 md:rounded-md pt-3 md:pt-2 p-2 prose-headings:mt-2"}>
+  <slot />
+</div>
+```
 
-If we now check our test runner, we should see that the main user flow test ("allows for completing a newsletter signup") test is passing.
+In this case, we went from 15 to 3 lines of code. :tada:
 
-![Main user flow test passing.](/images/blog/e2e-series-a-process-for-writing-tests/main-user-flow-passing-min.jpg)
+Note how it's not even necessary to name your component in the file as it's just a default export and you can name it whatever you want when importing. (See below for more on, while I like how this reduces the amount of you code you need to write, it also can create some headaches.)
 
-## Getting remaining tests to pass
+## I assumed I'd still need React, but apparently not
 
-We've written the minimum code needed to get the current tests to pass. However, there are still several requirements that need to be fulfilled, such as ensuring that emails are validly formed. You'll find the completed tests and the corresponding code to get them to pass in the [github repo](https://github.com/andersr/e2e-testing-tutorial).
+As I mentioned earlier, one of my requirements for the selected framework was to allow for continuing to use tools I already know, such as React. I just assumed I'd need it for more advanced features.
 
-## Refactor and clean up your code with confidence
+Well, as it turned out, I was happily surprised to not have to add React, at least so far.
 
-Now that we have passing tests for all the feature requirements, we can reap the benefits of our efforts when refactoring.
+Time and again, I would start porting over some feature, and it would turn out no React was needed.
 
-For example, we may want to DRY up our code, which, at least in my experience, can often lead to unintentionally breaking things. Additionally, I haven't added much in the way to styling, and that is also something we now can do with far less concern about breaking something.
+(CALLOUT) The general pattern, I found, is that you can usually just replace some react-specific package with a more generic or framework-agnostic equivalent.
 
-## Next Up: Ensuring tests run automatically on every code push
+For example, I was using [react icons](https://react-icons.github.io/react-icons/) for display of icons. In that, I was able to quite easily replace it with [iconify](https://iconify.design/).
 
-Now that we've written some tests, let's be sure and put them to work. In the next post, we'll show how to make sure your full test suite runs every time you push new code, and why that matters. [Continue to the next post in the series](/blog/e2e-series-ensure-tests-run-on-every-push).
+(Btw, this is not unique to Astro. For example, Svelte and Qwik... )
+
+And the best part is that if I should encounter a feature for which I can't find a good generic version, well, adding React is always an option.
+
+## Not all roses
+
+While I am definitely overall happy with making the switch, there were definitely some areas of frustration.
+
+- Only one component per file
+- Great schema modeling using Zod, but it doesn't carry over into the mdx frontmatter and leveraging the types in your code is not immeditely clear.
+- Some quirk with setting up my IDE as well the need to frequently run the sync command.
+
+I really like the content collections model, in particular being able to type it using Zod. I'm not a huge fan of Zod, as I do not find the API to be intuititve (eg the meaning of `.string()` vs `.string().optional()`) But I've used it before so no big deal.
+
+However, since the typed content is likely to be entered via mdx frontmatter, it would really be great if those values also could be validated. For example, I mistakenly put `draft` rather than `isDraft` and there was no error.  
+There is an open request in Astro to add this. Please upvote it if you agree these should be typed.
+
+Figuring out how to integtate this with mdx files was confusing. For example, I can include a path to a hero image that will be optimized but only if I use it outside the mdx file, ie in the wrapping Astro component. Here is a code sample to explain:
+
+At the same time, if I want to include an optimized image within the mdx, then each one has to be imported individually.
+
+The image processing feature is great but it would be even better if I could just place images I wanted in a folder and import the optimized images from a collection rather than have to handle each one individually.
+
+A few things about Astro were confusing. For example, I had to in many cases run the `sync` command to generate needed types.
+
+I also would prefer to in some cases be able to have more than one component per file, eg in the case of teh Welcome hero. At the same time, I can also see the reasoning and potential benefits of enforcing a single compoent per file (I think Svelte started out this way but later caved and now allows multiple components in a file.)
+
+Astro components are default exported which on one hand is nice, but on the other created some challenges with my IDE to enable auto import.
+
+Ran into some issues with the prettier formatting.
+
+Astro comes with Zod included and is used for schema typing. This was great but it wasn't clear how to make use of those types elsehwere in the app.
+
+## Keeping it open source
+
+I'll write more about this in another post, but I also made the decision to have the repo be public from the start. There really wasn't a reason for something like this to be private. And by having it be public, I think that also encourages a code base that overall is tidier, better commit hygiene and more.
+
+Feel free to take a look at the source and let me know your thoughts either via Threads or Bluesky.
+
+**TODO: enable share links to Bluesky and Threads**
+
+# NOTES
+
+This means a lot less code was needed to ship the same functionality (look into comparing total lines of code.)
+
+Astro is also just more minimal in several important ways and has been optimized for making static content load super fast.

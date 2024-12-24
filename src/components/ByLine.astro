@@ -1,0 +1,10 @@
+---
+import type { BlogPostFrontmatter } from "~/types/BlogPost";
+import FormattedDate from "./FormattedDate.astro";
+
+type Props = Pick<BlogPostFrontmatter, "pubDate">;
+
+const { pubDate } = Astro.props;
+---
+
+<span><FormattedDate date={pubDate} />, by Anders Ramsay</span>
