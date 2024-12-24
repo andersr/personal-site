@@ -1,16 +1,42 @@
 ---
 import type { BlogPostFrontmatter } from "~/types/BlogPost";
+import BulletDivider from "./BulletDivider.astro";
 import ByLine from "./ByLine.astro";
 import ImageCredit from "./ImageCredit.astro";
 
-type Props = Pick<BlogPostFrontmatter, "pubDate" | "heroImageCredit">;
+type Props = BlogPostFrontmatter;
 
-const { pubDate, heroImageCredit } = Astro.props;
+const { pubDate, heroImageCredit, seriesName, seriesSlug, repo } = Astro.props;
 ---
 
-<div
-  class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center justify-between mt-4"
->
+<div class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center mt-4">
   {pubDate && <ByLine pubDate={pubDate} />}
-  {heroImageCredit && <ImageCredit heroImageCredit={heroImageCredit} />}
+  {
+    seriesName && seriesSlug && (
+      <>
+        <BulletDivider />
+        {
+          <a href={`/blog/${seriesSlug}`} class="">
+            {seriesName} Series
+          </a>
+        }
+      </>
+    )
+  }
+  {
+    repo && (
+      <>
+        <BulletDivider />
+        <a href={repo}>Code Repo</a>
+      </>
+    )
+  }
+  {
+    heroImageCredit && (
+      <>
+        <BulletDivider />
+        <ImageCredit heroImageCredit={heroImageCredit} />
+      </>
+    )
+  }
 </div>

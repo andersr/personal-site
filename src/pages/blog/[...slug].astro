@@ -23,8 +23,7 @@ const posts: CollectionEntry<"blog">[] = await getCollection("blog");
 const post = Astro.props;
 
 const { Content, headings } = await render(post);
-const { title, heroImage, heroImageCredit, description, toc, pubDate } =
-  post.data;
+const { title, heroImage, description, toc } = post.data;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -35,16 +34,19 @@ const { title, heroImage, heroImageCredit, description, toc, pubDate } =
         <Image src={heroImage[0]} alt={heroImage[1]} priority />
       )
     }
-    <PostInfo pubDate={pubDate} heroImageCredit={heroImageCredit} />
+    <PostInfo {...post.data} />
     {
-      toc && (
-        <ul class="prose mx-auto">
-          {headings.map((h) => (
-            <li>
-              <a href={`#${h.slug}`}>{h.text}</a>
-            </li>
-          ))}
-        </ul>
+      toc && headings.length > 0 && (
+        <div class="mb-8">
+          <h2>Contents</h2>
+          <ul>
+            {headings.map((h) => (
+              <li>
+                <a href={`#${h.slug}`}>{h.text}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
       )
     }
     <Content components={{ CalloutBox, Giphy, Image }} />
