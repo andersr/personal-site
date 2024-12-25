@@ -1,9 +1,7 @@
 ---
-import { type CollectionEntry } from "astro:content";
+import type { BlogPostFrontmatter } from "~/types/BlogPost";
 
-interface Props {
-  heroImageCredit: CollectionEntry<"blog">["data"]["heroImageCredit"];
-}
+type Props = Pick<BlogPostFrontmatter, "heroImageCredit">;
 
 const { heroImageCredit } = Astro.props;
 
@@ -15,20 +13,16 @@ const imageCreditUrl =
 const imageCreditText = Array.isArray(heroImageCredit)
   ? `Image by ${heroImageCredit[0]}`
   : "";
-
-const imageCreditStyles = "block text-sm text-right mb-4 text-slate-500";
 ---
 
 {
   heroImageCredit ? (
-    <figcaption>
-      {imageCreditUrl ? (
-        <a href={imageCreditUrl} class={imageCreditStyles}>
-          {imageCreditText}
-        </a>
-      ) : (
-        <p class={imageCreditStyles}>{imageCreditText}</p>
-      )}
-    </figcaption>
+    imageCreditUrl ? (
+      <a href={imageCreditUrl} class="">
+        {imageCreditText}
+      </a>
+    ) : (
+      imageCreditText
+    )
   ) : null
 }

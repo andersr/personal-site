@@ -10,11 +10,13 @@ const { twStyles } = Astro.props;
 
 <div
   class={twMerge(
-    "prose max-w-none md:prose-lg",
-    "prose-h1:text-center prose-h1:font-normal prose-h1:text-5xl prose-h1:mt-12",
+    "prose max-w-none md:prose-xl",
+    "prose-h1:text-center prose-h1:font-normal prose-h1:text-5xl prose-h1:mt-12 prose-h1:leading-snug",
     "prose-h2:font-normal prose-h2:mt-8 prose-h2:mb-0",
-    "prose-h3:font-normal prose-h3:mb-1 prose-h3:mt-4",
-    "prose-p:my-1",
+    "prose-h3:font-normal prose-h3:mb-1 prose-h3:mt-8",
+    "prose-p:mt-4 prose-p:mb-2",
+    "prose-ul:pl-6",
+    "prose-li:my-2",
     twStyles,
   )}
 >

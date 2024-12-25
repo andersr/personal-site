@@ -17,6 +17,9 @@ const blog = defineCollection({
       heroImageCredit: z
         .tuple([z.string(), z.union([z.literal(""), z.string().trim().url()])])
         .optional(), // [credit name, credit link OR ""]
+      seriesName: z.string().optional(),
+      seriesSlug: z.string().optional(),
+      repo: z.string().optional(),
     }),
 });
 

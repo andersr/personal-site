@@ -1,11 +1,14 @@
 ---
+import AdditionalPostsMedium from "~/components/AdditionalPostsMedium.astro";
 import Hero from "~/components/Hero/Hero.astro";
 import PostsList from "~/components/PostsList.astro";
 import Typography from "~/components/Typography.astro";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 ---
 
-<BaseLayout>
+<BaseLayout
+  description="Anders Ramsay's personal site, where he writes about designing and building digital products."
+>
   <div class="mt-10">
     <Hero />
   </div>
@@ -13,6 +16,10 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
     <Typography twStyles="prose-ul:p-0 prose-li:pl-0">
       <h2 class="text-center md:text-left">Recent Posts</h2>
       <PostsList />
+      <div>
+        <hr />
+        <AdditionalPostsMedium />
+      </div>
     </Typography>
   </section>
 </BaseLayout>
