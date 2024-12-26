@@ -20,6 +20,12 @@ const blog = defineCollection({
       seriesName: z.string().optional(),
       seriesSlug: z.string().optional(),
       repo: z.string().optional(),
+      shareLinks: z
+        .tuple([
+          z.string().startsWith("https://bsky.app"),
+          z.string().startsWith("https://www.threads.net"),
+        ])
+        .optional(),
     }),
 });
 
