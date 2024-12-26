@@ -1,15 +1,17 @@
 ---
 interface Props {
-  href: string;
-  src: string;
+  slug: string;
+  id: string;
 }
 
-const { href, src } = Astro.props;
+const { id, slug } = Astro.props;
 ---
 
-<div class="size-[300px] md:size-[400px] mx-auto mt-6 mb-16 prose-p:mt-0">
-  <iframe src={src} class="size-full"></iframe>
-  <p class="">
-    <a class="text-slate-500 text-sm" href={href}>via GIPHY</a>
-  </p>
-</div>
+<figure class="size-[300px] md:size-[480px] mx-auto relative">
+  <iframe src={`https://giphy.com/embed/${id}`} class="size-full"></iframe>
+  <figcaption class="absolute bottom-1 right-2">
+    <a class="text-sm" href={`httfigcaptions://giphy.com/gifs/${slug}`}
+      >via GIPHY</a
+    >
+  </figcaption>
+</figure>
