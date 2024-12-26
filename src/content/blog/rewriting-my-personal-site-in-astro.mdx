@@ -1,6 +1,6 @@
 ---
-title: Rewriting My Personal Site in Astro
-description: Why I decided to rewrite my personal site in Astro and some key insights and challenges I encountered along the way.
+title: Why I Rewrote My Personal Site in Astro
+description: I've been wanting to do a rewrite of my personal site for a while now. This is a summary of why I replaced NextJS with Astro, some of the main features that attracted me, a few unexpected delights, and some minor downsides I uncovered.
 pubDate: 12-22-2024
 heroImage:
   [
@@ -11,30 +11,47 @@ heroImageCredit: [ChatGPT, ""]
 isDraft: true
 ---
 
-I've been wanting to do a rewrite of my personal site for a while now. This is a summary of how I ended up replacing NextJS with Astro and my journey in making the shift. I'll talk about some of my favorite features in Astro, as well as a few aspects of the framework I found to be less than great.
+If you've visited my site in the past, you'll likely find that--at least visually--it looks mostly unchanged. But under the hood, basically everything has changed. That's because I recently decided to rewrite the previous version, built with NextJS, with a new version built with [Astro](https://astro.build/).
 
-(yes, you are looking at the new version which likely looks identical to the old version and that's by design. I wanted to re-create the existing site in Astro. To ensure it was an apples to apples update.)
+In this post, I'll talk about why I settled on Astro, some of the main features I like, a few unexpected delights, and some of the, mostly minor, downsides I discovered.
 
-## Deciding on sticking with NextJS or making a Switch
+## Deciding on replacing NextJS
 
-While the previous version of this site, written in NextJS, was perfectly functional, it was just starting to feel dated at the code level.
+This all started with me reviewing the current codebase and running [npm-check-updates](https://www.npmjs.com/package/npm-check-updates) in my code repo, only to be greeted by a sea of red.
 
-For example. I was using an older version of NextJS (v12), with the [old page router model](https://nextjs.org/docs/pages). I considered sticking with NextJS and updating it to use the new [app router](https://nextjs.org/docs/app) model. But soon after digging into what that would require, it just felt like overkill for a mostly static site with a blog.
+![Sea of Red pic](https://placehold.co/600x300?text=sea+of+red)
+
+As I started digging to into what specifically was outdated, the old version of NextJS (v12) really stood out. I briefly looked into updating to the latest version (v15), but with the current app using the [old page router model](https://nextjs.org/docs/pages), just that process alone of updating the new [app router](https://nextjs.org/docs/app) seemed like a lot. But more significantly, the entire framework just started to feel bloated and basically overkill for a mostly static site with a blog.
+
+In my opinion, NextJS has effectively turned into the Wordpress of React apps. It has a massive userbase, but boy does it feel old and clunky.
+
+[MAKE CURRENT CODE PUBLIC AND REFERENCE?]
+
+So it was time to shop around for a more light-weight modern alternative.
 
 **TODO: add callout box: "NextJS just felt like overkill for a mostly static site with a blog."**
 
-Instead, I decided to use the opportunity to try out one of the newer frameworks. These were some of the key features I was looking for:
+## Why I settled on Astro
 
-- Optimized for mostly static, content-rich sites.
-- Supports [mdx](https://mdxjs.com/) content out of the box. (All my current blog posts are writting in mdx.)
-- Allows for optionally adding advanced UI functionality, eg via React components or something similar.
+Picking a new JS framework is a bit like when you go to a classic diner and are presented with a seemingly endless menu.
 
-I considered a number of options, including [Svelte](https://svelte.dev/), [Qwik](https://qwik.dev/), [Htmx](https://htmx.org/), but in the end, I decided to go with [Astro](https://astro.build/), which checks all of the above boxes and more.
+![huge diner menu pic - NEED TO ADD CAPTION WITH CREDIT](https://placehold.co/600x400?text=huge+diner+menu)
+
+With [so many available options](https://cssauthor.com/javascript-frameworks/), it's important to have a clear understanding of what you want.
+
+These are the features that were most important to me:
+
+- Optimized for static, content-rich sites, but can also support more advanced functionality if needed.
+- Supports [mdx](https://mdxjs.com/) content out of the box.
+- Has a large and growing community of users.
+
+I considered a number of options, including [Svelte](https://svelte.dev/), [Qwik](https://qwik.dev/), and[Htmx](https://htmx.org/), each of which I recommend checking out, but in the end, I decided to go with [Astro](https://astro.build/), which checks all of the above boxes and much more.
 
 Here are a few of the main reasons why, as well as some challenges I encountered.
 
 ## MDX and other "batteries" included
 
+(All my current blog posts are written in mdx.)
 With my old version of the app, quite a bit was required to get MDX working, including installing and configuring [next-mdx-remote](https://www.npmjs.com/package/next-mdx-remote), and multiple other packages such as [gray-matter](https://www.npmjs.com/package/gray-matter), to allow for reading in mdx files and frontmatter, handling code syntax highlighting and more. If I had stuck with the new version of Next, there would still be [quite a bit of config](https://nextjs.org/docs/pages/building-your-application/configuring/mdx) required.
 
 With Astro, just run `npx astro add mdx`, follow the prompts, and you're good to go. This is thanks to their numerous [automatic integration setups](https://docs.astro.build/en/guides/integrations-guide/) for their official integrations, which includes mdx.
@@ -43,33 +60,81 @@ So much of what I had previously needed to set up manually just worked out of th
 
 (As an aside, I can't understand why NextJS doesn't add these types of wizard-like features, but that's a topic for another day.)
 
-## Astro components are the markdown version of React components + server-side code
+## Bringing markdown lightness to component files
 
-If you compare an HTML snippet to the equivalent markdown you get an good idea of the difference between how much less code you need to write with Astro.
+I remember the first time I encountered markdown. Coming from years of working with HTML, I just took one look at it and it immediately made sense.
 
-Similar to how it is to learn markdown if you already know HTML, you can basically just start writing it immediately. No rampup time needed. Sure, if you want to do something a little more advanced, you may have to do some quick research, but in many cases I found I could just sort of grok how, say, a concept from React translated to Astro.
+In many ways, the Astro component file structure applies markdown thinking to component files, which means a lot less code to write to achieve the same result.
 
-This is the basic structure of an [Astro component](https://docs.astro.build/en/basics/astro-components/).
+As an example, here is a code comparison of (a simplified version) of my original NextJS homepage code vs the Astro equivalent.
 
-```javascript
-----
- // optional component scripts
----
+```jsx
+import { Layout, PostsList, WelcomeHero } from "~/components";
+import { getAllPosts } from "~/lib";
+import { PostSummaryData } from "~/models";
+import { AdditionalPosts } from "./blog";
 
-<div>JSX with a few astro-specific tweaks go here</div>
+interface Props {
+  posts: PostSummaryData[];
+}
 
-<scripts>
-// optional client-side scripts
-</scripts>
+export const getStaticProps = () => {
+  return {
+    props: {
+      posts: getAllPosts(),
+    },
+  };
+};
 
-<style>
-  /* optional local styles */
-</style>
+export default function Home({ posts }: Props) {
+  return (
+    <Layout
+      metaDescription="Anders Ramsay's personal site, where he writes about designing and building digital products."
+    >
+      <WelcomeHero />
+      <div className="mt-10 md:mt-6">
+        <PostsList
+          posts={posts}
+          title="Recent Posts"
+        />
+      </div>
+    </Layout>
+  );
+}
 ```
 
-(Btw, this is not unique to Astro. For example, Svelte and Qwik... )
+(32 lines of code)
+(Put all this in citation blocks: The above is a fairly vanilla NextJS React server component, meaning we are able to combing code that runs on the server (`getStaticProps` with code that runs on both client and server.)
 
-Note that everything except for the jsx is optional. Here is a comparison of one such minimal React component vs the Astro equivalent.
+```jsx
+---
+import Hero from "~/components/Hero/Hero.astro";
+import List from "~/components/List.astro";
+import Layout from "~/layouts/Layout.astro";
+import { getAllPosts } from "~/lib";
+
+const posts = await getAllPosts();
+---
+
+<Layout
+  description="Anders Ramsay's personal site, where he writes about designing and building digital products."
+>
+  <div class="mt-10">
+    <Hero />
+  </div>
+  <section class="mt-10 md:mt-[32px]">
+      <h2 class="text-center md:text-left">Recent Posts</h2>
+      <List items={posts} />
+  </section>
+</Layout>
+```
+
+(20 lines of code)
+Here is the same functionality in Astro. All the code that runs strictly on the server is enclosed in the equivalent of a markdown frontmatter block. Everything below that block runs both on the client and server. Note also that there is no need to include a function export or name your component.
+
+And we cut the number of lines of code by about a third.
+
+Note that everything except for the jsx is optional. For a minimal component, the difference becomes even more pronoounced.
 
 ```jsx
 interface Props {
@@ -99,7 +164,7 @@ And the equivalent Astro code:
 
 In this case, we went from 15 to 3 lines of code. :tada:
 
-Note how it's not even necessary to name your component in the file as it's just a default export and you can name it whatever you want when importing. (See below for more on, while I like how this reduces the amount of you code you need to write, it also can create some headaches.)
+Note how it's not even necessary to name your component within the file as it's just a default export and you can name it whatever you want when importing, though I'd strongly recommend having that name match the name of the file. (This can also lead to some headaches. More on that below.)
 
 ## I assumed I'd still need React, but apparently not
 
@@ -109,53 +174,28 @@ Well, as it turned out, I was happily surprised to not have to add React, at lea
 
 Time and again, I would start porting over some feature, and it would turn out no React was needed.
 
-(CALLOUT) The general pattern, I found, is that you can usually just replace some react-specific package with a more generic or framework-agnostic equivalent.
+(CALLOUT) The general pattern, I found, is that you can usually just replace some react-specific package with a more generic or framework-agnostic equivalent. (And this is not something necessarily specific to Astro, but a general trend among newer frameworks.)
 
 For example, I was using [react icons](https://react-icons.github.io/react-icons/) for display of icons. In that, I was able to quite easily replace it with [iconify](https://iconify.design/).
 
-(Btw, this is not unique to Astro. For example, Svelte and Qwik... )
-
 And the best part is that if I should encounter a feature for which I can't find a good generic version, well, adding React is always an option.
 
-## Not all roses
+While I am definitely overall happy with making the switch, there were definitely a few areas of frustration.
 
-While I am definitely overall happy with making the switch, there were definitely some areas of frustration.
+## One component per file
 
-- Only one component per file
-- Great schema modeling using Zod, but it doesn't carry over into the mdx frontmatter and leveraging the types in your code is not immeditely clear.
-- Some quirk with setting up my IDE as well the need to frequently run the sync command.
+With Astro, you can only have one component per file. In many cases, I've found it preferable to be able to organize tightly related component parts into smaller sub-components, but with Astro that meant I had to place all those in a folder, create a file for each sub-component and then import into the main component. To be honest, having multiple components in single file is probably not a good practice, so I guess in some ways this was Astro forcing me to eat my broccoli.
 
-I really like the content collections model, in particular being able to type it using Zod. I'm not a huge fan of Zod, as I do not find the API to be intuititve (eg the meaning of `.string()` vs `.string().optional()`) But I've used it before so no big deal.
+## Mysterious linting errors
 
-However, since the typed content is likely to be entered via mdx frontmatter, it would really be great if those values also could be validated. For example, I mistakenly put `draft` rather than `isDraft` and there was no error.  
-There is an open request in Astro to add this. Please upvote it if you agree these should be typed.
+One oddity of Astro I encountered were some mysterious errors I'd see when importing what appears to be a native Astro module.
 
-Figuring out how to integtate this with mdx files was confusing. For example, I can include a path to a hero image that will be optimized but only if I use it outside the mdx file, ie in the wrapping Astro component. Here is a code sample to explain:
+![Sea of Red pic](https://placehold.co/600x300?text=sync+error)
 
-At the same time, if I want to include an optimized image within the mdx, then each one has to be imported individually.
+As it happens that error message isn't quite accurate. Running astro dev is not sufficient, and even restarting your language server didn't always help. Instead, when I see these errors I run the [`astro sync`](https://docs.astro.build/en/reference/cli-reference/#astro-sync) command, which re-generates types for content schemas and more. Apparently, [I was not the only one](https://github.com/withastro/astro/issues/5711) who was confused about this. Even though the issue is closed on Github, I was still experiencing it as of this writing.
 
-The image processing feature is great but it would be even better if I could just place images I wanted in a folder and import the optimized images from a collection rather than have to handle each one individually.
+## Several other nits, but overall a great DX
 
-A few things about Astro were confusing. For example, I had to in many cases run the `sync` command to generate needed types.
+I could continue to list a number of additional issues I encountered, but they were in most cases minor. Overall, I'm quite happy with having made the switch to Astro. Last but not least, there was one more little delighter I forgot to mention. When adding any of the official [Astro integrations], they come with a nice automated setup CLI. Just follow the prompts and voila :tada:
 
-I also would prefer to in some cases be able to have more than one component per file, eg in the case of teh Welcome hero. At the same time, I can also see the reasoning and potential benefits of enforcing a single compoent per file (I think Svelte started out this way but later caved and now allows multiple components in a file.)
-
-Astro components are default exported which on one hand is nice, but on the other created some challenges with my IDE to enable auto import.
-
-Ran into some issues with the prettier formatting.
-
-Astro comes with Zod included and is used for schema typing. This was great but it wasn't clear how to make use of those types elsehwere in the app.
-
-## Keeping it open source
-
-I'll write more about this in another post, but I also made the decision to have the repo be public from the start. There really wasn't a reason for something like this to be private. And by having it be public, I think that also encourages a code base that overall is tidier, better commit hygiene and more.
-
-Feel free to take a look at the source and let me know your thoughts either via Threads or Bluesky.
-
-**TODO: enable share links to Bluesky and Threads**
-
-# NOTES
-
-This means a lot less code was needed to ship the same functionality (look into comparing total lines of code.)
-
-Astro is also just more minimal in several important ways and has been optimized for making static content load super fast.
+If you're thinking of standing up or replacing your mostly static site, definitely research all the current available options out there (and before doing so, save yourself some headache and list your specific requirements), but definitely take a look at Astro as well.
