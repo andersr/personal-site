@@ -28,11 +28,13 @@ const { title, heroImage, description, toc, shareLinks } = post.data;
 ---
 
 <BaseLayout title={title} description={description}>
-  <Typography twStyles="prose-img:my-1">
+  <Typography twStyles="prose-img:my-1 prose-h1:mb-4">
     <h1 class="title">{title}</h1>
     {
       Array.isArray(heroImage) && heroImage.length === 2 && (
-        <Image src={heroImage[0]} alt={heroImage[1]} priority />
+        <div class="my-6">
+          <Image src={heroImage[0]} alt={heroImage[1]} priority />
+        </div>
       )
     }
     <PostInfo {...post.data} />
