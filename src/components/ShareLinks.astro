@@ -1,0 +1,40 @@
+---
+import type { IconLinkProps } from "~/types/Icon";
+import Icon from "./Icon.astro";
+
+const icons: Omit<IconLinkProps, "href">[] = [
+  {
+    icon: "proicons:bluesky",
+    title: "Bluesky",
+    size: 24,
+  },
+  {
+    icon: "simple-icons:threads",
+    title: "Threads",
+    size: 24,
+  },
+];
+
+type Props = {
+  shareLinks: [string, string];
+};
+
+const { shareLinks } = Astro.props;
+---
+
+<div class="flex items-center justify-center">
+  Share/Discuss:{" "}
+  {
+    shareLinks.map((s, index) => {
+      const icon = icons[index];
+      if (!icon) {
+        return null;
+      }
+      return (
+        <a href={s} class="ml-2">
+          <Icon icon={icon.icon} title={icon.title} size={icon.size} />
+        </a>
+      );
+    })
+  }
+</div>

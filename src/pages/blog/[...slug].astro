@@ -5,6 +5,7 @@ import CalloutBox from "~/components/CalloutBox.astro";
 import Giphy from "~/components/Giphy.astro";
 import NextPreviousPosts from "~/components/NextPreviousPosts.astro";
 import PostInfo from "~/components/PostInfo.astro";
+import ShareLinks from "~/components/ShareLinks.astro";
 import Typography from "~/components/Typography.astro";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 
@@ -23,7 +24,7 @@ const posts: CollectionEntry<"blog">[] = await getCollection("blog");
 const post = Astro.props;
 
 const { Content, headings } = await render(post);
-const { title, heroImage, description, toc } = post.data;
+const { title, heroImage, description, toc, shareLinks } = post.data;
 ---
 
 <BaseLayout title={title} description={description}>
@@ -50,6 +51,13 @@ const { title, heroImage, description, toc } = post.data;
       )
     }
     <Content components={{ CalloutBox, Giphy, Image }} />
+    {
+      shareLinks && (
+        <p class="pt-8 text-center">
+          <ShareLinks shareLinks={shareLinks} />
+        </p>
+      )
+    }
     <NextPreviousPosts allPosts={posts} currentPost={post} />
   </Typography>
 </BaseLayout>

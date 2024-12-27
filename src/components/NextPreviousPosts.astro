@@ -33,15 +33,15 @@ const { next, previous } = getNextPreviousPosts(currentPost.id, allPosts);
 {
   (next || previous) && (
     <div class="py-8 text-center">
-      {previous && (
-        <div>
-          <a href={`/blog/${previous.id}/`}>&laquo; {previous.data.title}</a>
-        </div>
-      )}
       {next && (
-        <div>
-          <a href={`/blog/${next.id}/`}>{next.data.title} &raquo;</a>
-        </div>
+        <p>
+          <a href={`/blog/${next.id}/`}>Next: {next.data.title}</a>
+        </p>
+      )}
+      {previous && (
+        <p>
+          <a href={`/blog/${previous.id}/`}>Previous: {previous.data.title}</a>
+        </p>
       )}
     </div>
   )

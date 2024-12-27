@@ -1,23 +1,9 @@
 ---
 import type { BlogPostFrontmatter } from "~/types/BlogPost";
-import type { IconListItem } from "~/types/IconList";
 import BulletDivider from "./BulletDivider.astro";
 import ByLine from "./ByLine.astro";
-import Icon from "./Icon.astro";
 import ImageCredit from "./ImageCredit.astro";
-
-const icons: Omit<IconListItem, "href">[] = [
-  {
-    icon: "proicons:bluesky",
-    title: "Bluesky",
-    size: 24,
-  },
-  {
-    icon: "simple-icons:threads",
-    title: "Threads",
-    size: 24,
-  },
-];
+import ShareLinks from "./ShareLinks.astro";
 
 type Props = BlogPostFrontmatter;
 
@@ -25,7 +11,9 @@ const { pubDate, heroImageCredit, seriesName, seriesSlug, repo, shareLinks } =
   Astro.props;
 ---
 
-<div class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center mt-4">
+<div
+  class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center justify-center mt-4"
+>
   {pubDate && <ByLine pubDate={pubDate} />}
   {
     seriesName && seriesSlug && (
@@ -59,18 +47,7 @@ const { pubDate, heroImageCredit, seriesName, seriesSlug, repo, shareLinks } =
     shareLinks && (
       <>
         <BulletDivider />
-        Share/Discuss:{" "}
-        {shareLinks.map((s, index) => {
-          const icon = icons[index];
-          if (!icon) {
-            return null;
-          }
-          return (
-            <a href={s} class="ml-1">
-              <Icon icon={icon.icon} title={icon.title} size={icon.size} />
-            </a>
-          );
-        })}
+        <ShareLinks shareLinks={shareLinks} />
       </>
     )
   }
