@@ -1,8 +1,10 @@
 ---
 import Footer from "~/components/Footer.astro";
+import IconLinkList from "~/components/IconLinkList.astro";
 import Link from "~/components/Link.astro";
 import SkipToContent from "~/components/SkipToContent.astro";
 import { SITE_TITLE } from "~/consts";
+import { FOOTER_ICON_LINKS } from "~/lib/icons";
 import type { PageProps } from "~/types/Page";
 import BaseHead from "../components/BaseHead.astro";
 
@@ -47,6 +49,9 @@ const brandStyles = "text-slate-400 text-xl";
     <main id="main" class="md:flex-1 max-w-3xl mx-auto">
       <slot />
     </main>
-    <Footer>&copy; {new Date().getFullYear()} Anders Ramsay</Footer>
+    <Footer
+      >&copy; {new Date().getFullYear()} Anders Ramsay
+      <IconLinkList bulletDivider items={FOOTER_ICON_LINKS} size={20} /></Footer
+    >
   </body>
 </html>
