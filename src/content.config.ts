@@ -22,8 +22,8 @@ const blog = defineCollection({
       repo: z.string().optional(),
       shareLinks: z
         .tuple([
-          z.string().startsWith("https://bsky.app"),
-          z.string().startsWith("https://www.threads.net"),
+          z.string().includes("bsky.app").url(),
+          z.string().includes("threads.net").url(),
         ])
         .optional(),
     }),
