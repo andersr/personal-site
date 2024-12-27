@@ -1,19 +1,18 @@
 ---
-title: Why I Rewrote My Personal Site in Astro
+title: Rewriting My Personal Site in Astro
 description: I've been wanting to do a rewrite of my personal site for a while now. This is a summary of why I replaced NextJS with Astro, some of the main features that attracted me, a few unexpected delights, and some minor downsides I uncovered.
-pubDate: 12-22-2024
+pubDate: 12-27-2024
 heroImage:
   [
     ../../assets/images/blog/rewriting-my-personal-site-in-astro/hero.jpg,
     "A person working on a laptop with a website or blog featuring a modern, clean design visible on the screen.",
   ]
 heroImageCredit: [ChatGPT, ""]
-isDraft: true
 ---
 
-If you've visited my site in the past, you'll likely find that--at least visually--it looks mostly unchanged. But under the hood, basically everything has changed. That's because I recently decided to rewrite the previous version, built with NextJS, with a new version built with [Astro](https://astro.build/).
+If you've visited my site in the past, you'll likely find that it looks mostly unchanged. But under the hood, nearly everything has changed. That's because I recently decided to rewrite the previous version, built with [NextJS](https://nextjs.org/), with one built with [Astro](https://astro.build/).
 
-In this post, I'll talk about why I settled on Astro, some of the main features I like, a few unexpected delights, and some of the, mostly minor, downsides I discovered.
+In this post, I'll talk about why I settled on Astro, some of the main features I like, a few unexpected delights, and some of the (mostly minor) downsides I discovered.
 
 ## Deciding on replacing NextJS
 
@@ -24,21 +23,21 @@ This all started with me reviewing the current codebase and running [npm-check-u
   updated](/images/blog/rewriting-my-personal-site-in-astro/sea-of-red.png)
 </figure>
 
-As I started digging to into what specifically was outdated, the old version of NextJS (v12) really stood out. I briefly looked into updating to the latest version (v15), but with the current app using the [old page router model](https://nextjs.org/docs/pages), just that process alone of updating the new [app router](https://nextjs.org/docs/app) seemed like a lot.
+As I started digging to into what specifically was outdated, the old version of NextJS (v12) really stood out. I briefly looked into updating to the latest version (v15), but with the current app using the [old page router model](https://nextjs.org/docs/pages), just process alone of updating to use the new [app router](https://nextjs.org/docs/app) seemed like a lot.
 
 <CalloutBox side="right">
   NextJS just felt like overkill for a mostly static site with a blog.
 </CalloutBox>
-But more significantly, the entire framework just started to feel bloated and
-basically overkill for a mostly static site with a blog.
+But more significantly, the code base overall had started to feel outdated and
+in need of an overhaul, and using NextJS, in particular the idea of going
+through a possibly extensive updating process, just seemed like overkill for a
+mostly static site with a blog.
 
-In my opinion, NextJS has effectively turned into the Wordpress of React apps. It has a massive userbase, but boy does it feel big and clunky.
-
-So it was time to shop around for a more light-weight modern alternative.
+So it was time to shop around for a more light-weight, modern alternative.
 
 ## Why I settled on Astro
 
-Picking a new JS framework is a bit like when you go to a classic diner and are presented with a seemingly endless menu.
+Picking a new JS framework these days is a bit like when you go to a classic diner and are presented with a seemingly endless menu.
 
 <figure>
   ![huge diner
@@ -59,7 +58,7 @@ So, I started by first jotting down the features that were most important to me:
 - Supports [mdx](https://mdxjs.com/) content out of the box.
 - Has a large and growing community of users.
 
-I considered a number of options, including [Svelte](https://svelte.dev/), [Qwik](https://qwik.dev/), and [Htmx](https://htmx.org/), each of which I recommend checking out, but in the end, I decided to go with [Astro](https://astro.build/), which checks all of the above boxes and much more.
+After a bit of research, I had narrowed my choices down to the following choices: [Svelte](https://svelte.dev/), [Htmx](https://htmx.org/), and [Astro](https://astro.build/). ([Qwik](https://qwik.dev/) was also a strong contender, but did not satisfy the large and growing user base requirement.) I recommend checking out each of these. In the end, I decided to go with Astro, which checks all of the above boxes and much more.
 
 Here are a few of the main reasons why, as well as some challenges I encountered.
 
@@ -83,8 +82,8 @@ go. :tada:
 This is thanks to their numerous [automatic integration
 setups](https://docs.astro.build/en/guides/integrations-guide/) for their
 official integrations, which includes mdx. (As an aside, I can't understand why
-NextJS doesn't add these types of wizard-like features, but that's a topic for
-another day.)
+NextJS doesn't add these types of CLI features, but that's a topic for another
+day.)
 
 So much of what I had previously needed to set up manually just worked out of the box, including the above-mentiond handling of [frontmatter](https://wiki.dendron.so/notes/ffec2853-c0e0-4165-a368-339db12c8e4b/) and code syntax highlighting.
 
@@ -94,7 +93,7 @@ I remember the first time I encountered markdown. Coming from years of working w
 
 In many ways, the Astro component file structure applies markdown thinking to component files, which means basically zero learning curve if you already know React, and a lot less code to write to achieve the same result.
 
-For comparison, here is (a simplified) React version of my original NextJS homepage...
+For comparison, here is (a simplified) React version of my previous homepage...
 
 <figure>
 ```jsx
@@ -154,13 +153,13 @@ const posts = await getAllPosts();
 </Layout>
 ```
   <figcaption>
-All the code that runs strictly on the server is enclosed in the equivalent of a markdown [frontmatter](https://dev.to/dailydevtips1/what-exactly-is-frontmatter-123g) block. Everything below that block runs both on the client and server. Note also that there is no need to include a function export or name your component.
+All the code that runs strictly on the server is enclosed in the equivalent of a markdown [frontmatter](https://dev.to/dailydevtips1/what-exactly-is-frontmatter-123g) block. Everything below that block (the `---`) runs both on the client and server. Note that there is no need to include a function export or to name your component in the file.
   </figcaption>
 </figure>
 
 And we cut the number of lines of code by about a third. :tada:
 
-Note that everything except for the jsx is optional. For a minimal component, the difference becomes even more pronoounced.
+Everything except for the jsx is optional. For a minimal component, the difference becomes even more pronounced.
 
 ```jsx
 interface Props {
@@ -203,34 +202,36 @@ But time and again, I would start porting over some feature, and then realize Re
 </CalloutBox>
 The general pattern, I found, is that you can usually just replace some
 react-specific package with a more generic or framework-agnostic equivalent.
-(And this is not something necessarily specific to Astro, but a general trend
-among newer frameworks.)
+(And this is not something specific to Astro, but a general trend among newer
+frameworks.)
 
-For example, I was using [react icons](https://react-icons.github.io/react-icons/) for display of icons. In that, I was able to quite easily replace it with [iconify](https://iconify.design/).
+For example, in the previous version I was using [react icons](https://react-icons.github.io/react-icons/) for display of icons. In the new version, I was able to quite easily replace it with the frameowrk-agnostic [iconify](https://iconify.design/).
 
 And the best part is that if I should encounter a feature for which I can't find a good generic version, well, adding React is always an option.
 
-## One component per file
+## Some mostly minor downsides
 
-Time and again, I would start porting over some feature, and the realize React was needed. One of them was only allowing a single component per file.
+As I mentioned above, there were also a few downsides I discovered in making the switch to Astro. One of them was only allowing a single component per file.
+
+### One component per file
 
 In many cases, I've found it preferable to be able to sub-divide a larger component into a set of smaller sub-components, but with Astro that meant I had to place all those in a folder, create a file for each sub-component and then import into the main component.
 
 Yes, kind of a pain, but to be honest, having multiple components in single file is probably not a good practice, so I guess in some ways this was Astro forcing me to eat my broccoli. :blush:
 
-## Mysterious linting errors
+### Mysterious linting errors
 
 One oddity of Astro I encountered were some mysterious errors I'd see when importing what appears to be a native Astro module.
 
 ![Mysterious linting error](/images/blog/rewriting-my-personal-site-in-astro/missing-types-error.jpg)
 
-As it happens that error message isn't quite accurate. Running astro dev is not sufficient, and even restarting your language server didn't always help.
+As it happens, that error message isn't quite accurate. Running astro dev is not sufficient, and even restarting your language server didn't always help.
 
-Instead, when I see these errors I run the [`astro sync`](https://docs.astro.build/en/reference/cli-reference/#astro-sync) command, which re-generates types for content schemas and more.
+Instead, when I see these errors I need to run the [`astro sync`](https://docs.astro.build/en/reference/cli-reference/#astro-sync) command, which re-generates types for content schemas and more.
 
 Apparently, [I was not the only one](https://github.com/withastro/astro/issues/5711) who was confused about this. Even though the issue is closed on Github, I was still experiencing it as of this writing.
 
-## Several other nits, but overall I'm happy with making the switch
+## Overall I'm happy with making the switch
 
 I could continue to list a number of additional issues I encountered, but they were in most cases minor. Overall, I'm quite happy with having made the switch to Astro.
 
