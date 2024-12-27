@@ -4,7 +4,8 @@
     "bradlc.vscode-tailwindcss",
     "dbaeumer.vscode-eslint",
     "github.vscode-pull-request-github",
-    "vivaxy.vscode-conventional-commits"
+    "vivaxy.vscode-conventional-commits",
+    "redhat.vscode-yaml"
   ],
   "unwantedRecommendations": []
 }

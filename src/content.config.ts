@@ -19,6 +19,9 @@ const blog = defineCollection({
         .optional(), // [credit name, credit link OR ""]
       seriesName: z.string().optional(),
       seriesSlug: z.string().optional(),
+      seriesInfo: z
+        .tuple([z.string(), z.string()]) // [series name, series slug]
+        .optional(),
       repo: z.string().optional(),
       shareLinks: z
         .tuple([

@@ -9,25 +9,8 @@ type AppIcons =
   | "instagram"
   | "medium"
   | "stackoverflow"
-  | "threads";
-
-// export const ICON_LINKS: Record<AppIcons, IconLinkProps> = {
-//   bluesky: {
-//     icon: "proicons:bluesky",
-//     href: "https://bsky.app/profile/andersco.bsky.social",
-//     title: "Bluesky",
-//   },
-//   email: {
-//     icon: "mdi:email-outline",
-//     href: HI_AT_ANDERSCO_MAILTO,
-//     title: "Email",
-//   },
-//   github: {
-//     icon: "mdi:github",
-//     href: "https://github.com/andersr",
-//     title: "GitHub",
-//   },
-// };
+  | "threads"
+  | "calendar";
 
 export const APP_ICONS: Record<AppIcons, string> = {
   bluesky: "proicons:bluesky",
@@ -38,6 +21,7 @@ export const APP_ICONS: Record<AppIcons, string> = {
   medium: "simple-icons:medium",
   stackoverflow: "mdi:stack-overflow",
   threads: "simple-icons:threads",
+  calendar: "mdi:calendar-month",
 };
 
 export const ABOUT_ICON_LINKS: IconLinkProps[] = [
