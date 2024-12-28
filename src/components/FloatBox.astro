@@ -1,0 +1,19 @@
+---
+import { twMerge } from "tailwind-merge";
+
+interface Props {
+  side: "left" | "right";
+}
+
+const { side } = Astro.props;
+---
+
+<div
+  class={twMerge(
+    "prose-p:text-2xl prose-p:leading-normal prose-p:text-gray-600 w-2/3 py-4 font-medium",
+    side === "left" && "float-left pr-8",
+    side === "right" && "float-right pl-8",
+  )}
+>
+  <slot />
+</div>

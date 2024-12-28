@@ -1,42 +1,47 @@
 ---
+import { APP_ICONS } from "~/lib/icons";
 import type { BlogPostFrontmatter } from "~/types/BlogPost";
-import BulletDivider from "./BulletDivider.astro";
-import ByLine from "./ByLine.astro";
-import ImageCredit from "./ImageCredit.astro";
+import FormattedDate from "./FormattedDate.astro";
+import Icon from "./Icon.astro";
+import ShareLinks from "./ShareLinks.astro";
 
 type Props = BlogPostFrontmatter;
 
-const { pubDate, heroImageCredit, seriesName, seriesSlug, repo } = Astro.props;
+const { pubDate, seriesInfo, repo, shareLinks } = Astro.props;
 ---
 
-<div class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center mt-4">
-  {pubDate && <ByLine pubDate={pubDate} />}
+<div class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center gap-5">
   {
-    seriesName && seriesSlug && (
-      <>
-        <BulletDivider />
-        {
-          <a href={`/blog/${seriesSlug}`} class="">
-            {seriesName} Series
-          </a>
-        }
-      </>
+    pubDate && (
+      <div>
+        <Icon icon={APP_ICONS["calendar"]} size={18} />
+        <FormattedDate date={pubDate} />
+      </div>
+    )
+  }
+  {
+    seriesInfo && (
+      <div>
+        <a href={`/blog/${seriesInfo[1]}`} class="">
+          {seriesInfo[0]} Series
+        </a>
+      </div>
     )
   }
   {
     repo && (
-      <>
-        <BulletDivider />
-        <a href={repo}>Code Repo</a>
-      </>
+      <div>
+        <a href={repo}>
+          <Icon icon={APP_ICONS["github"]} size={18} /> Code Repo
+        </a>
+      </div>
     )
   }
   {
-    heroImageCredit && (
-      <>
-        <BulletDivider />
-        <ImageCredit heroImageCredit={heroImageCredit} />
-      </>
+    shareLinks && (
+      <div>
+        <ShareLinks shareLinks={shareLinks} />
+      </div>
     )
   }
 </div>

@@ -1,8 +1,10 @@
 ---
 import Footer from "~/components/Footer.astro";
+import IconLinkList from "~/components/IconLinkList.astro";
 import Link from "~/components/Link.astro";
 import SkipToContent from "~/components/SkipToContent.astro";
 import { SITE_TITLE } from "~/consts";
+import { FOOTER_ICON_LINKS } from "~/lib/icons";
 import type { PageProps } from "~/types/Page";
 import BaseHead from "../components/BaseHead.astro";
 
@@ -23,7 +25,7 @@ const brandStyles = "text-slate-400 text-xl";
   </head>
   <body class="h-full md:flex flex-col">
     <SkipToContent />
-    <nav class="w-full flex items-center p-4">
+    <nav class="w-full flex items-center py-4 px-6 md:px-5">
       <div class="flex-1">
         {
           currentRoute === "/" ? (
@@ -35,7 +37,7 @@ const brandStyles = "text-slate-400 text-xl";
           )
         }
       </div>
-      <ul class="flex flex-nowrap space-x-2 mr-3">
+      <ul class="flex items-center flex-nowrap gap-3 text-lg">
         <li>
           <Link href="/blog">Blog</Link>
         </li>
@@ -47,6 +49,11 @@ const brandStyles = "text-slate-400 text-xl";
     <main id="main" class="md:flex-1 max-w-3xl mx-auto">
       <slot />
     </main>
-    <Footer>&copy; {new Date().getFullYear()} Anders Ramsay</Footer>
+    <Footer
+      ><div class="flex items-center justify-between md:justify-center w-full">
+        &copy; {new Date().getFullYear()} Anders Ramsay
+        <IconLinkList bulletDivider items={FOOTER_ICON_LINKS} size={20} />
+      </div></Footer
+    >
   </body>
 </html>

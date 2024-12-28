@@ -21,7 +21,7 @@ if (!BASE_URL) {
 }
 // https://astro.build/config
 export default defineConfig({
-  site: "https://personal-site-tau-sandy.vercel.app", // BASE_URL,
+  site: BASE_URL,
   integrations: [
     tailwind(),
     icon(),

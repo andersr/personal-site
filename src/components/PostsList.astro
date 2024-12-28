@@ -1,6 +1,8 @@
 ---
 import { getCollection } from "astro:content";
+import { APP_ICONS } from "~/lib/icons";
 import type { BlogPost } from "~/types/BlogPost";
+import BulletDivider from "./BulletDivider.astro";
 import FormattedDate from "./FormattedDate.astro";
 import Icon from "./Icon.astro";
 
@@ -15,7 +17,7 @@ const posts: BlogPost[] = (await getCollection("blog"))
 ---
 
 <ul
-  class="ml-0 pl-0 list-none prose-p:mt-0.5 prose-p:leading-snug prose-a:no-underline hover:prose-a:underline"
+  class="ml-0 pl-0 list-none prose-h3:mt-4 prose-p:leading-normal prose-p:mt-0 md:prose-p:mt-1 prose-a:no-underline hover:prose-a:underline"
 >
   {
     posts.map((post) => (
@@ -32,11 +34,17 @@ const posts: BlogPost[] = (await getCollection("blog"))
             {post.data.title}
           </h3>
         </a>
+        <p class="">{post.data.description}</p>
         <p class="text-sm flex items-center gap-1">
-          <Icon icon="mdi:calendar-month" size={18} />
+          <Icon icon={APP_ICONS["calendar"]} size={18} />
           <FormattedDate date={post.data.pubDate} />
+          {post.data.seriesInfo && (
+            <>
+              <BulletDivider />
+              {post.data.seriesInfo[0]} Series
+            </>
+          )}
         </p>
-        <p>{post.data.description}</p>
       </li>
     ))
   }

@@ -1,8 +1,6 @@
 ---
-import AdditionalPostsMedium from "~/components/AdditionalPostsMedium.astro";
 import Hero from "~/components/Hero/Hero.astro";
-import PostsList from "~/components/PostsList.astro";
-import Typography from "~/components/Typography.astro";
+import RecentPosts from "~/components/RecentPosts.astro";
 import BaseLayout from "~/layouts/BaseLayout.astro";
 ---
 
@@ -12,14 +10,5 @@ import BaseLayout from "~/layouts/BaseLayout.astro";
   <div class="mt-10">
     <Hero />
   </div>
-  <section class="mt-10 md:mt-[32px]">
-    <Typography twStyles="prose-ul:p-0 prose-li:pl-0">
-      <h2 class="text-center md:text-left">Recent Posts</h2>
-      <PostsList />
-      <div>
-        <hr />
-        <AdditionalPostsMedium />
-      </div>
-    </Typography>
-  </section>
+  <div class="px-6 md:px-0"><RecentPosts /></div>
 </BaseLayout>

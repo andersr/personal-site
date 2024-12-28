@@ -1,59 +1,21 @@
 ---
 import IconLinkList from "~/components/IconLinkList.astro";
 import PageLayout from "~/layouts/PageLayout.astro";
-import type { IconListItem } from "~/types/IconList";
+import { ABOUT_ICON_LINKS } from "~/lib/icons";
 import HeroImage from "../components/Hero/HeroImage.astro";
 import AboutContent from "../content/static/about.mdx";
-
-const icons: IconListItem[] = [
-  {
-    icon: "proicons:bluesky",
-    href: "https://bsky.app/profile/andersco.bsky.social",
-    title: "Bluesky",
-  },
-  {
-    icon: "mdi:github",
-    href: "https://github.com/andersr",
-    title: "GitHub",
-  },
-  {
-    icon: "mdi:instagram",
-    href: "https://instagram.com",
-    title: "Instagram",
-  },
-  {
-    icon: "mdi:linkedin",
-    href: "https://www.linkedin.com/in/andersramsay/",
-    title: "LinkedIn",
-  },
-  {
-    icon: "simple-icons:medium",
-    href: "https://medium.com/@andersco",
-    title: "Medium",
-    size: 30,
-  },
-  {
-    icon: "mdi:stack-overflow",
-    href: "https://stackoverflow.com/users/2008639/andersr",
-    title: "Stack Overflow",
-  },
-  {
-    icon: "simple-icons:threads",
-    href: "https://www.threads.net/@andersr",
-    title: "Threads",
-  },
-];
 ---
 
 <PageLayout
   title="About"
-  topSectionOffset="mt-0"
-  twStyles="prose-h1:mb-4"
+  twStyles="md:prose-h1:mb-0 md:prose-h1:pb-2"
   description="About Anders Ramsay"
 >
   <div class="flex flex-col items-center prose-ul:p-0 prose-li:pl-0">
-    <HeroImage size={200} twStyles="rounded-full" />
-    <IconLinkList items={icons} />
+    <HeroImage size={150} twStyles="rounded-full" />
+    <div class="pt-1 md:pt-0">
+      <IconLinkList size={26} items={ABOUT_ICON_LINKS} />
+    </div>
   </div>
-  <AboutContent />
+  <div class="px-6 md:px-0"><AboutContent /></div>
 </PageLayout>

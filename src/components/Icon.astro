@@ -1,16 +1,9 @@
 ---
 import { Icon as AstroIcon } from "astro-icon/components";
 import { twMerge } from "tailwind-merge";
+import type { IconProps } from "~/types/Icon";
 
-/**
- *  Icon sets and names: https://icon-sets.iconify.design/
- */
-interface Props {
-  icon: string;
-  twColor?: string;
-  title?: string;
-  size?: number;
-}
+type Props = IconProps;
 
 const { icon, twColor, title, size } = Astro.props;
 ---
