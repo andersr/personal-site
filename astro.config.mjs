@@ -10,6 +10,8 @@ import { loadEnv } from "vite";
 
 import sitemap from "@astrojs/sitemap";
 
+import expressiveCode from "astro-expressive-code";
+
 const { BASE_URL } = loadEnv(
   process.env.NODE_ENV ?? "development",
   process.cwd(),
@@ -25,6 +27,9 @@ export default defineConfig({
   integrations: [
     tailwind(),
     icon(),
+    expressiveCode({
+      themes: ["github-dark-default"],
+    }),
     mdx({
       remarkPlugins: [[emoji, { accessible: true }]],
     }),
