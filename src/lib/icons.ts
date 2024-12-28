@@ -10,7 +10,8 @@ type AppIcons =
   | "medium"
   | "stackoverflow"
   | "threads"
-  | "calendar";
+  | "calendar"
+  | "chevronLeft";
 
 export const APP_ICONS: Record<AppIcons, string> = {
   bluesky: "proicons:bluesky",
@@ -22,6 +23,7 @@ export const APP_ICONS: Record<AppIcons, string> = {
   stackoverflow: "mdi:stack-overflow",
   threads: "simple-icons:threads",
   calendar: "mdi:calendar-month",
+  chevronLeft: "mdi:chevron-left",
 };
 
 export const ABOUT_ICON_LINKS: IconLinkProps[] = [

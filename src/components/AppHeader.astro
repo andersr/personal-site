@@ -1,0 +1,53 @@
+---
+import { twMerge } from "tailwind-merge";
+import Link from "~/components/Link.astro";
+import { APP_ICONS } from "~/lib/icons";
+import type { PageProps } from "~/types/Page";
+import Icon from "./Icon.astro";
+
+type Props = PageProps;
+
+const currentRoute = Astro.url.pathname;
+const brandStyles = "text-slate-400 text-xl";
+---
+
+<header class="fixed z-10 top-0 inset-x-0 bg-white md:bg-transparent">
+  <nav class="w-full flex items-center py-4 pr-6">
+    <div class="flex-1">
+      {
+        currentRoute === "/" ? (
+          <div class={twMerge(brandStyles, "pl-[28px]")}>anders.co</div>
+        ) : (
+          <a
+            href="/"
+            class={twMerge(
+              brandStyles,
+              "hover:text-red-500 bg-white p-1 rounded",
+            )}
+          >
+            <div class="inline-flex items-center flex-nowrap">
+              <div>
+                <Icon
+                  icon={APP_ICONS["chevronLeft"]}
+                  size={24}
+                  twColor="hover:text-red-500"
+                />
+              </div>
+              <div>anders.co</div>
+            </div>
+          </a>
+        )
+      }
+    </div>
+    <ul
+      class="flex items-center flex-nowrap gap-3 text-lg bg-white p-1 rounded"
+    >
+      <li>
+        <Link href="/blog">Blog</Link>
+      </li>
+      <li>
+        <Link href="/about">About</Link>
+      </li>
+    </ul>
+  </nav>
+</header>
