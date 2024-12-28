@@ -7,9 +7,16 @@ import FormattedDate from "./FormattedDate.astro";
 import Icon from "./Icon.astro";
 
 const isProd = import.meta.env.PROD;
+const isVercelPreview = process.env.VERCEL_ENV === "preview";
 
 const posts: BlogPost[] = (await getCollection("blog"))
-  .filter((p: BlogPost) => (isProd ? !p.data.isDraft : true))
+  .filter((p: BlogPost) => {
+    if (isVercelPreview) {
+      return true;
+    }
+
+    return isProd ? !p.data.isDraft : true;
+  })
   .sort(
     (a: BlogPost, b: BlogPost) =>
       b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
