@@ -5,10 +5,10 @@ import type { PageProps } from "~/types/Page";
 
 type Props = PageProps;
 
-const { title, twStyles, description } = Astro.props;
+const { title, twStyles, description, staticPage } = Astro.props;
 ---
 
-<BaseLayout title={title} description={description}>
+<BaseLayout title={title} description={description} staticPage={staticPage}>
   <Typography twStyles={twStyles}>
     <h1>{title}</h1>
     <section>

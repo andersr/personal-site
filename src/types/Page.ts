@@ -3,4 +3,5 @@ export type PageProps = {
   description?: string;
   twStyles?: string;
   topSectionOffset?: string;
+  staticPage?: boolean;
 };

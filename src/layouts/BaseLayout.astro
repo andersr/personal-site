@@ -1,7 +1,8 @@
 ---
+import { twMerge } from "tailwind-merge";
+import AppHeader from "~/components/AppHeader.astro";
 import Footer from "~/components/Footer.astro";
 import IconLinkList from "~/components/IconLinkList.astro";
-import Link from "~/components/Link.astro";
 import SkipToContent from "~/components/SkipToContent.astro";
 import { SITE_TITLE } from "~/consts";
 import { FOOTER_ICON_LINKS } from "~/lib/icons";
@@ -10,9 +11,7 @@ import BaseHead from "../components/BaseHead.astro";
 
 type Props = PageProps;
 
-const { title, description } = Astro.props;
-const currentRoute = Astro.url.pathname;
-const brandStyles = "text-slate-400 text-xl";
+const { title, description, staticPage } = Astro.props;
 ---
 
 <!doctype html>
@@ -23,30 +22,12 @@ const brandStyles = "text-slate-400 text-xl";
       description={description}
     />
   </head>
-  <body class="h-full md:flex flex-col">
+  <body
+    class={twMerge("h-full flex-col relative", staticPage ? "flex" : "md:flex")}
+  >
     <SkipToContent />
-    <nav class="w-full flex items-center py-4 px-6 md:px-5">
-      <div class="flex-1">
-        {
-          currentRoute === "/" ? (
-            <div class={brandStyles}>anders.co</div>
-          ) : (
-            <a href="/" class={brandStyles}>
-              anders.co
-            </a>
-          )
-        }
-      </div>
-      <ul class="flex items-center flex-nowrap gap-3 text-lg">
-        <li>
-          <Link href="/blog">Blog</Link>
-        </li>
-        <li>
-          <Link href="/about">About</Link>
-        </li>
-      </ul>
-    </nav>
-    <main id="main" class="md:flex-1 max-w-3xl mx-auto">
+    <AppHeader />
+    <main id="main" class="flex-1 max-w-3xl mx-auto pt-16">
       <slot />
     </main>
     <Footer
