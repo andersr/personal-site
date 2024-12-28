@@ -2,7 +2,9 @@
 import { Image } from "astro:assets";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
+import FloatBox from "~/components/FloatBox.astro";
 import Giphy from "~/components/Giphy.astro";
+import ImageCredit from "~/components/ImageCredit.astro";
 import NextPreviousPosts from "~/components/NextPreviousPosts.astro";
 import PostInfo from "~/components/PostInfo.astro";
 import ShareLinks from "~/components/ShareLinks.astro";
@@ -24,42 +26,57 @@ const posts: CollectionEntry<"blog">[] = await getCollection("blog");
 const post = Astro.props;
 
 const { Content, headings } = await render(post);
-const { title, heroImage, description, toc, shareLinks } = post.data;
+const { title, heroImage, description, toc, shareLinks, heroImageCredit } =
+  post.data;
 ---
 
 <BaseLayout title={title} description={description}>
   <Typography twStyles="prose-img:my-1 prose-h1:mb-4">
-    <h1 class="title">{title}</h1>
+    <h1 class="px-4 md:px-0">{title}</h1>
     {
       Array.isArray(heroImage) && heroImage.length === 2 && (
-        <div class="my-6">
+        <figure>
           <Image src={heroImage[0]} alt={heroImage[1]} priority />
-        </div>
+          {heroImageCredit && (
+            <figcaption class="px-4 md:px-0 text-right text-gray-400">
+              <ImageCredit heroImageCredit={heroImageCredit} />
+            </figcaption>
+          )}
+        </figure>
       )
     }
-    <PostInfo {...post.data} />
-    {
-      toc && headings.length > 0 && (
-        <div class="mb-8">
-          <h2>Contents</h2>
-          <ul>
-            {headings.map((h) => (
-              <li>
-                <a href={`#${h.slug}`}>{h.text}</a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-    <Content components={{ CalloutBox, Giphy, Image }} />
-    {
-      shareLinks && (
-        <p class="pt-8 text-center">
-          <ShareLinks shareLinks={shareLinks} />
-        </p>
-      )
-    }
-    <NextPreviousPosts allPosts={posts} currentPost={post} />
+    <div class="px-6 md:px-0">
+      <PostInfo {...post.data} />
+      {
+        toc && headings.length > 0 && (
+          <div class="mb-8">
+            <h2>Contents</h2>
+            <ul>
+              {headings.map((h) => (
+                <li>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+      <Content
+        components={{
+          CalloutBox,
+          FloatBox,
+          Giphy,
+          Image,
+        }}
+      />
+      {
+        shareLinks && (
+          <p class="pt-8 text-center">
+            <ShareLinks shareLinks={shareLinks} />
+          </p>
+        )
+      }
+      <NextPreviousPosts allPosts={posts} currentPost={post} />
+    </div>
   </Typography>
 </BaseLayout>

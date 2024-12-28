@@ -17,13 +17,17 @@ const { items, bulletDivider, size, twColor } = Astro.props;
 <ul
   class={twMerge(
     "ml-0 pl-0 list-none flex items-center",
-    bulletDivider ? "" : "gap-3",
+    bulletDivider ? "gap-5 md:gap-0" : "gap-3",
   )}
 >
   {
     items.map((item) => (
       <li>
-        {bulletDivider && <BulletDivider />}
+        {bulletDivider && (
+          <span class="hidden md:inline">
+            <BulletDivider />
+          </span>
+        )}
         <IconLink
           item={{
             ...item,

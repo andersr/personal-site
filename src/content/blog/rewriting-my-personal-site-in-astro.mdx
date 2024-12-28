@@ -2,6 +2,7 @@
 title: Rewriting My Personal Site in Astro
 description: I've been wanting to do a rewrite of my personal site for a while now. This is a summary of why I replaced NextJS with Astro, some of the main features that attracted me, a few unexpected delights, and some minor downsides I uncovered.
 pubDate: 12-27-2024
+repo: https://github.com/andersr/personal-site
 heroImage:
   [
     ../../assets/images/blog/rewriting-my-personal-site-in-astro/hero.jpg,
@@ -25,9 +26,9 @@ This all started with me reviewing the current codebase and running [npm-check-u
 
 As I started digging to into what specifically was outdated, the old version of NextJS (v12) really stood out. I briefly looked into updating to the latest version (v15), but with the current app using the [old page router model](https://nextjs.org/docs/pages), just process alone of updating to use the new [app router](https://nextjs.org/docs/app) seemed like a lot.
 
-<CalloutBox side="right">
+<FloatBox side="right">
   NextJS just felt like overkill for a mostly static site with a blog.
-</CalloutBox>
+</FloatBox>
 But more significantly, the code base overall had started to feel outdated and
 in need of an overhaul, and using NextJS, in particular the idea of going
 through a possibly extensive updating process, just seemed like overkill for a
@@ -75,10 +76,10 @@ required.
 With Astro, just run `npx astro add mdx`, follow the prompts, and you're good to
 go. :tada:
 
-<CalloutBox side="left">
+<FloatBox side="left">
   Discovering the Astro automatic integration setups was definitely a bit of a
   delighter.
-</CalloutBox>
+</FloatBox>
 This is thanks to their numerous [automatic integration
 setups](https://docs.astro.build/en/guides/integrations-guide/) for their
 official integrations, which includes mdx. (As an aside, I can't understand why
@@ -166,7 +167,7 @@ interface Props {
   children: React.ReactElement;
 }
 
-export function CalloutBox({ children }: Props) {
+export function FloatBox({ children }: Props) {
   return (
     <div
       className={
@@ -197,9 +198,9 @@ As I mentioned earlier, one of my requirements for the selected framework was to
 
 But time and again, I would start porting over some feature, and then realize React wasn't needed. In the end, I was able to add all the current features without React.
 
-<CalloutBox side="right">
+<FloatBox side="right">
   Very often, you can just replace React with a generic js equivalent.
-</CalloutBox>
+</FloatBox>
 The general pattern, I found, is that you can usually just replace some
 react-specific package with a more generic or framework-agnostic equivalent.
 (And this is not something specific to Astro, but a general trend among newer

@@ -11,7 +11,7 @@ const { title, twStyles, topSectionOffset, description } = Astro.props;
 <BaseLayout title={title} description={description}>
   <Typography twStyles={twStyles}>
     <h1>{title}</h1>
-    <section class={topSectionOffset ?? "mt-20"}>
+    <section class={topSectionOffset ?? ""}>
       <slot />
     </section>
   </Typography>

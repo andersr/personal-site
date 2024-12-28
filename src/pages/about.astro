@@ -9,12 +9,14 @@ import AboutContent from "../content/static/about.mdx";
 <PageLayout
   title="About"
   topSectionOffset="mt-0"
-  twStyles="prose-h1:mb-4"
+  twStyles="md:prose-h1:mb-0 md:prose-h1:pb-2"
   description="About Anders Ramsay"
 >
   <div class="flex flex-col items-center prose-ul:p-0 prose-li:pl-0">
-    <HeroImage size={200} twStyles="rounded-full" />
-    <IconLinkList items={ABOUT_ICON_LINKS} />
+    <HeroImage size={150} twStyles="rounded-full" />
+    <div class="pt-1 md:pt-0">
+      <IconLinkList size={26} items={ABOUT_ICON_LINKS} />
+    </div>
   </div>
-  <AboutContent />
+  <div class="px-6 md:px-0"><AboutContent /></div>
 </PageLayout>

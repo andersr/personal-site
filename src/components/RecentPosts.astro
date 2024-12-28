@@ -1,0 +1,16 @@
+---
+import AdditionalPostsMedium from "./AdditionalPostsMedium.astro";
+import PostsList from "./PostsList.astro";
+import Typography from "./Typography.astro";
+---
+
+<section class="mt-10 md:mt-[32px]">
+  <Typography twStyles="prose-ul:p-0 prose-li:pl-0">
+    <h2 class="">Recent Posts</h2>
+    <PostsList />
+    <div>
+      <hr />
+      <AdditionalPostsMedium />
+    </div>
+  </Typography>
+</section>
