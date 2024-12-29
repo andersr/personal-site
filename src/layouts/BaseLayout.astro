@@ -28,7 +28,8 @@ const { title, description, staticPage } = Astro.props;
   >
     <SkipToContent />
     <AppHeader />
-    <main id="main" class="flex-1 max-w-3xl mx-auto pt-16">
+    <main id="main" class="flex-1 max-w-3xl mx-auto pt-20">
+      <span id="contentTop"></span>
       <slot />
     </main>
     <Footer
@@ -40,3 +41,21 @@ const { title, description, staticPage } = Astro.props;
     <Analytics />
   </body>
 </html>
+
+<script>
+  const header = document.querySelector("header");
+  const contentTop = document.querySelector("#contentTop");
+
+  const ob = new IntersectionObserver(function obCallback(payload) {
+    const isScrolling = !payload[0].isIntersecting;
+
+    if (header) {
+      header.classList.toggle("drop-shadow-md", isScrolling);
+      header.classList.toggle("md:drop-shadow-none", isScrolling);
+    }
+  });
+
+  if (contentTop) {
+    ob.observe(contentTop);
+  }
+</script>

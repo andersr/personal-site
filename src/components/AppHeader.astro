@@ -51,19 +51,3 @@ const brandStyles = "text-slate-400 text-xl";
     </ul>
   </nav>
 </header>
-
-<script>
-  const headerEls = document.getElementsByTagName("header");
-
-  window.addEventListener("scroll", function () {
-    if (!headerEls || headerEls.length === 0) {
-      return;
-    }
-
-    const header = headerEls[0];
-    const isScrolling = this.window.scrollY !== 0;
-
-    header.classList.toggle("drop-shadow-md", isScrolling);
-    header.classList.toggle("md:drop-shadow-none", isScrolling);
-  });
-</script>
