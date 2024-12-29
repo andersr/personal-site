@@ -23,9 +23,7 @@ const posts: BlogPost[] = (await getCollection("blog"))
   );
 ---
 
-<ul
-  class="ml-0 pl-0 list-none prose-h3:mt-4 prose-p:leading-normal prose-p:mt-0 md:prose-p:mt-1 prose-a:no-underline hover:prose-a:underline"
->
+<ul class="list-none">
   {
     posts.map((post) => (
       <li class="pb-1">
