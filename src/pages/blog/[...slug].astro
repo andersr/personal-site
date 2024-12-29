@@ -31,7 +31,9 @@ const { title, heroImage, description, toc, shareLinks, heroImageCredit } =
 ---
 
 <BaseLayout title={title} description={description}>
-  <Typography twStyles="prose-img:my-1 prose-h1:mb-4">
+  <Typography
+    twStyles="prose-img:my-1 prose-h1:mb-4 prose-h2:mb-0 prose-p:mt-4 prose-p:mb-2"
+  >
     <h1 class="px-4 md:px-0">{title}</h1>
     {
       Array.isArray(heroImage) && heroImage.length === 2 && (
