@@ -46,6 +46,6 @@
     "prettier-plugin-astro": "^0.14.1",
     "remark-emoji": "^5.0.1",
     "typescript-eslint": "^8.18.1",
-    "vite": "^6.0.3"
+    "vite": "^6.0.6"
   }
 }
