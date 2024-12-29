@@ -1,3 +1,3 @@
 # andersco personal site
 
-Repo for next version of [anders.co ](https://www.anders.co/)
+Repo for my personal site, accessible at [https://www.anders.co ](https://www.anders.co/).
