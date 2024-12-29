@@ -29,7 +29,7 @@ This all started with me reviewing the current codebase and running [npm-check-u
   updated](/images/blog/rewriting-my-personal-site-in-astro/sea-of-red.png)
 </figure>
 
-As I started digging to into what specifically was outdated, the old version of NextJS (v12) really stood out. I briefly looked into updating to the latest version (v15), but with the current app using the [old page router model](https://nextjs.org/docs/pages), just process alone of updating to use the new [app router](https://nextjs.org/docs/app) seemed like a lot.
+As I started digging into what specifically was outdated, the old version of NextJS (v12) really stood out. I briefly looked into updating to the latest version (v15), but with the current app using the [old page router model](https://nextjs.org/docs/pages), just the process alone of updating to use the new [app router](https://nextjs.org/docs/app) seemed like a lot.
 
 <FloatBox side="right">
   NextJS just felt like overkill for a mostly static site with a blog.
@@ -64,7 +64,7 @@ So, I started by first jotting down the features that were most important to me:
 - Supports [mdx](https://mdxjs.com/) content out of the box.
 - Has a large and growing community of users.
 
-After a bit of research, I had narrowed my choices down to the following choices: [Svelte](https://svelte.dev/), [Htmx](https://htmx.org/), and [Astro](https://astro.build/). ([Qwik](https://qwik.dev/) was also a strong contender, but did not satisfy the large and growing user base requirement.) I recommend checking out each of these. In the end, I decided to go with Astro, which checks all of the above boxes and much more.
+After a bit of research, I had narrowed my choices down to the following two candidates: [Svelte](https://svelte.dev/) and [Astro](https://astro.build/). ([Qwik](https://qwik.dev/) and [Htmx](https://htmx.org/) were also top contenters but in my very subjective evaluation were not a good match for me.) In the end, I decided to go with Astro, which checks all of the above boxes and much more.
 
 Here are a few of the main reasons why, as well as some challenges I encountered.
 

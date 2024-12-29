@@ -10,10 +10,12 @@ type Props = BlogPostFrontmatter;
 const { pubDate, seriesInfo, repo, shareLinks } = Astro.props;
 ---
 
-<div class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center gap-5">
+<div
+  class="text-gray-500 [&>*]:text-gray-500 text-sm flex items-center flex-wrap gap-4"
+>
   {
     pubDate && (
-      <div>
+      <div class="whitespace-nowrap">
         <Icon icon={APP_ICONS["calendar"]} size={18} />
         <FormattedDate date={pubDate} />
       </div>
@@ -30,7 +32,7 @@ const { pubDate, seriesInfo, repo, shareLinks } = Astro.props;
   }
   {
     repo && (
-      <div>
+      <div class="whitespace-nowrap">
         <a href={repo}>
           <Icon icon={APP_ICONS["github"]} size={18} /> Code Repo
         </a>
@@ -39,7 +41,7 @@ const { pubDate, seriesInfo, repo, shareLinks } = Astro.props;
   }
   {
     shareLinks && (
-      <div>
+      <div class="whitespace-nowrap">
         <ShareLinks shareLinks={shareLinks} />
       </div>
     )
