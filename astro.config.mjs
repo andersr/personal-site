@@ -33,7 +33,14 @@ export default defineConfig({
     mdx({
       remarkPlugins: [[emoji, { accessible: true }]],
     }),
-    sitemap(),
+    sitemap({
+      i18n: {
+        defaultLocale: "en",
+        locales: {
+          en: "en-US",
+        },
+      },
+    }),
   ],
   markdown: {
     rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
