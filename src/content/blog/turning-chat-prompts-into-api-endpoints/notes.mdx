@@ -1,0 +1,324 @@
+---
+notes: true
+---
+
+## Updated Outline
+
+- focus on salient points and just reference code as an example, skip doing a tutorial, etc.
+- move away from endpoint focus but mention as one approach
+- main points of interest: 1) structured json output means going from providing information to providing features (here is an example: trivia game) 2) Changes in how to think about assistants and prompts (minimal prompts, should only be the config of the main instructions, eg with trivia game, none, or optional configs) 3) Using schema option vs describing the schema 4) Turning into an API endpoint or service (generating ids, caching output, configuring the prompt via params) 5) A kind of infinite API (will not make sense for every use case)
+
+In ot from the vantage point of an app, plain text is mostly synonumous with unstructured content and not easily usable at a programmatic level. That's why being able to replace th structured output option basically achieves the same thing, but for computers. It may not be self-evident why allowing for instructing an assistant as to the exact (JSON) format you'd like your update is such a big deal. would it be a big deal that you can lAt its simplest, this means you can instruct the assistant to provide responses in JSON format. But more significantly, you can also instruct the assistant as to the specific shape of the JSON you want returned, either in the system instructions, the individual prompt, or via a schema.
+
+This may seem like just a minor feature update to the API but is in fact a huge deal, for the simple reason that the output now can be "understood" and processed by a computer program. In other words, the "structure json" option could just as well be relabeled to "for computers" while the default option would be "for people."
+
+> List all US states. Provide your response in following JSON format.
+>
+> - states: an array of objects, where each object includes:
+>   - stateAbbreviation: The two-letter version of a US state.
+>   - stateName: The full state name.
+>
+> Additional instructions:
+>
+> - Order states alphabetically
+
+## Process overview
+
+Here's an overview of what we'll be implementing. You can find a working demo of the finished app here. Code repo is here.
+
+(revisit this list after full flow is complete)
+
+1. Creating and configuring the assistant. (Also, use playground to iterate on instructions.)
+2. Adding openai and enabling assistant responses in your app. (We'll use Svelte but pick whatever your prefer.)
+3. Generating IDs (not something that will come from the assistant - in our case unique id, in other cases generate based on context, eg user id and more)
+4. (Adding as an endpoint - in our case, just same as the create route.)
+5. add some basic UI (optional)
+6. Submit responses
+7. Caching ouput for ephemeral assistant output (eg part of a Wizard)
+
+## Prerequisites
+
+- be sure to read the intro at OpenAI first.
+- Assumes you already have experience working with Asistants and have some web development experience, including working with APIs and JSON payloads, Redis etc.
+
+## The Trivia App We'll be Creating
+
+Let's define some requirements for a very basic trivia game:
+
+- Allows a users to select a trivia game category from a list and submit the selection to create a trivia game.
+- Displays the first trivia question and the answer choices
+- Allows for selecting an answer option and then seeing the response, which is the correct answer and if the user answered correctly.
+- Continue displaying remaining questions until all questions have been answers.
+- Display a total score.
+
+(At the end, we'll also talk about how you can easily add more features.)
+
+With that in place, let's get started building our prompt-based app!
+
+## Use the playground to iterate on your output
+
+- Use the playground to tweak your instructions, schema and prompt until you're satsified.
+  After that, use the playground to try a few samples prompts to ensure you get the expected output.
+
+Here are the instructions we'll be using.
+
+(insert generated instructions)
+(TODO: possibly create a ReadMe with these instructions as well.)
+
+For the purposes of this tutorial, I recommend pasting in these exact instructions to ensure your output will match ours.
+
+Also, be sure you have selected JSON ouput in the response options.
+
+## Standing up a simple app
+
+For this tutorial, we'll use Svelte to create a our web app. Most of the code we'll be adding is framework-agnostic so use whatever framework you prefer.
+
+For the purposes of this tutorial I am not going to go into details regarding standing up this app. I recommend instead just cloning this branch of the app which will make for a good starting point for next steps.
+
+Some key points:
+
+- Adding openai and enabling it in the app. (You'll need to sign up and get an API key from OpenAI)
+- Adding both the OpenAI api key and your assistant ID to env vars. See these links.
+
+## Creating and testing your prompt-based API endpoint
+
+(NOTE: no longer an endpoint)
+Discuss using a REST format.
+Treating the assistant like any other API, with a few important exceptions.
+
+(INSERT MORE INFO ABOUT SETTIG UP THE ENDPOINT)
+
+We are now able to query the endpoint and get back an expected response. However, we have a couple important items to add for this to function more like an actaual endpoint.
+
+## Updated game flow
+
+- Hide category, only use id for Caching (via param /?id=adasd)
+- Single view
+- Each game is 5 questions, one each from 10 categories.
+- Default view: New Trivia Game -> Please wait, creating game...
+- Game view: 1) Question view - on submit, display your answer/correct answer -> next, until last question
+- Result view: Display total correct responses. Play another game.
+
+# Good and not so good use cases for prompt-based st potential and pitfalls of prompt-based API endpoints
+
+In the above example, I intentionally picked a topic area, trivia games, for which LLMs are incredibly well suited.
+
+Other examples are: (insert examples)
+
+However, lots of areas not so great, for example, recommend the top handymen in some specific location. You are likely to get some potentially interesting results mixed in with hallucination craziness. (Eg obviously fake contact info because none could be found.)
+
+## APP TODO
+
+- add redirect for expired game, ie no match found for key
+- Form with category options: on submit, create id, add to cache, redirect to game detail endpoint passing in ID, get game json via id cache data.
+- Game logic: display first question, with answer choices, on submit, display right or wrong, update total score, then display next
+
+- User gets a question with four choices.
+
+- Use the generator to create the system instructions.
+- Use the playground to iterate on your input to make sure you get the expected output.
+- Decide on using the structured json option vs just describing the schema shape in the instructions.
+- Keep each assistant specialized. It would be great if one could have multiple schemas but currently only supports one schema per Assistant.
+- Your prompt should just include the part that is unique to that instance. This might be a shift from what you are used to, where you might create a fairly broad assistant scope and then be more specific with each prompt. I suggest avoiding that in this model.
+
+- Include 5 questions per trivia game.
+- Ensure one correct answer per question and logical, plausible distractor choices.
+
+(TODO: ensure above works)
+
+Then, I used the following prompt to create a trivia game:
+
+> Create a trivia game in the television category. Provide your output in JSON format
+
+(Aside/Nit: I find it odd that even if you have configured your assistant to return JSON output and stated it in the instructions,you still have to explicitly state it in the prompt or you will get an error. But onward...)
+
+> Create a 5-question multiple choice trivia game using one of the following categories: as science, movies, television, or history.
+> Provide your response in JSON format with the following structure:
+>
+> - category: the provided category
+> - questions: an array of objects, where each object includes:
+>   - question: The trivia question
+>   - choices: an array of answer choices.
+>   - correct_answer: the correct answer
+>
+> Additional instructions:
+>
+> - Include 5 questions per trivia game.
+> - Ensure one correct answer per question and logical, plausible distractor choices.
+
+And here is an example of the resulting response:
+
+```json
+{
+  "category": "Television",
+  "questions": [
+    {
+      "question": "In the television show 'Friends', what is the name of Ross's second wife?",
+      "choices": ["Carol", "Emily", "Rachel", "Susan"],
+      "correct_answer": "Emily"
+    },
+    {
+      "question": "Which television series features a coffee shop called Central Perk?",
+      "choices": [
+        "Seinfeld",
+        "How I Met Your Mother",
+        "Friends",
+        "The Big Bang Theory"
+      ],
+      "correct_answer": "Friends"
+    },
+    {
+      "question": "In 'Breaking Bad', what is the name of Jesse Pinkman's badger-loving friend?",
+      "choices": ["Skinny Pete", "Hank", "Mike", "Saul"],
+      "correct_answer": "Skinny Pete"
+    },
+    {
+      "question": "Which animated television series is set in the fictional town of Springfield?",
+      "choices": [
+        "Family Guy",
+        "The Simpsons",
+        "King of the Hill",
+        "Rick and Morty"
+      ],
+      "correct_answer": "The Simpsons"
+    },
+    {
+      "question": "Who is the main character of the television series 'House M.D.'?",
+      "choices": [
+        "Dr. Meredith Grey",
+        "Dr. Gregory House",
+        "Dr. John Carter",
+        "Dr. Mindy Lahiri"
+      ],
+      "correct_answer": "Dr. Gregory House"
+    }
+  ]
+}
+```
+
+TODO: use expressive code to collapse all but one of the above questions.
+
+## How to turn a prompt into an API endpoint
+
+Now let's look at how we can leverage teh structured JSON output feature to create a prompt-based API endpoint. And while we're at it, let's also look at how this would fit into the larger context of an app.
+
+## Coding the app
+
+This is a somewhat "trivial" example(ha ha couldn;t resist) but it shows how we can turn the prompt into an API, in this case a game generator, so REST might be GET /api/v1/games/new?category=sports&question_count=5&difficulty=beginner
+
+```
+payload:
+{
+id: "nanoid",
+...payload from assistant
+}
+```
+
+store game in upstash
+set expiration to match allowed time to respond.
+
+- Need to generate a game id in order to submit the answer:
+
+POST /api/v1/games/:id/answers
+
+```
+body: { id:1 }
+
+```
+
+- stand up basic astro app with some ui package
+- initiate openai
+- states:
+  - default: Select a category
+
+Food
+Geography
+History
+Literature
+Movies
+Music
+Pop Culture
+Science
+Sports
+Television
+Surprise me!
+
+- send prompt to asst - please wait.
+
+Could also add difficulty level, question count, and more, with easy parameters. Basically, the sky is the limit.
+
+What about a round trip?
+
+Multiple teams.
+Allow for asking for hints.
+
+- Do not create UI portion, just the api
+
+This means, for example, that I can ask for a (insert some example here) and then take those returned values and use them within the application.
+
+While that might be technically possible with an unstructured chat response (meaning it's just a long string from app viewpoint), that requires potentially complex and unreliable parsing.
+
+In this blog post, I'll walk through a process for how to turn a prompt into an endpoint.
+
+However, I would recommend that you first start be reading the original docs at openai on structured json responses.
+
+To be clear, while we're using openai, I think the process in general should be applicable for any LLM that allows for returning a structured response.
+
+## Ideas for examples
+
+- a trivia game: provide both the questions and the answers, then use to create the actual game. Can be one q/a at a time. Main issue: if allowing free form response, then how evaluate. Can in includes, case-sensitive. Can be a challenge option when sending to the AI.
+
+EXAMPLE: recipes. Ask for a recipt for a dish, like beef lasagna, then for a vegan lasagna, then generate a form that allows for updating ingredient amounts based on serving count.
+
+(Ask for something that returns a combination of numbers and descriptions and also different types of values, eg currency, dates, etc.)
+
+Here is the response we got. The only difference here from an api request is that instead of a REST-based endpoint, we send a long string, in the form of a prompt.
+
+# Output Format
+
+Provide your response in JSON format with the following structure:
+
+- `category`: The trivia category (e.g., "Science").
+- `questions`: An array of objects, where each object includes:
+  - `question`: The trivia question as a string.
+  - `choices`: An array of strings representing answer choices.
+  - `correct_answer`: The correct answer as a string.
+
+```json
+{
+  "category": "[Category]",
+  "questions": [
+    {
+      "question": "[Question 1]",
+      "choices": ["[Choice A]", "[Choice B]", "[Choice C]", "[Choice D]"],
+      "correct_answer": "[Correct Choice]"
+    }
+  ]
+}
+```
+
+# Examples
+
+**Example 1**
+
+```json
+{
+  "category": "Science",
+  "questions": [
+    {
+      "question": "What is the chemical symbol for water?",
+      "choices": ["H2O", "O2", "H2", "HO"],
+      "correct_answer": "H2O"
+    },
+    {
+      "question": "What planet is known as the Red Planet?",
+      "choices": ["Earth", "Mars", "Jupiter", "Venus"],
+      "correct_answer": "Mars"
+    }
+  ]
+}
+```
+
+```
+
+```
