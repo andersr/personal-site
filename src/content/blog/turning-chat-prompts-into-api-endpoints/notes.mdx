@@ -12,6 +12,15 @@ In ot from the vantage point of an app, plain text is mostly synonumous with uns
 
 This may seem like just a minor feature update to the API but is in fact a huge deal, for the simple reason that the output now can be "understood" and processed by a computer program. In other words, the "structure json" option could just as well be relabeled to "for computers" while the default option would be "for people."
 
+- Food
+- Geography
+- Literature
+- Movies
+- Music
+- Pop Culture
+- Sports
+- Television
+
 > List all US states. Provide your response in following JSON format.
 >
 > - states: an array of objects, where each object includes:
@@ -319,6 +328,57 @@ Provide your response in JSON format with the following structure:
 }
 ```
 
+As you'll see there is also a Structured JSON option. You can use the structured option if you want to provide your instructions regarding the output shape in the form of a schema. This has the advantage of enabling more granular control of the output. However, in my experience, providing the shape instructions in "plain english" in the general assistant instructions is easire both to create and to maintain.
+
+````
+
+Create a 5-question multiple choice trivia game.  Use the following game categories:  Food, Geography, Literature, Movies, Music, Pop Culture, Science, Sports, Television;
+For each game, randomly select 5 categories from the category list, with each question in a different category.
+
+# Output Format
+
+Provide your response in JSON format with the following structure:
+- `questions`: An array of objects, where each object includes:
+    - `category`: The trivia category (e.g., "Science").
+    - `question`: The trivia question as a string.
+    - `choices`: An array of strings representing answer choices.
+    - `correctAnswer`: The correct answer as a string.
+
+```json
+{
+  "questions": [
+    {
+      "question": "[Question 1]",
+       "category": "[Category]",
+      "choices": ["[Choice A]", "[Choice B]", "[Choice C]", "[Choice D]"],
+      "correctAnswer": "[Correct Choice]"
+    }
+  ]
+}
+````
+
+# Question and choice examples
+
+```json
+{
+  "questions": [
+    {
+      "question": "What is the chemical symbol for water?",
+      "category": "Science",
+      "choices": ["H2O", "O2", "H2", "HO"],
+      "correct_answer": "H2O"
+    },
+    {
+      "question": "What is the main ingredient in guacamole?",
+      "category": "Food",
+      "choices": ["Tomato", "Avocado", "Cucumber", "Onion"],
+      "correct_answer": "Avocado"
+    }
+  ]
+}
 ```
 
-```
+# Notes
+
+- Include 5 questions per trivia game.
+- Ensure one correct answer per question and logical, plausible distractor choices.

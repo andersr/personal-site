@@ -7,48 +7,41 @@ heroImageCredit: [ChatGPT, ""]
 isDraft: true
 ---
 
-I've made fairly extensive use of the [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview), such as in the [home maintenance app](https://www.starlinghome.co/), where we've used it both for participating in chat discussions, as well as specific tasks, like generating a title from a user's description.
+Recently, while in the OpenAI dashboard, updating the config for one of the [AI Assistants](https://platform.openai.com/docs/assistants/overview) in a [home maintenance app](https://www.starlinghome.co/) I'm working on, I came across a new and seemingly innocent-looking config option: [structured outputs](https://platform.openai.com/docs/guides/structured-outputs).
 
-(MAYBE INSERT CHAT SCREENSHOT)
-
-Recently, when I was updating the config for an Assistant in the OpenAI dashboard, I came across a new and seemingly innocent-looking config option: [structured outputs](https://platform.openai.com/docs/guides/structured-outputs).
-
-(INSERT SCREEN SHOT OF RESPONSE FORMAT DROPDOWN)
+<figure>
+  ![OpenAI Assistant Response
+  Options](/images/blog/turning-chat-prompts-into-api-endpoints/assistant-response-options.png)
+  <figcaption>OpenAI Assistant Response Options</figcaption>
+</figure>
 
 The feature isn't immediately obvious within the Assistant config, and to be honest, I actually came upon it by chance. But after starting to play with it, wow, was I blown away by the potential. In this blog post, I'll talk about why this updated output format is a big deal, an example use case, and some potentially not obvious factors to be aware of.
 
 ## From providing information to enabling features
 
-The more conventional chat output, plain text, or in some cases, formatted text, is ideally suited for human consumption. It' intended to read by a person and maybe they'll also copy and paste some snippets and use elsewhere.
+The more conventional chat output, plain text, or in some cases, formatted text, is ideally suited for human consumption. It' intended to be read and used by a person.
 
-Structured output, specifically JSON output, is to apps and computer programs what plain text is to people. It's what web apps normally consume, eg via REST endpoints, etc. So when I am able to pre-define the structure of the response from an AI assistant, I have effectively turned the output into a service that the app can consume.
+(MAYBE INSERT TRADITIONAL CHAT EXAMPLE IMAGE)
+
+Structured output, on the other hand, is to apps and computer programs what plain text is to people. It's what web apps normally consume, eg JSON via REST endpoints, etc. So when I am able to pre-define the structure of the response from an AI assistant, I have effectively turned the output into the basis for a service that the app can consume.
 
 Put differently, I can use it like any other structured data source and effectively turn Assistant output into the basis for an app feature.
 
 ## A quick example
 
-To better understand the power of structured output, let's look at a basic example. If you are new to creating and using Assistants, they are configured at two key levels: 1) The general assistant instructions, which tells the assistant how they should respond to all specific prompts. 2) The assistant prompt, which is the specific instructions for one particular output.
+To better understand the power of structured output, let's look at a basic example.
 
-Here is an example of using an Assistant to create a trivia game.
+If you are new to creating and using Assistants, they are configured at two key levels:
 
-These are the general instructions:
+1. The general assistant instructions (or "system instructions"), which tells the assistant how they should respond to all specific prompts.
+2. The assistant prompt, which is the specific instructions for one particular output.
+
+Here's an example of this in which we use an Assistant to create a trivia game.
+
+First, we add these general assistant instructions:
 
 ```markdown
-Create a 3-question multiple choice trivia game.
-Use the following game categories:
-
-- Food
-- Geography
-- Literature
-- Movies
-- Music
-- Pop Culture
-- Sports
-- Television
-
-For each game, randomly select 5 categories from these categories,
-with each question in a different category.
-Ensure one correct answer per question and logical, plausible distractor choices.
+Create a 3-question multiple choice trivia game. For each game, randomly select 5 common trivia game categories and create one question in each category. Ensure one correct answer per question and logical, plausible distractor choices.
 
 Provide your response in JSON format using the following structure:
 
@@ -59,88 +52,113 @@ Provide your response in JSON format using the following structure:
   - `correctAnswer`: The correct answer.
 ```
 
-And here's the prompt: `Create a new trivia game. Provide your response in JSON format.`
+Then, when we want to generate a new test, we submit this simple prompt:
 
-When I run this, this is a sample response:
+```text
+Create a new trivia game.
+```
 
-(INSERT SAMPLE JSON REPONSE)
+When we run this, we get this sample response:
 
-And from that, I can turn the Assistant output into a fully working Trivia Game:
+```json
+{
+  "questions": [
+    {
+      "category": "Geography",
+      "question": "Which country has the largest land area in the world?",
+      "choices": ["Canada", "United States", "China", "Russia"],
+      "correctAnswer": "Russia"
+    },
+    {
+      "category": "Science",
+      "question": "What is the chemical symbol for Gold?",
+      "choices": ["Au", "Ag", "Fe", "Pb"],
+      "correctAnswer": "Au"
+    },
+    {
+      "category": "History",
+      "question": "Who was the first President of the United States?",
+      "choices": [
+        "Abraham Lincoln",
+        "George Washington",
+        "Thomas Jefferson",
+        "John Adams"
+      ],
+      "correctAnswer": "George Washington"
+    }
+  ]
+}
+```
 
-(INSERT SAMPLE JSON REPONSE)
+Now, that may not seem like a big deal, but in fact, from the above output, we can create a fully working Trivia Game.
 
-You can view the full source code for the game here, to get an idea of how you might make use of the structured output featured. I'd also recommend checking out the [OpenAi Intro to Structured Outputs](https://cookbook.openai.com/examples/structured_outputs_intro).
+(INSERT SCREENSHOT OF TRIVIA GAME)
 
-This is just a toy example, but I am guessing you see the potential here. In some ways, structured output turns Assistants into a kind of infinite API that is only limited by your imagination.
+You can view the full source code for the game here, to get an idea of how you might make use of the structured output featured. (TODO: add source code link.)
+
+This is just a toy example, but I am guessing you see the potential here. In some ways, structured output turns Assistants into a kind of infinite API that is only limited by your imagination. (TODO: use for callout?)
 
 (MAYBE SOME KIND OF GIPHY HERE)
 
-While digging into the structured output feature (in part through implementing the above), a few key considerations stood out, the first being a shift in how you might approach assistant configuration.
+While digging into the structured output feature (in part through implementing the above trivia game), a few key considerations stood out:
 
-## Selecting JSON output vs Structured JSON output
+- How you configure your assistant is turned upside down.
+- Somewhat unintuitively, NOT selecting the Structured JSON output option is better.
+- You'll need to add caching and generated IDs to turn it all into an app feature.
 
-As you'll see there is also a Structured JSON option. You can use the structured option if you want to provide your instructions regarding the output shape in the form of a schema. This has the advantage of enabling more granular control of the output. However, in my experience, providing the shape instructions in "plain english" in the general assistant instructions is easire both to create and to maintain. One thing you definitely want to avoid is to have shape instructions in the general instructions as well as a schema, which could result in some unexpected or odd output.
+Let's look at each of these in more detail.
 
-### Assistant instructions vs the assistant prompt
+### How you configure your assistant is turned upside down
 
-One thing that was confusing to me at first was how specific to be in the assistant instructions vs in the prompt. In other situations, such as when you are creating an assistant intended for a chat feature, it might make more sense to keep the assistant instructions more broad, eg "You are a home maintenance assistant. Provide advice and tips on home maintanance." This makes sense because each chat message from the user is effectively a prompt. In other words, the specifics are not known at the time of creating the assistant.
+Normally, when configuring an Assistant, I find it to be best practice to provide broad assistant instructions and then provide specifics in each prompt. This makes sense because the specifics of what is requested are not known at the time of creating the assistant, but only at the point when submitting the prompt.
 
-With an assistant intended for JSON output, basically the opposite is true. You have a pre-defined output and expect every response to be consistent so your app gets the same JSON shape every time. Therefore, all your detail should go in the assistant description and only the "variable" values, in our case the trivia category should be included in the prompt.
+(INSERT EXAMPLE?)
 
-If we think of the assistant as the function, the prompt is the arguments passed in.
+However, what I realized when working with structured output is that you should turn this concept on its head. By configuring an assistant to provide structured output, you are effectively narrowing its purpose to a single use, as constrained by the output structure. Therefore, you should fully describe the use case in the general instructions and only use the prompt to request an instance of that output. If your use case accepts any variable values, then that would be included in the prompt and nothing more.
 
-If you choose to use the structured option, I recommend letting the AI create it for you. (Provide more detail.)
+To better exaplain this, using our above Trivia game example, let's say we want to allow for a variable number of questions and have the option of restricting all questions to a specific category.
 
-Let's start by creating the assistant. I recommend doing so via the OpenAI dashboard, for a couple resons. First, you can take advantage of the systems instructions generator.
+If so, we'd first update the general instructions accordingly, and then our prompt might look something like this:
 
-(Insert screenshot of generator)
+```text
+Create a new trivia game. Number of questions should be 10. All questions should be in the "Science" category.
+```
 
-Just explain what you want the assistant to do and that you want output in JSON format and the general shape of your desired output. Here is an example:
+With this approach, you can basically think of the assistant as the function and your prompt as calling the function and passing in any variables if needed.
+
+## Somewhat unintuitively, NOT selecting the Structured JSON output option is better
+
+Another aspect of working with structured output that led to some initial confusion was whether to use the `json_object` vs `json_schema` response option.
+
+Initially, I figured that since I want output to be restricted to a specific shape that the schema option would be the way to go. While that may technically work, as it turns out, using the `json_object` is simpler to configure and, maybe more significantly, to tweak as needed.
+
+In other words, as we saw in the above Trivia Game example, it is much simpler to define everything in one place, namely the general assistant instructions. With that approach, you can use a kind of plain english pseudo code to describe the desired shape, while if using the `json_schema` setting, you will need to conform to OpenAI's schema syntax.
+
+So far, I have not found a good use case for using `json_schema` over `json_object`.
+
+However, if you do decided to go with the schema option, I recommend letting the AI create the schema for you. Just explain what you want the assistant to do and that you want output in JSON format and the general shape of your desired output. Here is an example:
 
 (insert example of generator instructions)
 
 The Ai will then generate instructions optimized for an assistant. Be sure to read through the generated content carefully to ensure it matched what you intended.
 
-## Generating prompt-specific IDs
+One thing you definitely want to avoid is to have output shape instructions both in the general instructions as well as in the form of a schema, as that could result in some unexpected or odd output.
 
-In contrast to a traditional API, where your payload for some entity instance is likely to include a unique identifier for that instance, this is not something an Assistant will provide.
+## Add caching and generated IDs to create features and endpoints
 
-At the same time as we'll see, we will need to be able to uniquely identify this instance, in this case the trivia game that was created, in order to make future queries about it.
+When I initially was playing around with the trivia game, I'd generate the game output, display the game ui and was able to play a game no problem. But at some point I made the "mistake" of refreshing my page, which resulted in my trivia game being replaced wiht a brand new game, as well as having to wait for all that to complete (usually 5-10 seconds) Obviously, that is not what we want. Once a game has been created, we want to ensure that specific game instance persists, at a minimum long enough to complete playing the game.
 
-There are numerous ways you can generate a unique Id. I like using Nanoid for this purpose, so that's what we'll go with (another good option is uuid.)
+In other words, once a game has been generated, you need to store that specific instance, either just for the duration of the game, or maybe to allow for returning to the game at a later point.
 
-Add the nanoid dependency and see this cod for how to instantiate and use to generate an id and include with your response.
+We can't use the assistant output alone to achieve this, for at least a couple reasons. First, each time we prompt the assistant, we get a new game, and second, each prompt both takes time to generate a response, as well as incurs a token cost.
 
-## Caching or storing assistant output
+Therefore, in order to make structured prompt output usable as an app feature, we'll want to at least cache the output for short-term use, and possibly also store it in database, if we need longer-term persistence.
 
-Waiting for an assistant response can take several seconds or more. This is something we want to avoid having the user wait for more than once.
+In my example app, I solved this by generating a unique id (I used NanoId but there are lots of other options, eg UUID) and then storing the game output in a Redis memory store. This allows for short-term persistence of a game instance.
 
-Therefore, you should persist the output that is returned so that next time it is requested it will appear immediately.
+The specifics of how you generate your id and persist the assistant output will vary depending on your use case, but you will definitely want to incorporate some type of persistence in your implementation.
 
-Additionally, once a game has been created, we want to be able to do stuff with this game. We cannot "query" the assistant, because that will just result in a new game.
-
-Also, if we refresh the page, we also do not want a new game generated and we do not want to have to wait for the Assistant to respond.
-
-Instead, we need to store the prompt.
-
-For the purposes of this example I am going to store the game output in a memory cache, but if you were building an actual trivia game app, you'd likely want to store it in a database.
-
-The game is a temporary activity. In other words, I am only playing for a few minutes. Therfore, all we really need is an in-memory store that allows us to persist this game instance during that period. After that, unless we had some feature like storing high scores, or game archives, we can happily discard the game.
-
-Redis is perfect for this and Upstash is a great service provider for allowing us to quickly stand up an in-memory key/value store for our game data.
-
-(See this code for how to stand that up.)
-
-To be clear, this is something you almost certainly will want to add any time you are using an Assistant and returning a JSON response. Once youve waited for that first generate, you want to avoid having to ask for it again, costing tokens, and also risking getting back a different repsonse.
-There is no need for this. Instead, using something like upstash in combination with a hashing function to store the output (with an appropriate expiration period) so that you both reduce repeated queries and also create a better UX with a quick load time.
-
-## Using our id to play the game
-
-Next, we'll make use of the ID we created before and associated with a specific game.
-
-After that, all future requests wil be to the cache. (If for some reason you want to allow people to return to the same game later, then yes, you'd want to store in a traditional db.)
-
-See this code for how to add actual basic game functionality.
+See this code for an example of how I did it in the Trivia App.
 
 ## Conclustion
 
