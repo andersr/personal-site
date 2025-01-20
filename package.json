@@ -3,9 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev --port 3000",
+    "dev": "astro dev --port 4000",
     "build": "astro build",
-    "preview": "pnpm run build && astro preview --port 4000",
+    "preview": "pnpm run build && astro preview --port 4040",
     "astro": "astro",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",

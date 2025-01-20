@@ -2,6 +2,26 @@
 notes: true
 ---
 
+To better exaplain this, using our above Trivia game example, let's say we want to allow for a variable number of questions and have the option of restricting all questions to a specific category.
+
+If so, we'd first update the general instructions accordingly, and then our prompt might look something like this:
+
+```text
+Create a new trivia game. Number of questions should be 10. All questions should be in the "Science" category.
+```
+
+With this approach, you can basically think of the assistant as the function and your prompt as calling the function and passing in any variables if needed.
+
+However, if you do decided to go with the schema option, I recommend letting the AI create the schema for you. (After selecting the Just explain what you want the assistant to do and that you want output in JSON format and the general shape of your desired output. Here is an example:
+
+(insert example of generator instructions)
+
+The Ai will then generate instructions optimized for an assistant. Be sure to read through the generated content carefully to ensure it matched what you intended.
+
+If using the `json_schema` setting, you will need to conform to OpenAI's [schema syntax](https://platform.openai.com/docs/guides/structured-outputs#supported-schemas), which can be tedious and error-prone. Additionally, you now have effectively split your general instructions into two places, which increases the likelyhood of inconsistencies, which can result in unexpected ouput.
+
+As we saw in the above Trivia Game example, it is much simpler to define everything in one place, namely the general assistant instructions. With that approach, you can use plain english or pseudo code to describe the desired shape.
+
 ## Updated Outline
 
 - focus on salient points and just reference code as an example, skip doing a tutorial, etc.
