@@ -1,10 +1,9 @@
 ---
-title: Turning chat prompts into api endpoints
-description: Placeholder description
+title: Creating App Features Using AI Assistant Structured Output
+description: How I use the structured response option in the OpenAI Assistant API to create app features, including a sample app, and some gotchas to look out for.
 pubDate: 2025-01-13T11:44:50.233Z
 heroImage: [./assets/hero.jpg, Playful visualization of JSON output]
 heroImageCredit: [ChatGPT, ""]
-isDraft: true
 repo: https://github.com/andersr/structured-response-demo
 ---
 
@@ -24,7 +23,7 @@ But after starting to play with it, wow, was I blown away by the potential. In t
 
 ## From providing information to enabling features
 
-The more conventional chat output, plain text, or in some cases, formatted text, is intended to be read and used by a person.
+What's the impact of changing your assistant to use structured output. For comparison the more conventional chat output, plain text, or in some cases, formatted text, is intended to be read and used by a person.
 
 <figure class="md:w-[450px] md:mx-auto border rounded px-4 pb-2">
   ![Traditional Assistant
@@ -66,7 +65,7 @@ Then, when we want to create a new game, we just submit this simple prompt:
 Create a new trivia game.
 ```
 
-When we run this, we'll get output that will always be structured as in the example below. The set of question we get back will likely change but the structure should remain identical.
+When we run this, we'll get output that will always be structured as in the example below. The set of questions we get back will change but the structure should remain identical.
 
 ```json collapse={14-29}
 {
@@ -103,14 +102,14 @@ When we run this, we'll get output that will always be structured as in the exam
 }
 ```
 
-Now, that may not seem like a big deal, but in fact, from the above output, we can create a fully working Trivia Game.
+Now, that may not seem like a big deal, but in fact, from the above output, we can create a fully working trivia game. :rocket:
 
 <figure class="md:w-[500px] md:mx-auto">
   ![Traditional Assistant
   Chat](/images/blog/turning-chat-prompts-into-api-endpoints/game.jpg)
   <figcaption>
     Screenshot from structured ouput demo app. ([Source
-    code](https://github.com/andersr/structured-response-demo))
+    code](https://github.com/andersr/structured-response-demo).)
   </figcaption>
 </figure>
 
@@ -131,8 +130,8 @@ Normally, when configuring an Assistant, I find it to be best practice to provid
 For example, for a home maintenance assistant, the overall instructions might be to always provide brief responses, ask a maximum of two questions, and always include DIY tips. Then, in the prompt, we state the specific home maintenance task we'd need help with.
 
 <FloatBox side="right">
-  By configuring an assistant to provide structured output, you are effectively
-  narrowing its purpose to a single use case.
+  Fully describe the use case in the general instructions and only use the
+  prompt to define output variables.
 </FloatBox>
 However, what I've realized when working with structured output is that you
 should turn this concept on its head. By configuring an assistant to provide
