@@ -19,6 +19,7 @@
     "@astrojs/mdx": "^4.0.3",
     "@astrojs/sitemap": "^3.2.1",
     "@astrojs/tailwind": "^5.1.4",
+    "@expressive-code/plugin-collapsible-sections": "^0.40.1",
     "@vercel/analytics": "^1.4.1",
     "astro": "^5.0.5",
     "astro-expressive-code": "^0.38.3",
