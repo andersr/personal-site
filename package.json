@@ -21,7 +21,7 @@
     "@astrojs/tailwind": "^5.1.4",
     "@expressive-code/plugin-collapsible-sections": "^0.40.1",
     "@vercel/analytics": "^1.4.1",
-    "astro": "^5.0.5",
+    "astro": "^5.0.8",
     "astro-expressive-code": "^0.38.3",
     "astro-icon": "^1.1.5",
     "rehype-autolink-headings": "^7.1.0",
@@ -47,6 +47,6 @@
     "prettier-plugin-astro": "^0.14.1",
     "remark-emoji": "^5.0.1",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.6"
+    "vite": "^6.0.9"
   }
 }
