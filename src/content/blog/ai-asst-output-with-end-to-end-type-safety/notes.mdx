@@ -1,0 +1,38 @@
+```markdown
+- `questions`: An array of objects, where each object includes:
+  - `category`: The trivia category (e.g., "Geography").
+  - `question`: The trivia question (e.g., "What is the largest desert in the world?").
+  - `choices`: The answer choices, which should include one correct answer and three distractor choices (e.g., "['Sahara Desert','Arabian Desert','Gobi Desert','Antarctic Desert']").
+  - `correctAnswer`: The correct answer.
+```
+
+If you prefer just reading code, [here is a repo](https://github.com/andersr/structured-response-demo) that demonstrates this functionality. (Point to specific files of interest?)
+
+## Fully typed lifecycle
+
+After having started implementing structured ouput features, one major issue I encountered was typing. Needed to define types in multiple places, which is not very DRY.
+
+Assistant output can be structured, but is only implicitly typed, in the form of a schema.
+
+Without typing, we encounter a number of headaches.
+
+- We don't have a good way of ensuring the output from the assistant in fact is consistent with the expected types, ie runtime type safety.
+- If using Typescript, we would need to manually define the types for any components that will be displaying the structured output.
+- We need to duplicate our type descriptions we provide to the assistant.
+
+1. Output instructions: here we need to instruct the assistant re the structure of the output. In my previous blog post, I suggested defining output directly in the instructions. However, with this model, my thinking has evolved. As we'll see, we can better achieve type safety by instead defining a schema, that we then can use for all three places.
+
+## Areas where types are needed
+
+1. Output instructions: we generate this from the schema.
+1. Typescript: we can generate typescript types from the scheme.
+1. Runtime type safety with Zod parse.
+
+The good news we can solve all this with a few simple tools.
+
+1. Use Zod to define our output schema.
+2. Convert Zod to Typescript for development type safety.
+
+while implementing this, was that of type safety. More specifically, I would define the structure for the assistant output in the instructions, but then would also need to manually define the same types in Typscript to use as a basis for using the output in the app. Here's an example.
+
+These are the JSON output instructions I provided to the assistant:

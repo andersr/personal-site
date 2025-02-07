@@ -1,0 +1,154 @@
+---
+title: AI Assistant Output with End to End Type Safety
+pubDate: 2025-02-06T18:22:42.375Z
+description: A guide for achieving fully typed structured AI assistant output
+heroImage: [./assets/featured-image.jpg, Playful visual of json and typescript]
+heroImageCredit: [ChatGPT, ""]
+repo: https://github.com/andersr/structured-response-demo
+isDraft: true
+---
+
+As I wrote about [previously](https://www.anders.co/blog/creating-app-features-using-ai-assistant-structured-output/), I've been using structured output from AI Assistants to generate app features. One issue that emerged rather quickly can be exemplified from the following two code snippets:
+
+  ```markdown wrap title="Output instructions I provided to the assistant"
+  - `questions`: An array of trivia questions in a mix of common trivia categories. Each question       
+     should be unique within the array and contain an object with the following properties.
+    - `category`: The trivia category. 
+    - `question`: The trivia question. 
+    - `choices`: The answer choices. 
+    - `correctAnswer`: The correct answer. 
+  ```
+  <br />
+
+```typescript title="Types used for the component that displays the output"
+export interface TriviaGame {
+  questions: TriviaQuestion[];
+}
+
+export interface TriviaQuestion {
+  question: string;
+  category: string;
+  choices: string[];
+  correctAnswer: string;
+}
+```
+
+As you may have noticed, both of the above are describing the identical data structure but in two different ways. Obviously, repeating the same information in multiple places is [something we want to avoid](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself).
+
+In this post, I'll talk about how I replaced repeated descriptions of the same data structure with a single schema,which that can be used for assistant instructions, Typescript types, and, as an added bonus, can also be used for runtime type validation.
+
+Here's an overview of the main steps:
+
+1. Creating the schema
+2. Using `.describe()` as mini assistant instructions
+3. Converting to OpenAI Response Format
+4. Converting to Typescript
+5. Adding runtime type validation
+
+Let's walk through each of them in detail.  (If you prefer just reading code, you'll find a code version of everything below in this repo.)
+
+## Creating the schema
+
+We'll be using [Zod](https://zod.dev/) for defining our schema. If you're not familiar with this great utility, I definitely recommend taking a look at their docs before continuing.
+
+Here are the above JSON Output instructions converted into a Zod schema:
+
+```ts wrap
+import { z } from "zod";
+
+export const triviaGameSchema = z.object({
+  questions: z
+    .object({
+      category: z.string().describe("The question category."),
+      question: z.string().describe("The trivia question."),
+      choices: z
+        .string()
+        .array()
+        .describe(
+          "The answer choices, which should include one correct answer and three distractor choices.",
+        ),
+      correctAnswer: z.string().describe("The correct answer."),
+    })
+    .array()
+    .describe(
+      "An array of trivia questions in a mix of common trivia categories. Each question should be unique within the array.",
+    ),
+});
+```
+
+If you've used Zod before, then the above should look quite familiar. And if you're new to creating schemas and/or using Zod, definitely review their docs if any of the above is unclear. It's definitely worth the effort, in particular, since, as we'll see, we're going to get quite a bit of mileage out of this one schema.
+
+## Using `.describe()` as mini assistant instructions
+
+One part of the schema which may look unfamiliar, even if you've used Zod previously, is the use of the [`describe`](https://zod.dev/?id=describe) method. At least for me, it wasn't something I'd had a need for until I was using it for structured output.
+
+However, in the context of structured output, this property is essential. One can think of these statements as attribute-level assistant instructions. Use this to explain requirements for an attribute, particularly those that are not self-evident from the attribute name or the data structure itself. One example from above is where we state that the question array should contain questions in a mix of common trivia categories.
+
+## Converting to OpenAI Response Format
+
+With our schema in place, we now want to reuse it in our assistant instructions. To achive this, we can make use of OpenAI's [`zodResponseFormat` helper](https://github.com/openai/openai-node/blob/master/helpers.md#auto-parsing-response-content-with-zod-schemas).
+
+With that, we can then use the schema as follows to create (or update) an assistant:
+
+```typescript
+import { zodResponseFormat } from "openai/helpers/zod";
+
+...
+
+const assistant = await openai.beta.assistants.create({
+  model: "gpt-4o-mini", // be sure to use a model that supports structured output
+  ...
+  response_format: zodResponseFormat(mySchema, "my_schema"),
+});
+```
+
+As can be seen from above, reusing the zod schema for OpenAI assistant instructions is quite straightforward. Take a look at the code in the repo for more detail on how this works.
+
+## Converting the schema to Typescript
+
+We also want to reuse our schema for our app types, eg for typing props used in components that render the assistant output. This can be achieved as follows:
+
+```typescript collapse={2-17}
+const triviaGameSchema = z.object({
+  questions: z
+    .object({
+      category: z.string().describe("The question category."),
+      question: z.string().describe("The trivia question."),
+      choices: z
+        .string()
+        .array()
+        .describe(
+          "The answer choices, which should include one correct answer and three distractor choices.",
+        ),
+      correctAnswer: z.string().describe("The correct answer."),
+    })
+    .array()
+    .describe(
+      "An array of trivia questions. Each question should be unique within the array. Question categories should be a mix of common trivia categories.",
+    ),
+});
+
+type TriviaGame = z.infer<typeof triviaGameSchema>;
+```
+
+With the above, we've now eliminiated the duplication I discussed in the intro. :tada:
+
+## Adding runtime type validation
+
+While adding Typescript types is great for development, we still need to also ensure our output is typed as expected during runtime. (In case you weren't aware, [most Typescript types don't exist at runtime](https://www.totaltypescript.com/typescript-types-dont-exist-at-runtime).)
+
+Once again, because we already did the heavy lifing when creating the schema, we can leverage Zod, and validate assistant output using the [`parse`](https://zod.dev/?id=parse) method.
+
+```ts
+    const output = await getAsstOutput({
+   ...
+    });
+
+    const game = triviaGameSchema.parse(output);
+```
+
+This will ensure that the output returned by the assistant actually matches what we expect. To be clear, it's unlikely you'll get a validation error here, since the assistant is using the same schema as a basis for its response. However, because we are using a third party service (OpenAI) to generate this output, I think it's good practice to validate the 3rd party's response.
+
+## Updating and Creating Assistants all in one place
+
+One thing you might have noticed from the above code is that we're creating our assistant locally, as part of the app code. This is a requirement if we want to be able to reuse our schema both for our app types as well as the instruction responses. Creating assistants locally (as opposed to in the OpenAI dashboard) here is that we're creating and updating the assistant locally. We need to do that if we want leverage a single schema for everything. Doing that as opposed to in the dashboard is not completely strightforward. See the next blog post on how to do that.)

@@ -1,0 +1,15 @@
+- we need to be able to define and configure the assistant in our code. But this means we need a stable assistant id, or we will keep generating new assistants constantly.
+- to achieve this, we can create a loosely coupled relationship, and store the assistant id, which allows for a persisted id and fully configuring the assistant in the development environment. If we want to be able to fully configure our assistant in our local development environment, this is required. And in order to achieve end to end type safety, we need to configure the assistant all in one place. (Technically, you could achieve it with a dashboard asst, but it would be messy and require a lot of copying and pasting.)
+
+1. Define a minimal assistant model - we effectively want to persist only the assistant id and associate it with the corresponding output goal, which we can define with a key. Everything else lives either in the app or assistant config. This allows us to instantiate a new assistant once and continue iterating on the same assistant without concern of constantly creating new assistants.
+
+INSERT INSTRUCTIONS OR REFERENCE TO CODE WHERE WE PERSIST ASSISTANTS
+
+## Instantiating assistants
+
+It's important that assistants only are instantiated once. Therefore, they should be generated via a command, similar to how you might seed your database.
+Each assistant is a kind of singleton.
+
+Its an admin activity. (What's a good analogy or metaphor?)
+
+With this in place, we can now focus on defining our assistant output flow and keeping it fully typed.

@@ -1,0 +1,91 @@
+---
+title: An AI Assistant Development Lifecycle
+pubDate: 2025-02-04T15:10:05.369Z
+heroImage: [./assets/featured-image.svg, Placeholder featured image]
+description: How to implement and administer AI Assistants locally
+repo: https://github.com/andersr/structured-response-demo
+isDraft: true
+---
+
+## An AI Assistant development lifecycle
+
+With assistants [enabling app features by way of structured output](#), they become a more integral part of the design/development lifecycle. As such, maintaining them in a separate dashboard is ineffective.
+Instead, we want to co-locate all assistant config with other app code.
+
+One reason for this is to enable end-to-end typing of structured output, which we can achieve by using a single schema for everything. That is much easier to do if your code and config are co-located.
+
+However, there are some challenges with maintaining your assistant locally. One major challenge is when and how to create new assistants. We can't really do that as part of the app code itself, since you want to be able to re-use the same assistant over and over. So we need a way to just create the assistant once and then persist the assistant id so we can then update the same assistant as we iterate on our design.
+
+The first idea that came to mind here was using environment variables. However, that won't work because we want to create and manage all the assistants for all the environements in one place.
+
+So, we need persist the assistant ids and we need to create and maintain the assistants for all environments in one place. The reason we need to manage all in one place is so we can update all them using a single config and schema.
+
+At the same time, the code should be co-located with our app code so we can leverage the same schema for assistant instructions, TS types and runtime validation.
+
+This post actually came about while I was writing another post on AI Assistant type safety. While working on that, I realized I needed to be able to fully define and maintain assistants as part the codebase (as opposed to managing them separately using the OpenAI dashboard.) Check out that post for the details why.
+
+One thing I've found annoying/struggled with about working with OpenAI assistant is the assistant develpment lifecycle, or lack thereof. (Need to better explain what the problem is here.)
+
+To better explain what I mean, here is my preferred way of implementing and iterating on an AI Assistant.
+
+INSERT A LIFECYCLE VISUAL?
+
+I want to have a different assistant for each environment:
+
+- A dev version for iterating on locally
+- A staging version for ensuring that the dev configuration of the assistant works as expected in the hosted environment
+- A production version used in the live app.
+
+The reasons for this are similar to why we have multiple development environments generally, eg I want to be able to play around and not worry about breaking stuff in the dev version, while I want to ensure that the prod version is stable and works as expected.
+
+I've tried achieving this workflow using the OpenAI dashboard, and it's messsy to say the least. Additionally, it requires a lot of hopping back and forth between the dashboard and my code.
+
+A better option is to use the Node (or Python) SDK. This allows for administering all the assistants for the different environments locally. But there is a catch.
+
+When working in the dashboard, you can create an assistant and iterate on the same assistant, eg by using the playground. Then you can clone or copy and paste the updated configs to your staging and prod assistants.
+The advantage here is that your assistant ids are stable. (The disadvantage is that the process is super messy.)
+
+Administering locally has numerous advantages: the assistant config and the code that consumes it are all in one place; we also are able to much more easily achieve end to end type safety.
+
+However, the main obstacle is that we need to ensure we are updating the same assistants throughout the development lifecylce, ie we need to persist the assistant ids, or else we may find ourselves repeatedly creating new assistants.
+
+Now, the first idea that comes to mind is store the ids as environment variables. But as will become more clear further down, we want to be able to adminster the assistants for all the environments locally, which isn't really compatible with the idea of environment variables.
+
+Instead, the solution I came up with is two-fold:
+
+1. Persist assistant ids in some kind of store, and associate the ids with the corresponding app id for each assistant.
+2. Add a set of commands for administering assistant to support the development lifecycle. In my case, I use three main commands:
+
+### 1) Create assistants
+
+For each environment, create an Assistant in OpenAI, get back the respective assistant Id, and add it your KV store for later use.
+
+### 2) Update assistants
+
+During development, while iterating on the assistant config, update the dev version of your assistant.
+
+### 3) "Deploy" assistants
+
+When ready, update the staging version and/or prod version of your assistant to match the dev version.
+
+With these three commands, I can support a complete development lifecycle. (Ok, one thing I glossed over here was testing. I will save that for another post.)
+
+One of the many benefits of this model is that achieving end to end type safety is much easier. Another is that you now have all your assistant config co-located with your code, which IMO makes development much easier.
+
+See this repo for an example of how to implement this.
+
+## Main implementation steps
+
+### Set up a store for persisting assistant ids
+
+I'm using Redis but pick whatever works for you.
+
+### Enable assistant management
+
+I chose to set up a set of CLI commands for creating and updating assistants. The key is that this needs to happen separately from the app itself. (Ie you do not want to be creating new assistants every time the app runs.) and one simple way to achieve that is with a set of CLI commands. I added mine as npm scripts.
+
+Update assistants for all your environments from your local dev environment. I've found this to make the most sense. Keep in mind that all we really are doing is updating an assistant hosted by OpenAI.
+
+I've found this to be the simplest. I thought about including these commands in my CI pipeline, but keep in mind that you are likely to only be updating assistants for the hosted environments quite infrequently.
+
+With this model, we now have assistant config co-located with our other code, we can manage them all in one place, and we are also set up to enable end to end typing of assistant output, which you can read about in the next post.
