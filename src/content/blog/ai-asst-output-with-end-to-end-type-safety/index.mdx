@@ -151,6 +151,6 @@ This will ensure that the output returned by the assistant actually matches what
 
 ## Updating and Creating Assistants all in one place
 
-One thing you might have noticed from the above code is that we're creating our assistant locally, as part of the app code. This is a requirement if we want to be able to reuse our schema both for our app types as well as the instruction responses.
+You might have noticed from the above code that we're creating our assistant as part of the app code, rather than via the OpenIA dashboard. This is a requirement if we want to be able to reuse our schema both for our app types as well as the instruction responses.
 
-Creating assistants locally (as opposed to in the OpenAI dashboard) is not as straightforward as one might expect. In the next post, I'll walk through my approach to enabling local assistant management. 
+However, creating assistants using using the [OpenAI API](https://www.npmjs.com/package/openai) rather than the dashboard is not as straightforward as one might expect. In the next post, I'll walk through some challenges you might encounter, as well as my approach for enabling code-based assistant management. 
