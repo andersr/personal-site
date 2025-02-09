@@ -1,5 +1,5 @@
 ---
-import { Image } from "astro:assets";
+import Image from "astro/components/Image.astro";
 import { type CollectionEntry, getCollection, render } from "astro:content";
 import CalloutBox from "~/components/CalloutBox.astro";
 import FloatBox from "~/components/FloatBox.astro";
@@ -10,6 +10,7 @@ import PostInfo from "~/components/PostInfo.astro";
 import ShareLinks from "~/components/ShareLinks.astro";
 import Typography from "~/components/Typography.astro";
 import BaseLayout from "~/layouts/BaseLayout.astro";
+import { sortPostsByDate } from "~/lib/sortPostsByDate";
 
 export async function getStaticPaths() {
   const posts: CollectionEntry<"blog">[] = await getCollection("blog");
@@ -23,6 +24,7 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<"blog">;
 
 const posts: CollectionEntry<"blog">[] = await getCollection("blog");
+const postsSortedByDate = posts.sort(sortPostsByDate);
 const post = Astro.props;
 
 const { Content, headings } = await render(post);
@@ -78,7 +80,7 @@ const { title, heroImage, description, toc, shareLinks, heroImageCredit } =
           </p>
         )
       }
-      <NextPreviousPosts allPosts={posts} currentPost={post} />
+      <NextPreviousPosts allPosts={postsSortedByDate} currentPost={post} />
     </div>
   </Typography>
 </BaseLayout>
