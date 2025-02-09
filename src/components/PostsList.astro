@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { APP_ICONS } from "~/lib/icons";
+import { sortPostsByDate } from "~/lib/sortPostsByDate";
 import type { BlogPost } from "~/types/BlogPost";
 import BulletDivider from "./BulletDivider.astro";
 import FormattedDate from "./FormattedDate.astro";
@@ -17,10 +18,7 @@ const posts: BlogPost[] = (await getCollection("blog"))
 
     return isProd ? !p.data.isDraft : true;
   })
-  .sort(
-    (a: BlogPost, b: BlogPost) =>
-      b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-  );
+  .sort(sortPostsByDate);
 ---
 
 <ul class="list-none">
