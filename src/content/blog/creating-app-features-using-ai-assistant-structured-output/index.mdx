@@ -170,6 +170,10 @@ Create a 10 question trivia game.
 Obviously, we could add many more "arguments", eg categories to include, level of difficulty, etc. but the main point is that all the details go in the general instructions and only the differences for the specific instance are included in the prompt.
 
 ## Somewhat unintuitively, NOT selecting the Structured JSON output option is better
+<br />
+<CalloutBox>
+***Update**: after going through the process of enabling type safety, I recommend using `json_schema` instead.  See my blog post on [typed assistant output](http://localhost:4000/blog/ai-asst-output-with-end-to-end-type-safety/).*
+</CalloutBox>
 
 Another aspect of working with structured output that led to some initial confusion was whether to use the `json_object` vs `json_schema` response option.
 
