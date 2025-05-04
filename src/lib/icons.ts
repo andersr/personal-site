@@ -71,11 +71,11 @@ export const FOOTER_ICON_LINKS: IconLinkProps[] = [
     href: HI_AT_ANDERSCO_MAILTO,
     title: "Email",
   },
-  {
-    icon: APP_ICONS["bluesky"],
-    href: "https://bsky.app/profile/andersco.bsky.social",
-    title: "Bluesky",
-  },
+  // {
+  //   icon: APP_ICONS["bluesky"],
+  //   href: "https://bsky.app/profile/andersco.bsky.social",
+  //   title: "Bluesky",
+  // },
   {
     icon: APP_ICONS["github"],
     href: "https://github.com/andersr",
@@ -87,9 +87,9 @@ export const FOOTER_ICON_LINKS: IconLinkProps[] = [
     href: "https://www.linkedin.com/in/andersramsay/",
     title: "LinkedIn",
   },
-  {
-    icon: APP_ICONS["threads"],
-    href: "https://www.threads.net/@andersr",
-    title: "Threads",
-  },
+  // {
+  //   icon: APP_ICONS["threads"],
+  //   href: "https://www.threads.net/@andersr",
+  //   title: "Threads",
+  // },
 ];
