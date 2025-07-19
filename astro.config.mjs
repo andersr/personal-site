@@ -45,7 +45,4 @@ export default defineConfig({
   markdown: {
     rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings],
   },
-  experimental: {
-    responsiveImages: true,
-  },
 });
