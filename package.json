@@ -54,7 +54,7 @@
     "prettier-plugin-astro": "^1.0.0",
     "remark-emoji": "^5.0.2",
     "typescript-eslint": "^8.70.0",
-    "vite": "^6.4.3"
+    "vite": "^8.3.1"
   },
   "engines": {
     "node": ">=22"
