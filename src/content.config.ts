@@ -1,5 +1,6 @@
 import { glob } from "astro/loaders";
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { z } from "astro/zod";
 
 const blog = defineCollection({
   // Load Markdown and MDX files in the `src/content/blog/` directory.
@@ -19,7 +20,7 @@ const blog = defineCollection({
       updatedDate: z.coerce.date().optional(),
       heroImage: z.tuple([image(), z.string()]).optional(), // [image, alt]
       heroImageCredit: z
-        .tuple([z.string(), z.union([z.literal(""), z.string().trim().url()])])
+        .tuple([z.string(), z.union([z.literal(""), z.url().trim()])])
         .optional(), // [credit name, credit link OR ""]
       seriesName: z.string().optional(),
       seriesSlug: z.string().optional(),
@@ -29,8 +30,8 @@ const blog = defineCollection({
       repo: z.string().optional(),
       shareLinks: z
         .tuple([
-          z.string().includes("bsky.app").url(),
-          z.string().includes("threads.net").url(),
+          z.url().includes("bsky.app"),
+          z.url().includes("threads.net"),
         ])
         .optional(),
     }),
