@@ -1,3 +1,4 @@
 {
-  "apps/site/src/**/*.{ts,astro}": ["pnpm --filter site run lint:fix"]
+  "apps/site/src/**/*.{ts,astro}": ["pnpm --filter site run lint:fix"],
+  "packages/content/src/**/*.ts": ["pnpm --filter @repo/content run lint:fix"]
 }
