@@ -1,16 +1,13 @@
 import {
   BLOG_CONTENT_DIR,
   NON_POST_FILENAMES,
+  type PostFrontmatter,
   postFrontmatterSchema,
 } from "@repo/content";
-import { parse as parseYaml } from "yaml";
+import { type Document, parseDocument, parse as parseYaml } from "yaml";
 import { z } from "zod";
-import { getRepo, getRepoOctokit } from "./github.server";
-import {
-  POST_BRANCH_PREFIX,
-  type PostPullRequest,
-  type PostSummary,
-} from "./posts";
+import { getOctokit, type Repo, siteRepo } from "./github.server";
+import type { PostSummary } from "./posts";
 
 type BlobText = { text?: string | null };
 type TreeEntry = {
@@ -57,54 +54,89 @@ const POSTS_QUERY = /* GraphQL */ `
 
 const FRONTMATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
 
-function parsePost(slug: string, path: string, text: string): PostSummary {
-  const yaml = text.match(FRONTMATTER)?.[1];
-  if (yaml === undefined) {
-    return { slug, path, ok: false, error: "No frontmatter block" };
-  }
+export type ParsedPostSource =
+  | { ok: true; frontmatter: PostFrontmatter; body: string }
+  | { ok: false; error: string };
+
+/** Splits an `.mdx` file into validated frontmatter and body. */
+export function parsePostSource(text: string): ParsedPostSource {
+  const match = text.match(FRONTMATTER);
+  if (!match) return { ok: false, error: "No frontmatter block" };
+  const body = text.slice(match[0].length).replace(/^(\r?\n)+/, "");
   try {
-    const result = postFrontmatterSchema.safeParse(parseYaml(yaml));
+    const result = postFrontmatterSchema.safeParse(parseYaml(match[1]));
     return result.success
-      ? { slug, path, ok: true, frontmatter: result.data }
-      : { slug, path, ok: false, error: z.prettifyError(result.error) };
+      ? { ok: true, frontmatter: result.data, body }
+      : { ok: false, error: z.prettifyError(result.error) };
   } catch (error) {
-    return { slug, path, ok: false, error: `Invalid YAML: ${String(error)}` };
+    return { ok: false, error: `Invalid YAML: ${String(error)}` };
   }
 }
 
-function toPost(entry: TreeEntry): PostSummary | undefined {
+/** Today as `YYYY-MM-DD` (UTC), the format posts use for `pubDate`. */
+export const today = () => new Date().toISOString().slice(0, 10);
+
+/**
+ * Rewrites a post's frontmatter through yaml's Document API, which keeps
+ * existing key order and formatting. Optionally replaces the body too.
+ */
+export function editPostSource(
+  text: string,
+  edit: (frontmatter: Document) => void,
+  body?: string,
+): string {
+  const match = text.match(FRONTMATTER);
+  const doc = parseDocument(match?.[1] ?? "");
+  edit(doc);
+  const oldBody = match
+    ? text.slice(match[0].length).replace(/^(\r?\n)+/, "")
+    : text;
+  // lineWidth 0: don't re-fold long values the author wrote on one line
+  return `---\n${doc.toString({ lineWidth: 0 })}---\n\n${(body ?? oldBody).trim()}\n`;
+}
+
+function parsePost(slug: string, path: string, text: string): PostSummary {
+  const parsed = parsePostSource(text);
+  return parsed.ok
+    ? { slug, path, ok: true, frontmatter: parsed.frontmatter }
+    : { slug, path, ok: false, error: parsed.error };
+}
+
+function toPost(dir: string, entry: TreeEntry): PostSummary | undefined {
   const isNonPost = (NON_POST_FILENAMES as readonly string[]).includes(
     entry.name,
   );
   if (entry.type === "blob" && entry.name.endsWith(".mdx") && !isNonPost) {
     const slug = entry.name.replace(/\.mdx$/, "");
-    return parsePost(
-      slug,
-      `${BLOG_CONTENT_DIR}/${entry.name}`,
-      entry.object?.text ?? "",
-    );
+    return parsePost(slug, `${dir}/${entry.name}`, entry.object?.text ?? "");
   }
   if (entry.type === "tree") {
     const index = entry.object?.entries?.find((e) => e.name === "index.mdx");
     if (index) {
-      const path = `${BLOG_CONTENT_DIR}/${entry.name}/index.mdx`;
+      const path = `${dir}/${entry.name}/index.mdx`;
       return parsePost(entry.name, path, index.object.text ?? "");
     }
   }
   return undefined;
 }
 
-/** Posts on the default branch; ones with invalid frontmatter sort first. */
-export async function listPosts(): Promise<PostSummary[]> {
-  const octokit = await getRepoOctokit();
+/**
+ * Posts in `dir` on `repo`'s default branch, newest first; ones with invalid
+ * frontmatter sort first.
+ */
+export async function listPostsIn(
+  repo: Repo,
+  dir: string,
+): Promise<PostSummary[]> {
+  const octokit = await getOctokit(repo);
   const result = await octokit.graphql<PostsQuery>(POSTS_QUERY, {
-    ...getRepo(),
-    expression: `HEAD:${BLOG_CONTENT_DIR}`,
+    ...repo,
+    expression: `HEAD:${dir}`,
   });
   const entries = result.repository?.object?.entries ?? [];
 
   return entries
-    .map(toPost)
+    .map((entry) => toPost(dir, entry))
     .filter((post) => post !== undefined)
     .sort((a, b) => {
       if (!a.ok || !b.ok) return Number(a.ok) - Number(b.ok);
@@ -112,21 +144,32 @@ export async function listPosts(): Promise<PostSummary[]> {
     });
 }
 
-export async function listPostPullRequests(): Promise<PostPullRequest[]> {
-  const octokit = await getRepoOctokit();
-  const { data } = await octokit.rest.pulls.list({
-    ...getRepo(),
-    state: "open",
-    per_page: 100,
-  });
+/** Published posts on the site repo. */
+export const listPosts = () => listPostsIn(siteRepo(), BLOG_CONTENT_DIR);
 
-  return data
-    .filter((pr) => pr.head.ref.startsWith(POST_BRANCH_PREFIX))
-    .map((pr) => ({
-      number: pr.number,
-      title: pr.title,
-      url: pr.html_url,
-      branch: pr.head.ref,
-      updatedAt: pr.updated_at,
-    }));
+export type PostSource = { path: string; text: string; sha: string };
+
+/** Reads a file's text and blob SHA (needed to update it). */
+export async function readRepoFile(
+  repo: Repo,
+  path: string,
+): Promise<PostSource | undefined> {
+  const octokit = await getOctokit(repo);
+  try {
+    const { data } = await octokit.rest.repos.getContent({ ...repo, path });
+    if (Array.isArray(data) || data.type !== "file") return undefined;
+    const text = Buffer.from(data.content, "base64").toString("utf8");
+    return { path, text, sha: data.sha };
+  } catch (error) {
+    if ((error as { status?: number }).status === 404) return undefined;
+    throw error;
+  }
+}
+
+/** A published post's source: `<slug>/index.mdx` or a top-level `<slug>.mdx`. */
+export async function getPostSource(slug: string) {
+  return (
+    (await readRepoFile(siteRepo(), `${BLOG_CONTENT_DIR}/${slug}/index.mdx`)) ??
+    (await readRepoFile(siteRepo(), `${BLOG_CONTENT_DIR}/${slug}.mdx`))
+  );
 }

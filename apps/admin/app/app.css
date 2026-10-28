@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* For the draft preview, which mirrors the site's `prose` styling */
+@plugin "@tailwindcss/typography";
 
 html,
 body {
@@ -7,4 +9,10 @@ body {
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
+}
+
+/* Matches the site's tailwind.config.mjs: no backticks around inline code */
+.prose :where(code)::before,
+.prose :where(code)::after {
+  content: none;
 }
