@@ -4,23 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Astro 7 static site + MDX blog for <https://www.anders.co>, deployed on Vercel. Package manager is **pnpm** (CI and the pre-commit hook both use it; don't add an npm lockfile). Node 24 (pinned in `.nvmrc`, which the pre-commit hook uses).
+pnpm workspace monorepo for <https://www.anders.co>, deployed on Vercel. Package manager is **pnpm** (CI and the pre-commit hook both use it; don't add an npm lockfile). Node 24 (pinned in `.nvmrc`, which the pre-commit hook uses).
+
+- `apps/site` — Astro 7 static site + MDX blog (package name `site`)
+- `apps/*` / `packages/*` — workspace globs in `pnpm-workspace.yaml`
+
+Repo-wide tooling lives at the root: husky, lint-staged, Prettier (`.prettierrc.mjs`), CI. Each app owns its own `tsconfig.json`, `eslint.config.js`, and `.env`. Vercel's project for the site uses `apps/site` as its root directory.
 
 ## Commands
 
-- `pnpm dev` — dev server on <http://localhost:4000> (`--host`, so also reachable on LAN)
-- `pnpm build` — static build to `dist/`
+Run from the repo root; site-specific scripts delegate via `pnpm --filter site`, repo-wide ones via `pnpm -r`.
+
+- `pnpm dev` — site dev server on <http://localhost:4000> (`--host`, so also reachable on LAN)
+- `pnpm build` — static build to `apps/site/dist/`
 - `pnpm preview` — builds, then serves `dist/` on port 4040
-- `pnpm checks` — runs `typecheck`, `lint`, and `build` in parallel; this is what the husky pre-commit hook runs
-- `pnpm typecheck` — `tsc --noEmit`. Run `pnpm astro sync` first on a fresh checkout so `.astro/types.d.ts` (content collection types) exists
+- `pnpm checks` — runs each package's `checks` (for the site: `typecheck`, `lint`, and `build` in parallel); this is what the husky pre-commit hook runs
+- `pnpm typecheck` — `tsc --noEmit && astro check`. Run `pnpm astro sync` first on a fresh checkout so `.astro/types.d.ts` (content collection types) exists
 - `pnpm lint` / `pnpm lint:fix` — ESLint (flat config; `no-console` is an error except `warn`/`error`/`info`)
-- lint-staged auto-runs `lint:fix` on staged `src/**/*.{ts,astro}`
+- lint-staged auto-runs the site's `lint:fix` on staged `apps/site/src/**/*.{ts,astro}`
 
 There is no test suite. CI (`.github/workflows`) runs lint and typecheck on push/PR to `main`.
 
-`BASE_URL` must be set (from `.env`, gitignored) or `astro.config.mjs` throws at startup. CI uses `http://localhost:3000`.
+`BASE_URL` must be set (from `apps/site/.env`, gitignored) or `astro.config.mjs` throws at startup. CI uses `http://localhost:3000`.
 
-## Architecture
+## Architecture (`apps/site`)
+
+Paths below are relative to `apps/site`.
 
 **Content collection** — `src/content.config.ts` defines the single `blog` collection via a glob loader over `src/content/blog/**/*.mdx`, explicitly excluding `notes.mdx` and `todo.mdx`. Post directories can therefore keep working notes alongside `index.mdx` without them becoming pages. A post's URL slug is its directory name (or filename for top-level `.mdx` posts); the route is `src/pages/blog/[...slug].astro`. Hero images live in each post's `assets/` and are referenced relatively in frontmatter (`heroImage: [./assets/hero.jpg, alt text]`).
 
@@ -45,4 +54,4 @@ Path alias: `~/*` → `src/*`.
 ## Conventions
 
 - Commits use conventional-commit style with gitmoji, e.g. `fix(blog): :bug: ...`. Configured scopes: `blog`, `ui`, `ops`.
-- `tmp/` and `dist/` are excluded from tsconfig and ESLint; `tmp/` is a scratch area, not source.
+- `tmp/` (repo root, gitignored) is a scratch area, not source. `dist/` is excluded from tsconfig and ESLint.
