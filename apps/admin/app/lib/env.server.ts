@@ -15,7 +15,13 @@ const envSchema = z.object({
     .string()
     .regex(/^[\w.-]+\/[\w.-]+$/, "must be owner/name")
     .default("andersr/personal-site"),
+  DRAFTS_REPO: z.string().regex(/^[\w.-]+\/[\w.-]+$/, "must be owner/name"),
   ADMIN_GITHUB_USER_ID: z.coerce.number().int().positive(),
+  ANTHROPIC_API_KEY: z.string().min(1),
+  POST_AGENT_MODEL: z.string().min(1).default("claude-opus-5-5"),
+  // Full preview (a Vercel build of the site including drafts); both or neither
+  VERCEL_PREVIEW_DEPLOY_HOOK: z.url().optional(),
+  PREVIEW_SITE_URL: z.url().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

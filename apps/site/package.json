@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev --port 4000 --host",
-    "build": "astro build",
+    "build": "node scripts/fetch-drafts.mjs && astro build",
     "preview": "pnpm run build && astro preview --port 4040",
     "astro": "astro",
     "typecheck": "tsc --noEmit && astro check",

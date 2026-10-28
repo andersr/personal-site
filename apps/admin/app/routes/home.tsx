@@ -1,19 +1,22 @@
-import { POST_BRANCH_PREFIX, type PostSummary } from "~/lib/posts";
-import { listPostPullRequests, listPosts } from "~/lib/posts.server";
+import { Link } from "react-router";
+import { listDrafts } from "~/lib/drafts.server";
+import { type PostSummary, SITE_URL } from "~/lib/posts";
+import { listPosts } from "~/lib/posts.server";
 import type { Route } from "./+types/home";
-
-const SITE_URL = "https://www.anders.co";
 
 export function meta() {
   return [{ title: "Posts · anders.co admin" }];
 }
 
-export async function loader() {
-  const [posts, pullRequests] = await Promise.all([
-    listPosts(),
-    listPostPullRequests(),
-  ]);
-  return { posts, pullRequests };
+export async function loader({ request }: Route.LoaderArgs) {
+  const [posts, drafts] = await Promise.all([listPosts(), listDrafts()]);
+  const params = new URL(request.url).searchParams;
+  return {
+    posts,
+    drafts,
+    published: params.get("published"),
+    draftKept: params.get("draftKept"),
+  };
 }
 
 // ISO date avoids server/client timezone differences during hydration
@@ -53,26 +56,54 @@ function Badge({
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { posts, pullRequests } = loaderData;
+  const { posts, drafts, published, draftKept } = loaderData;
 
   return (
     <main className="mt-6 flex flex-col gap-10">
+      {published && (
+        <p className="rounded bg-green-100 p-3 text-sm text-green-800 dark:bg-green-950 dark:text-green-200">
+          Published. It goes live at{" "}
+          <a href={`${SITE_URL}/blog/${published}`} className="underline">
+            {SITE_URL}/blog/{published}
+          </a>{" "}
+          once Vercel finishes deploying.
+        </p>
+      )}
+      {published && draftKept && (
+        <p className="rounded bg-amber-100 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          The draft was kept in the drafts repo because {draftKept}. Delete it
+          there (or from its draft page) once you&apos;ve checked the published
+          post.
+        </p>
+      )}
       <section>
-        <h2 className="text-lg font-semibold">Drafts in progress</h2>
-        {pullRequests.length === 0 ? (
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-lg font-semibold">Drafts ({drafts.length})</h2>
+          <Link
+            to="/drafts/new"
+            className="rounded bg-gray-900 px-3 py-1.5 text-sm font-medium text-white dark:bg-gray-100 dark:text-gray-900"
+          >
+            New post
+          </Link>
+        </div>
+        {drafts.length === 0 ? (
           <p className="mt-2 text-sm text-gray-500">
-            No open drafts. Drafts created here open a pull request from a{" "}
-            <code>{POST_BRANCH_PREFIX}*</code> branch.
+            No drafts. They're kept in your private drafts repo until you
+            publish them.
           </p>
         ) : (
           <ul className="mt-2 divide-y divide-gray-200 dark:divide-gray-800">
-            {pullRequests.map((pr) => (
-              <li key={pr.number} className="flex justify-between gap-4 py-2">
-                <a href={pr.url} className="underline">
-                  #{pr.number} {pr.title}
-                </a>
-                <span className="text-sm text-gray-500">
-                  {pr.branch} · updated {formatDate(new Date(pr.updatedAt))}
+            {drafts.map((draft) => (
+              <li key={draft.slug} className="flex justify-between gap-4 py-2">
+                <Link to={`/drafts/${draft.slug}`} className="underline">
+                  {draft.ok ? draft.frontmatter.title : draft.slug}
+                </Link>
+                <span className="flex shrink-0 items-center gap-3 text-sm text-gray-500">
+                  {draft.ok ? (
+                    `started ${formatDate(draft.frontmatter.pubDate)}`
+                  ) : (
+                    <PostStatus post={draft} />
+                  )}
                 </span>
               </li>
             ))}

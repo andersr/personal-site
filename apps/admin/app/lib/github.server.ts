@@ -19,29 +19,49 @@ export function getGitHubApp(): App {
   return app;
 }
 
-export function getRepo() {
-  const [owner, repo] = getEnv().GITHUB_REPO.split("/");
+export type Repo = { owner: string; repo: string };
+
+const toRepo = (fullName: string): Repo => {
+  const [owner, repo] = fullName.split("/");
   return { owner, repo };
-}
+};
+
+/** The public site repo, where published posts live. */
+export const siteRepo = () => toRepo(getEnv().GITHUB_REPO);
+
+/** The private repo holding drafts, so they're never visible publicly. */
+export const draftsRepo = () => toRepo(getEnv().DRAFTS_REPO);
 
 export function getOAuthCallbackUrl() {
   return new URL("/auth/github/callback", getEnv().APP_URL).toString();
 }
 
-let repoOctokit: Promise<Octokit> | undefined;
+const repoOctokits = new Map<string, Promise<Octokit>>();
 
 /**
- * Octokit authenticated as the app's installation on the site repo. The
+ * Octokit authenticated as the app's installation on `repo`. Each
  * installation is looked up once; octokit refreshes its token as it expires.
  */
-export function getRepoOctokit(): Promise<Octokit> {
-  repoOctokit ??= (async () => {
-    const app = getGitHubApp();
-    const { data } = await app.octokit.rest.apps.getRepoInstallation(getRepo());
-    return app.getInstallationOctokit(data.id);
-  })().catch((error) => {
-    repoOctokit = undefined;
-    throw error;
-  });
-  return repoOctokit;
+export function getOctokit(repo: Repo): Promise<Octokit> {
+  const key = `${repo.owner}/${repo.repo}`;
+  let octokit = repoOctokits.get(key);
+  if (!octokit) {
+    octokit = (async () => {
+      const app = getGitHubApp();
+      const { data } = await app.octokit.rest.apps
+        .getRepoInstallation(repo)
+        .catch((error: unknown) => {
+          if ((error as { status?: number }).status !== 404) throw error;
+          throw new Error(
+            `The GitHub App isn't installed on ${key}. Add the repo under the App's installation settings.`,
+          );
+        });
+      return app.getInstallationOctokit(data.id);
+    })().catch((error: unknown) => {
+      repoOctokits.delete(key);
+      throw error;
+    });
+    repoOctokits.set(key, octokit);
+  }
+  return octokit;
 }
