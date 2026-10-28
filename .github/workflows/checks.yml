@@ -57,7 +57,7 @@ jobs:
 
       # See https://github.com/withastro/astro/issues/5711#issuecomment-1401835629
       - name: 🌟 Astro sync
-        run: pnpm astro sync
+        run: pnpm --filter site exec astro sync
 
       - name: 🔎 Type check
         run: pnpm run typecheck

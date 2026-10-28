@@ -1,18 +1,17 @@
 {
   "name": "personal-site",
+  "private": true,
   "type": "module",
-  "version": "0.0.1",
   "scripts": {
-    "dev": "astro dev --port 4000 --host",
-    "build": "astro build",
-    "preview": "pnpm run build && astro preview --port 4040",
-    "astro": "astro",
-    "prepare": "husky",
-    "typecheck": "tsc --noEmit && astro check",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
-    "lint:staged": "lint-staged",
-    "checks": "run-p typecheck lint build"
+    "dev": "pnpm --filter site dev",
+    "build": "pnpm --filter site build",
+    "preview": "pnpm --filter site preview",
+    "astro": "pnpm --filter site astro",
+    "typecheck": "pnpm -r run typecheck",
+    "lint": "pnpm -r run lint",
+    "lint:fix": "pnpm -r run lint:fix",
+    "checks": "pnpm -r run checks",
+    "prepare": "husky"
   },
   "packageManager": "pnpm@10.34.5",
   "pnpm": {
@@ -21,41 +20,11 @@
       "sharp"
     ]
   },
-  "dependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/markdown-remark": "^7.3.4",
-    "@astrojs/mdx": "^8.1.1",
-    "@astrojs/sitemap": "^3.7.4",
-    "@expressive-code/plugin-collapsible-sections": "^0.44.3",
-    "@tailwindcss/vite": "^4.3.3",
-    "@vercel/analytics": "^1.6.1",
-    "astro": "^7.4.2",
-    "astro-expressive-code": "^0.44.3",
-    "astro-icon": "^1.2.0",
-    "rehype-autolink-headings": "^7.1.0",
-    "rehype-slug": "^6.0.0",
-    "sharp": "^0.35.5",
-    "tailwind-merge": "^3.7.0",
-    "tailwindcss": "^4.3.3",
-    "typescript": "^6.0.3"
-  },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@iconify-json/mdi": "^1.2.3",
-    "@iconify-json/proicons": "^1.2.20",
-    "@iconify-json/simple-icons": "^1.2.101",
-    "@tailwindcss/typography": "^0.5.20",
-    "eslint": "^10.13.0",
-    "eslint-plugin-astro": "^3.2.1",
-    "globals": "^17.12.0",
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
-    "npm-run-all2": "^9.0.3",
     "prettier": "^3.9.10",
-    "prettier-plugin-astro": "^1.1.2",
-    "remark-emoji": "^5.0.2",
-    "typescript-eslint": "^8.72.1",
-    "vite": "^8.3.5"
+    "prettier-plugin-astro": "^1.1.2"
   },
   "engines": {
     "node": "24.x"
