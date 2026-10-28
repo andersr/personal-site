@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm workspace monorepo for <https://www.anders.co>, deployed on Vercel. Package manager is **pnpm** (CI and the pre-commit hook both use it; don't add an npm lockfile). Node 24 (pinned in `.nvmrc`, which the pre-commit hook uses).
 
 - `apps/site` — Astro 7 static site + MDX blog (package name `site`)
+- `packages/content` — `@repo/content`: blog frontmatter schema and content conventions shared by the site and future admin app. Exports raw `.ts` (no build step); its `zod` version must match the one Astro bundles (`astro/zod`) so both resolve to a single copy
 - `apps/*` / `packages/*` — workspace globs in `pnpm-workspace.yaml`
 
 Repo-wide tooling lives at the root: husky, lint-staged, Prettier (`.prettierrc.mjs`), CI. Each app owns its own `tsconfig.json`, `eslint.config.js`, and `.env`. Vercel's project for the site uses `apps/site` as its root directory.
@@ -21,7 +22,7 @@ Run from the repo root; site-specific scripts delegate via `pnpm --filter site`,
 - `pnpm checks` — runs each package's `checks` (for the site: `typecheck`, `lint`, and `build` in parallel); this is what the husky pre-commit hook runs
 - `pnpm typecheck` — `tsc --noEmit && astro check`. Run `pnpm astro sync` first on a fresh checkout so `.astro/types.d.ts` (content collection types) exists
 - `pnpm lint` / `pnpm lint:fix` — ESLint (flat config; `no-console` is an error except `warn`/`error`/`info`)
-- lint-staged auto-runs the site's `lint:fix` on staged `apps/site/src/**/*.{ts,astro}`
+- lint-staged auto-runs each package's `lint:fix` on its staged source files (`apps/site/src/**/*.{ts,astro}`, `packages/content/src/**/*.ts`)
 
 There is no test suite. CI (`.github/workflows`) runs lint and typecheck on push/PR to `main`.
 
@@ -31,9 +32,9 @@ There is no test suite. CI (`.github/workflows`) runs lint and typecheck on push
 
 Paths below are relative to `apps/site`.
 
-**Content collection** — `src/content.config.ts` defines the single `blog` collection via a glob loader over `src/content/blog/**/*.mdx`, explicitly excluding `notes.mdx` and `todo.mdx`. Post directories can therefore keep working notes alongside `index.mdx` without them becoming pages. A post's URL slug is its directory name (or filename for top-level `.mdx` posts); the route is `src/pages/blog/[...slug].astro`. Hero images live in each post's `assets/` and are referenced relatively in frontmatter (`heroImage: [./assets/hero.jpg, alt text]`).
+**Content collection** — `src/content.config.ts` defines the single `blog` collection via a glob loader over `src/content/blog/**/*.mdx`, explicitly excluding `notes.mdx` and `todo.mdx` (`NON_POST_FILENAMES` in `@repo/content`). Post directories can therefore keep working notes alongside `index.mdx` without them becoming pages. A post's URL slug is its directory name (or filename for top-level `.mdx` posts); the route is `src/pages/blog/[...slug].astro`. Hero images live in each post's `assets/` and are referenced relatively in frontmatter (`heroImage: [./assets/hero.jpg, alt text]`).
 
-**Frontmatter schema** is the source of truth for post metadata — see the zod schema in `src/content.config.ts`. Notable fields:
+**Frontmatter schema** is the source of truth for post metadata — see `createPostSchema` in `packages/content/src/postSchema.ts`. It takes the hero-image schema as an argument: the site passes Astro's `image()` (in `src/content.config.ts`); non-Astro consumers use the exported `postFrontmatterSchema`, which keeps `heroImage` as the relative path string. Notable fields:
 - `isDraft: true` — post is hidden from `PostsList` in production builds but still visible in dev and Vercel preview deployments (`VERCEL_ENV === "preview"`). The post page itself is still generated in prod; only the listing filters it.
 - `seriesInfo: [name, slug]` — links the post to a series index post at `/blog/<slug>`.
 - `toc: true` — renders a headings list at the top of the post.
