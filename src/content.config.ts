@@ -30,8 +30,8 @@ const blog = defineCollection({
       repo: z.string().optional(),
       shareLinks: z
         .tuple([
-          z.url().includes("bsky.app"),
-          z.url().includes("threads.net"),
+          z.url({ hostname: /^bsky\.app$/ }),
+          z.url({ hostname: /^(www\.)?threads\.net$/ }),
         ])
         .optional(),
     }),
