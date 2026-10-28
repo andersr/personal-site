@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Astro 5 static site + MDX blog for <https://www.anders.co>, deployed on Vercel. Package manager is **pnpm** (CI and the pre-commit hook both use it; don't add an npm lockfile). Node 22.
+Astro 7 static site + MDX blog for <https://www.anders.co>, deployed on Vercel. Package manager is **pnpm** (CI and the pre-commit hook both use it; don't add an npm lockfile). Node 24 (pinned in `.nvmrc`, which the pre-commit hook uses).
 
 ## Commands
 
@@ -32,13 +32,13 @@ There is no test suite. CI (`.github/workflows`) runs lint and typecheck on push
 
 **MDX components** — components available inside post bodies are passed explicitly via `<Content components={{...}}>` in `[...slug].astro` (`CalloutBox`, `FloatBox`, `Giphy`, `Image`). Add new MDX-usable components there.
 
-**Layouts** — `BaseLayout` (head, header, footer, Vercel analytics) → `PageLayout` (adds `<h1>` + `Typography` wrapper). `Typography.astro` centralizes Tailwind `prose` styling; pages pass overrides via a `twStyles` prop merged with `tailwind-merge`. Prefer adjusting `twStyles` over adding ad-hoc prose classes elsewhere.
+**Layouts** — `BaseLayout` (head, header, footer, Vercel analytics) → `PageLayout` (adds `<h1>` + `Typography` wrapper). `Typography.astro` centralizes Tailwind `prose` styling; pages pass overrides via a `twStyles` prop merged with `tailwind-merge`. Prefer adjusting `twStyles` over adding ad-hoc prose classes elsewhere. Tailwind 4 runs through `@tailwindcss/vite`; `src/styles/global.css` (imported in `BaseLayout`) loads `tailwind.config.mjs` via `@config`.
 
 **Static pages** — `src/pages/about.astro` imports `src/content/static/about.mdx` directly as a component (not via a collection).
 
 **Icons** — `astro-icon` with Iconify sets (`mdi`, `proicons`, `simple-icons`). All icon names and social link lists are centralized in `src/lib/icons.ts` (`APP_ICONS`, `ABOUT_ICON_LINKS`, `FOOTER_ICON_LINKS`).
 
-**Markdown pipeline** — `rehype-slug` + `rehype-autolink-headings` globally; `remark-emoji` for MDX; code blocks via `astro-expressive-code` (`ec.config.mjs`, `github-dark-default` theme, collapsible sections plugin).
+**Markdown pipeline** — remark/rehype via `unified()` from `@astrojs/markdown-remark` set as `markdown.processor` (Astro 7 defaults to Sätteri; MDX inherits this processor). Plugins go in `unified({...})`, not on `mdx()`: `rehype-slug`, `rehype-autolink-headings`, `remark-emoji`. Code blocks via `astro-expressive-code` (`ec.config.mjs`, `github-dark-default` theme, collapsible sections plugin).
 
 Path alias: `~/*` → `src/*`.
 
