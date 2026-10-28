@@ -1,6 +1,6 @@
 # Deploy from the repo root with `pnpm admin:deploy`; the Docker build needs
 # the whole workspace as its context. Secrets: see apps/admin/.env.example.
-app = "anders-co-admin"
+app = "andersco-admin"
 primary_region = "ewr"
 
 [env]
