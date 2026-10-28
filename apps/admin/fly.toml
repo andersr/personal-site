@@ -1,0 +1,27 @@
+# Deploy from the repo root with `pnpm admin:deploy`; the Docker build needs
+# the whole workspace as its context. Secrets: see apps/admin/.env.example.
+app = "anders-co-admin"
+primary_region = "ewr"
+
+[env]
+  APP_URL = "https://admin.anders.co"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Single-user admin: scale to zero when idle, wake on request
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/healthz"
+    timeout = "5s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

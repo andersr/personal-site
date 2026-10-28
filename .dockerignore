@@ -1,0 +1,10 @@
+.git
+tmp
+**/node_modules
+**/dist
+**/build
+**/.astro
+**/.react-router
+**/.env
+**/.env.*
+!**/.env.example

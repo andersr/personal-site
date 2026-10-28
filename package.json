@@ -7,6 +7,8 @@
     "build": "pnpm --filter site build",
     "preview": "pnpm --filter site preview",
     "astro": "pnpm --filter site astro",
+    "admin:dev": "pnpm --filter admin dev",
+    "admin:deploy": "fly deploy . --config apps/admin/fly.toml --dockerfile apps/admin/Dockerfile",
     "typecheck": "pnpm -r run typecheck",
     "lint": "pnpm -r run lint",
     "lint:fix": "pnpm -r run lint:fix",
