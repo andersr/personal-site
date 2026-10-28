@@ -7,16 +7,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm workspace monorepo for <https://www.anders.co>, deployed on Vercel. Package manager is **pnpm** (CI and the pre-commit hook both use it; don't add an npm lockfile). Node 24 (pinned in `.nvmrc`, which the pre-commit hook uses).
 
 - `apps/site` — Astro 7 static site + MDX blog (package name `site`)
+- `apps/admin` — React Router 8 (framework mode, SSR) admin for authoring posts, served at `admin.anders.co` on Fly.io (see below)
 - `packages/content` — `@repo/content`: blog frontmatter schema and content conventions shared by the site and future admin app. Exports raw `.ts` (no build step); its `zod` version must match the one Astro bundles (`astro/zod`) so both resolve to a single copy
 - `apps/*` / `packages/*` — workspace globs in `pnpm-workspace.yaml`
 
-Repo-wide tooling lives at the root: husky, lint-staged, Prettier (`.prettierrc.mjs`), CI. Each app owns its own `tsconfig.json`, `eslint.config.js`, and `.env`. Vercel's project for the site uses `apps/site` as its root directory.
+Repo-wide tooling lives at the root: husky, lint-staged, Prettier (`.prettierrc.mjs`), CI. Each app owns its own `tsconfig.json`, `eslint.config.js`, and `.env`. Vercel's project for the site uses `apps/site` as its root directory; the admin deploys to Fly.io instead (Vercel doesn't support React Router 8 yet).
 
 ## Commands
 
 Run from the repo root; site-specific scripts delegate via `pnpm --filter site`, repo-wide ones via `pnpm -r`.
 
 - `pnpm dev` — site dev server on <http://localhost:4000> (`--host`, so also reachable on LAN)
+- `pnpm admin:dev` — admin dev server on <http://localhost:4100>; needs `apps/admin/.env` (see `.env.example`)
+- `pnpm admin:deploy` — `fly deploy` from the repo root (the Docker build context must be the whole workspace)
 - `pnpm build` — static build to `apps/site/dist/`
 - `pnpm preview` — builds, then serves `dist/` on port 4040
 - `pnpm checks` — runs each package's `checks` (for the site: `typecheck`, `lint`, and `build` in parallel); this is what the husky pre-commit hook runs
@@ -51,6 +54,20 @@ Paths below are relative to `apps/site`.
 **Markdown pipeline** — remark/rehype via `unified()` from `@astrojs/markdown-remark` set as `markdown.processor` (Astro 7 defaults to Sätteri; MDX inherits this processor). Plugins go in `unified({...})`, not on `mdx()`: `rehype-slug`, `rehype-autolink-headings`, `remark-emoji`. Code blocks via `astro-expressive-code` (`ec.config.mjs`, `github-dark-default` theme, collapsible sections plugin).
 
 Path alias: `~/*` → `src/*`.
+
+## Architecture (`apps/admin`)
+
+Paths below are relative to `apps/admin`. Routes are declared explicitly in `app/routes.ts`; path alias `~/*` → `app/*`.
+
+**GitHub App** — one app handles both sign-in and repo access (`app/lib/github.server.ts`). Sign-in uses the app's user-authorization (OAuth) web flow; the user token only identifies who signed in and isn't stored. All repo reads/writes use the app's installation token on `GITHUB_REPO`. Only `ADMIN_GITHUB_USER_ID` (numeric ID, not login) may sign in; it's re-checked on every request.
+
+**Auth** — cookie sessions (`app/lib/session.server.ts`). `routes/protected.tsx` is a layout whose `middleware` redirects to `/login` and puts the user in `userContext`; nest every authenticated route under it.
+
+**Env** — `app/lib/env.server.ts` validates `process.env` with zod on first use (not at import, so builds need no secrets). In dev, `vite.config.ts` loads `apps/admin/.env` into `process.env`; in production they're Fly secrets (`APP_URL` is in `fly.toml`).
+
+**Posts** — `app/lib/posts.server.ts` reads every post's frontmatter from the default branch in one GraphQL request and validates it with `postFrontmatterSchema` from `@repo/content`. Drafts are PRs from `post/*` branches (`POST_BRANCH_PREFIX`). Values a component needs must live in non-`.server` modules (e.g. `app/lib/posts.ts`): React Router fails the build if client code imports a `.server` module.
+
+**Deploy** — `Dockerfile` (built from the repo root, see `.dockerignore`) bundles `@repo/content` into the server build and ships only the admin's production deps via `pnpm deploy`. `react-router-serve` listens on 8080; `/healthz` is the Fly health check.
 
 ## Conventions
 

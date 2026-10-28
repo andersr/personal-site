@@ -1,0 +1,46 @@
+{
+  "name": "admin",
+  "private": true,
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "react-router dev --port 4100 --strictPort",
+    "build": "react-router build",
+    "start": "react-router-serve ./build/server/index.js",
+    "typecheck": "react-router typegen && tsc",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "checks": "run-p typecheck lint build"
+  },
+  "dependencies": {
+    "@react-router/node": "^8.5.1",
+    "@react-router/serve": "^8.5.1",
+    "@repo/content": "workspace:*",
+    "isbot": "^5.2.2",
+    "octokit": "^5.0.5",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.1",
+    "yaml": "^2.9.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@react-router/dev": "^8.5.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.12.0",
+    "npm-run-all2": "^9.0.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
