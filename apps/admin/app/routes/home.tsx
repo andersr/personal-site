@@ -10,8 +10,13 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const [posts, drafts] = await Promise.all([listPosts(), listDrafts()]);
-  const published = new URL(request.url).searchParams.get("published");
-  return { posts, drafts, published };
+  const params = new URL(request.url).searchParams;
+  return {
+    posts,
+    drafts,
+    published: params.get("published"),
+    draftKept: params.get("draftKept"),
+  };
 }
 
 // ISO date avoids server/client timezone differences during hydration
@@ -51,7 +56,7 @@ function Badge({
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { posts, drafts, published } = loaderData;
+  const { posts, drafts, published, draftKept } = loaderData;
 
   return (
     <main className="mt-6 flex flex-col gap-10">
@@ -62,6 +67,13 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             {SITE_URL}/blog/{published}
           </a>{" "}
           once Vercel finishes deploying.
+        </p>
+      )}
+      {published && draftKept && (
+        <p className="rounded bg-amber-100 p-3 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-200">
+          The draft was kept in the drafts repo because {draftKept}. Delete it
+          there (or from its draft page) once you&apos;ve checked the published
+          post.
         </p>
       )}
       <section>

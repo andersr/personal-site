@@ -1,15 +1,16 @@
 import { agentStreamResponse, readPrompt } from "~/lib/agentStream.server";
-import { getDraftText, reviseDraft } from "~/lib/drafts.server";
+import { getDraftBase, reviseDraft } from "~/lib/drafts.server";
 import { streamRevision } from "~/lib/postAgent.server";
 import type { Route } from "./+types/api.drafts.$slug.revise";
 
 export async function action({ request, params }: Route.ActionArgs) {
   const instructions = await readPrompt(request);
-  const source = await getDraftText(params.slug);
+  // Read once: the revision is saved against the version the model saw
+  const base = await getDraftBase(params.slug);
   return agentStreamResponse(
-    streamRevision(source, instructions),
+    streamRevision(base.text, instructions),
     async (draft, writer) => {
-      const sha = await reviseDraft(params.slug, draft);
+      const sha = await reviseDraft(params.slug, draft, base);
       writer.write({ type: "data-saved", data: { sha } });
     },
   );

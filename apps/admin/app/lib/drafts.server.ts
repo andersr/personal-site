@@ -70,12 +70,18 @@ async function headOf(repo: Repo) {
   return { octokit, branch, sha: ref.object.sha };
 }
 
-/** Every file under `dir` at the head of the default branch. */
-async function listFiles(repo: Repo, dir: string) {
-  const { octokit, sha } = await headOf(repo);
+type RepoFile = { path: string; sha: string };
+
+/** Every file under `dir` at `commit` (default: the default branch's head). */
+async function listFiles(
+  repo: Repo,
+  dir: string,
+  commit?: string,
+): Promise<RepoFile[]> {
+  const octokit = await getOctokit(repo);
   const { data: tree } = await octokit.rest.git.getTree({
     ...repo,
-    tree_sha: sha,
+    tree_sha: commit ?? (await headOf(repo)).sha,
     recursive: "true",
   });
   return tree.tree.flatMap((entry) =>
@@ -85,17 +91,35 @@ async function listFiles(repo: Repo, dir: string) {
   );
 }
 
+const sameFiles = (a: RepoFile[], b: RepoFile[]) =>
+  a.length === b.length &&
+  a.every((file) => b.some((f) => f.path === file.path && f.sha === file.sha));
+
+const CHANGED_ELSEWHERE =
+  "The draft changed since you loaded it. Reload to get the latest version (copy your edits first).";
+
 /**
  * One commit on the default branch adding, replacing (blob SHA), or deleting
  * (`sha: null`) any number of files. The contents API only does one file at
  * a time, which would split a publish across several commits.
+ *
+ * With `expect`, the commit is refused unless the files under `expect.dir`
+ * are exactly `expect.files`, so it can't clobber a version it never saw.
+ * The ref update isn't forced, so a commit landing meanwhile also fails it.
  */
 async function commitChanges(
   repo: Repo,
   changes: TreeChange[],
   message: string,
+  expect?: { dir: string; files: RepoFile[] },
 ) {
   const { octokit, branch, sha: parent } = await headOf(repo);
+  if (
+    expect &&
+    !sameFiles(await listFiles(repo, expect.dir, parent), expect.files)
+  ) {
+    throw new DraftError(CHANGED_ELSEWHERE);
+  }
   const { data: parentCommit } = await octokit.rest.git.getCommit({
     ...repo,
     commit_sha: parent,
@@ -116,16 +140,26 @@ async function commitChanges(
     tree: tree.sha,
     parents: [parent],
   });
-  await octokit.rest.git.updateRef({
-    ...repo,
-    ref: `heads/${branch}`,
-    sha: commit.sha,
-  });
+  try {
+    await octokit.rest.git.updateRef({
+      ...repo,
+      ref: `heads/${branch}`,
+      sha: commit.sha,
+    });
+  } catch (error) {
+    // Not a fast-forward: something else committed since `parent`
+    if (status(error) === 422) throw new DraftError(CHANGED_ELSEWHERE);
+    throw error;
+  }
 }
+
+/** Slugs that would collide with a static route under `/drafts/`. */
+const RESERVED_SLUGS = new Set(["new"]);
 
 export const listDrafts = () => listPostsIn(draftsRepo(), DRAFTS_DIR);
 
 async function slugIsTaken(slug: string) {
+  if (RESERVED_SLUGS.has(slug)) return true;
   return Boolean(
     (await getPostSource(slug)) ??
     (await readRepoFile(draftsRepo(), draftPath(slug))),
@@ -185,8 +219,10 @@ export async function getDraft(slug: string | undefined): Promise<Draft> {
   };
 }
 
-export async function getDraftText(slug: string | undefined) {
-  return (await getDraftSource(slug)).source.text;
+/** The draft's saved text and blob SHA, as a base for an AI revision. */
+export async function getDraftBase(slug: string | undefined) {
+  const { source } = await getDraftSource(slug);
+  return { text: source.text, sha: source.sha };
 }
 
 /** Commits over the file at `sha`; GitHub rejects it if the draft moved on. */
@@ -210,33 +246,38 @@ export async function saveDraft(
       });
     return result.content?.sha ?? sha;
   } catch (error) {
-    if (status(error) === 409) {
-      throw new DraftError(
-        "The draft changed since you loaded it. Reload to get the latest version (copy your edits first).",
-      );
-    }
+    if (status(error) === 409) throw new DraftError(CHANGED_ELSEWHERE);
     throw error;
   }
 }
 
-/** Applies a revision from the agent over the current file. */
-export async function reviseDraft(slug: string | undefined, draft: PostDraft) {
-  const { source } = await getDraftSource(slug);
+/**
+ * Applies a revision from the agent over `base`, the version the agent was
+ * shown. Saving against `base.sha` makes a save that landed while the model
+ * ran a conflict, instead of being silently overwritten.
+ */
+export async function reviseDraft(
+  slug: string | undefined,
+  draft: PostDraft,
+  base: { text: string; sha: string },
+) {
   return saveDraft(
     slug,
-    applyDraft(source.text, draft),
-    source.sha,
+    applyDraft(base.text, draft),
+    base.sha,
     "Revise draft with AI",
   );
 }
 
 export async function deleteDraft(slug: string | undefined) {
   const { slug: valid } = await getDraftSource(slug);
-  const files = await listFiles(draftsRepo(), draftDir(valid));
+  const dir = draftDir(valid);
+  const files = await listFiles(draftsRepo(), dir);
   await commitChanges(
     draftsRepo(),
     files.map(({ path }) => ({ path, sha: null })),
     `Delete draft: ${valid}`,
+    { dir, files },
   );
 }
 
@@ -268,12 +309,20 @@ export async function getDraftAsset(slug: string | undefined, file: string) {
   }
 }
 
+export type PublishResult = {
+  slug: string;
+  /** Set when the post went live but its draft couldn't be removed. */
+  draftKept?: string;
+};
+
 /**
  * Copies the draft (and its assets) into the site repo as one commit on the
  * default branch, with `isDraft` cleared and `pubDate` set to today, then
- * removes it from the drafts repo. Returns the published slug.
+ * removes exactly that version from the drafts repo.
  */
-export async function publishDraft(slug: string | undefined): Promise<string> {
+export async function publishDraft(
+  slug: string | undefined,
+): Promise<PublishResult> {
   const { slug: valid, source } = await getDraftSource(slug);
   if (await getPostSource(valid)) {
     throw new DraftError(`A published post already uses the slug "${valid}".`);
@@ -291,7 +340,12 @@ export async function publishDraft(slug: string | undefined): Promise<string> {
     getOctokit(drafts),
     getOctokit(site),
   ]);
-  const files = await listFiles(drafts, draftDir(valid));
+  const dir = draftDir(valid);
+  const files = await listFiles(drafts, dir);
+  // Pin the snapshot: the listing must include the text being published
+  if (!files.some((f) => f.path === source.path && f.sha === source.sha)) {
+    throw new DraftError(CHANGED_ELSEWHERE);
+  }
 
   // Blobs have to exist in the site repo before its tree can reference them
   const siteFiles = await Promise.all(
@@ -310,7 +364,7 @@ export async function publishDraft(slug: string | undefined): Promise<string> {
         content,
         encoding: "base64",
       });
-      const relative = file.path.slice(draftDir(valid).length);
+      const relative = file.path.slice(dir.length);
       return { path: `${BLOG_CONTENT_DIR}/${valid}${relative}`, sha: blob.sha };
     }),
   );
@@ -320,12 +374,24 @@ export async function publishDraft(slug: string | undefined): Promise<string> {
     siteFiles,
     `feat(blog): :memo: publish "${parsed.frontmatter.title}"`,
   );
-  await commitChanges(
-    drafts,
-    files.map(({ path }) => ({ path, sha: null })),
-    `Published: ${valid}`,
-  );
-  return valid;
+
+  // The post is live now. Failing to remove the draft is reported, not
+  // thrown: retrying the publish would be refused for the existing slug.
+  try {
+    await commitChanges(
+      drafts,
+      files.map(({ path }) => ({ path, sha: null })),
+      `Published: ${valid}`,
+      { dir, files },
+    );
+    return { slug: valid };
+  } catch (error) {
+    const reason =
+      error instanceof DraftError
+        ? "it was edited while publishing"
+        : `of an error: ${error instanceof Error ? error.message : String(error)}`;
+    return { slug: valid, draftKept: reason };
+  }
 }
 
 /** Where the draft appears in full-preview builds, if full preview is set up. */

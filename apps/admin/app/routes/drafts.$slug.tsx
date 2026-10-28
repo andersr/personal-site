@@ -1,6 +1,6 @@
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   data,
   Form,
@@ -10,6 +10,7 @@ import {
   useNavigation,
   useRevalidator,
 } from "react-router";
+import appCss from "~/app.css?url";
 import { AgentProgress } from "~/components/AgentProgress";
 import {
   deleteDraft,
@@ -41,8 +42,10 @@ export async function action({ request, params }: Route.ActionArgs) {
   try {
     switch (form.get("intent")) {
       case "publish": {
-        const slug = await publishDraft(params.slug);
-        return redirect(`/?published=${encodeURIComponent(slug)}`);
+        const { slug, draftKept } = await publishDraft(params.slug);
+        const query = new URLSearchParams({ published: slug });
+        if (draftKept) query.set("draftKept", draftKept);
+        return redirect(`/?${query}`);
       }
       case "delete":
         await deleteDraft(params.slug);
@@ -108,15 +111,20 @@ function Editor({
   result?: ActionResult;
 }) {
   const [text, setText] = useState(draft.text);
-  // Pick up new commits (saves, AI revisions) without remounting
+  // Pick up new commits (saves, AI revisions) without remounting. Editing is
+  // locked while those are in flight, so this never replaces newer typing.
   const [syncedSha, setSyncedSha] = useState(draft.sha);
   if (draft.sha !== syncedSha) {
     setSyncedSha(draft.sha);
     setText(draft.text);
   }
   const [tab, setTab] = useState<"edit" | "preview">("edit");
+  const [revising, setRevising] = useState(false);
   const preview = useFetcher<typeof previewAction>();
   const navigation = useNavigation();
+  const revalidator = useRevalidator();
+  const locked =
+    revising || navigation.state !== "idle" || revalidator.state !== "idle";
   const submitting = navigation.state === "submitting";
   const intent = navigation.formData?.get("intent");
   const dirty = text !== draft.text;
@@ -159,6 +167,7 @@ function Editor({
           aria-label="Post source (MDX)"
           value={text}
           onChange={(event) => setText(event.target.value)}
+          readOnly={locked}
           spellCheck
           hidden={tab !== "edit"}
           className="h-[70vh] rounded border border-gray-300 p-3 font-mono text-sm dark:border-gray-700 dark:bg-gray-900"
@@ -238,12 +247,16 @@ function Editor({
           </div>
         </div>
       </Form>
-      <Revise slug={draft.slug} disabled={dirty} />
+      <Revise slug={draft.slug} disabled={dirty} onBusyChange={setRevising} />
     </>
   );
 }
 
 const errorText = "text-sm whitespace-pre-wrap text-red-700 dark:text-red-300";
+
+/** The preview as its own document, styled with the admin's CSS. */
+const previewDocument = (html: string) =>
+  `<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="${appCss}"><base target="_blank"></head><body class="p-6">${html}</body></html>`;
 
 function PreviewPane({
   rendering,
@@ -252,17 +265,21 @@ function PreviewPane({
   rendering: boolean;
   result: RenderedPost | undefined;
 }) {
+  if (rendering || !result) {
+    return <p className="h-[70vh] text-sm text-gray-500">Rendering…</p>;
+  }
+  if (!result.ok) return <pre className={errorText}>{result.error}</pre>;
   return (
-    <div className="min-h-[70vh] rounded border border-gray-200 p-6 dark:border-gray-800">
-      {rendering || !result ? (
-        <p className="text-sm text-gray-500">Rendering…</p>
-      ) : result.ok ? (
-        // Rendered server-side from MDX with all code stripped out
-        <div dangerouslySetInnerHTML={{ __html: result.html }} />
-      ) : (
-        <pre className={errorText}>{result.error}</pre>
-      )}
-    </div>
+    // Drafts are partly model-written, so the HTML could contain anything
+    // (e.g. an <iframe srcdoc> with a script). `sandbox` without
+    // `allow-scripts` blocks all script, including in nested frames;
+    // same-origin only lets it load the stylesheet and draft images.
+    <iframe
+      title="Draft preview"
+      sandbox="allow-same-origin allow-popups"
+      srcDoc={previewDocument(result.html)}
+      className="h-[70vh] w-full rounded border border-gray-200 dark:border-gray-800"
+    />
   );
 }
 
@@ -301,11 +318,13 @@ function ConfirmButton({
     navigation.state === "submitting" &&
     navigation.formData?.get("intent") === intent;
 
+  const disabled = Boolean(disabledReason) || navigation.state !== "idle";
+
   if (!confirming) {
     return (
       <button
         type="button"
-        disabled={Boolean(disabledReason) || navigation.state !== "idle"}
+        disabled={disabled}
         title={disabledReason}
         onClick={() => setConfirming(true)}
         className={button}
@@ -316,12 +335,13 @@ function ConfirmButton({
   }
   return (
     <>
-      <span className="text-sm">{question}</span>
+      <span className="text-sm">{disabledReason ?? question}</span>
       <button
         type="submit"
         name="intent"
         value={intent}
-        disabled={navigation.state !== "idle"}
+        // Re-checked here: the text can change after the prompt opens
+        disabled={disabled}
         className={primary ? primaryButton : button}
       >
         {pending ? pendingLabel : confirmLabel}
@@ -337,7 +357,15 @@ function ConfirmButton({
   );
 }
 
-function Revise({ slug, disabled }: { slug: string; disabled: boolean }) {
+function Revise({
+  slug,
+  disabled,
+  onBusyChange,
+}: {
+  slug: string;
+  disabled: boolean;
+  onBusyChange: (busy: boolean) => void;
+}) {
   const revalidator = useRevalidator();
   const [instructions, setInstructions] = useState("");
   const transport = useMemo(
@@ -357,6 +385,7 @@ function Revise({ slug, disabled }: { slug: string; disabled: boolean }) {
     },
   });
   const busy = status === "submitted" || status === "streaming";
+  useEffect(() => onBusyChange(busy), [busy, onBusyChange]);
 
   return (
     <section className="flex flex-col gap-3">
