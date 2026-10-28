@@ -1,9 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", "schedule:monthly"],
+  "extends": [
+    "config:recommended",
+    "schedule:monthly",
+    ":semanticCommitTypeAll(chore)"
+  ],
   "timezone": "America/New_York",
   "semanticCommits": "enabled",
-  "semanticCommitType": "chore",
   "semanticCommitScope": "ops",
   "commitMessageAction": ":arrow_up: update",
   "minimumReleaseAge": "3 days",
