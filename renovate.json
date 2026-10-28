@@ -1,6 +1,38 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
+  "extends": ["config:recommended", "schedule:monthly"],
+  "timezone": "America/New_York",
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "ops",
+  "commitMessageAction": ":arrow_up: update",
+  "minimumReleaseAge": "3 days",
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["* 0-3 1 * *"]
+  },
+  "packageRules": [
+    {
+      "description": "One PR for all minor/patch bumps; majors still arrive individually",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "minor and patch"
+    },
+    {
+      "description": "Astro 7 / Tailwind 4 migration: these majors only work together, so hold them as one PR opened from the Dependency Dashboard",
+      "matchUpdateTypes": ["major"],
+      "matchPackageNames": [
+        "astro",
+        "@astrojs/**",
+        "vite",
+        "tailwindcss",
+        "@tailwindcss/**",
+        "tailwind-merge",
+        "astro-expressive-code",
+        "@expressive-code/**",
+        "astro-icon"
+      ],
+      "groupName": "astro 7 migration",
+      "dependencyDashboardApproval": true
+    }
   ]
 }
