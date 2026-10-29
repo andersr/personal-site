@@ -1,46 +1,40 @@
-// Generates the default social share card used when a page has no image of its own.
+// Generates the default social share card used when a page has no image of its own:
+// the favicon mark, centered so unfurlers that crop to a square (e.g. Slack) still show all of it.
 // Run from apps/site: node scripts/generate-og-image.mjs
+import { readFile } from "node:fs/promises";
 import sharp from "sharp";
 
 const WIDTH = 1600;
 const HEIGHT = 840;
-const PHOTO_SIZE = 520;
-const PADDING = (HEIGHT - PHOTO_SIZE) / 2;
-const TEXT_X = PADDING * 2 + PHOTO_SIZE;
+const MARK_SIZE = 640;
 
-const PHOTO = "src/assets/images/homepage/ar-photo-web.jpg";
+// Colors sampled from public/android-chrome-256x256.png
+const CIRCLE_COLOR = "#e7e5e5";
+const GLYPH_COLOR = "#e64a19";
+
 const OUTPUT = "src/assets/images/og-default.png";
 
-const photo = await sharp(PHOTO)
-  .resize(PHOTO_SIZE, PHOTO_SIZE)
-  .composite([
-    {
-      input: Buffer.from(
-        `<svg width="${PHOTO_SIZE}" height="${PHOTO_SIZE}"><circle cx="${PHOTO_SIZE / 2}" cy="${PHOTO_SIZE / 2}" r="${PHOTO_SIZE / 2}"/></svg>`,
-      ),
-      blend: "dest-in",
-    },
-  ])
-  .png()
-  .toBuffer();
+// The pinned-tab SVG is the favicon's "a" glyph alone, in a 272x272 viewBox
+const glyphSvg = await readFile("public/safari-pinned-tab.svg", "utf8");
+const markSvg = glyphSvg
+  .replace('fill="#000000"', `fill="${GLYPH_COLOR}"`)
+  .replace(
+    /(<g transform)/,
+    `<circle cx="136" cy="136" r="136" fill="${CIRCLE_COLOR}"/>$1`,
+  )
+  .replace(/width="[^"]*" height="[^"]*"/, `width="${MARK_SIZE}" height="${MARK_SIZE}"`);
 
-const text = Buffer.from(`
-<svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    text { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; fill: #111827; }
-  </style>
-  <text x="${TEXT_X}" y="360" font-size="88" font-weight="700">Anders Ramsay</text>
-  <text x="${TEXT_X}" y="450" font-size="48" style="fill:#4b5563">Designing and Building</text>
-  <text x="${TEXT_X}" y="512" font-size="48" style="fill:#4b5563">Digital Products</text>
-  <text x="${TEXT_X}" y="620" font-size="40" style="fill:#2563eb">anders.co</text>
-</svg>`);
+const mark = await sharp(Buffer.from(markSvg)).png().toBuffer();
 
 await sharp({
   create: { width: WIDTH, height: HEIGHT, channels: 3, background: "#ffffff" },
 })
   .composite([
-    { input: photo, left: PADDING, top: PADDING },
-    { input: text, left: 0, top: 0 },
+    {
+      input: mark,
+      left: (WIDTH - MARK_SIZE) / 2,
+      top: (HEIGHT - MARK_SIZE) / 2,
+    },
   ])
   .png()
   .toFile(OUTPUT);
