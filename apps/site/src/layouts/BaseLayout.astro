@@ -13,7 +13,7 @@ import "~/styles/global.css";
 
 type Props = PageProps;
 
-const { title, description, staticPage } = Astro.props;
+const { title, description, metaImage, staticPage } = Astro.props;
 ---
 
 <!doctype html>
@@ -22,6 +22,7 @@ const { title, description, staticPage } = Astro.props;
     <BaseHead
       title={`${title ? `${title} | ` : ""}${SITE_TITLE}`}
       description={description}
+      metaImage={metaImage}
     />
   </head>
   <body
