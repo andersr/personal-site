@@ -16,7 +16,7 @@ const { title, description, metaImage } = Astro.props;
 // Unfurlers (Slack, iMessage, Bluesky, etc.) need an absolute URL to a format they all support
 const [imageSrc, imageAlt] = metaImage ?? [
   defaultMetaImage,
-  "Anders Ramsay - Designing and Building Digital Products",
+  "anders.co logo",
 ];
 // LinkedIn wants at least 1600px wide; smaller sources aren't upscaled
 const optimizedImage = await getImage({
