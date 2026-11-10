@@ -15,7 +15,7 @@
     "checks": "pnpm -r run checks",
     "prepare": "husky"
   },
-  "packageManager": "pnpm@10.34.5",
+  "packageManager": "pnpm@10.34.9",
   "pnpm": {
     "onlyBuiltDependencies": [
       "esbuild",
